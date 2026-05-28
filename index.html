@@ -378,6 +378,200 @@ a:hover{text-decoration:underline;}
   display:block; height:100%; background:var(--olive); transition:width .4s;
 }
 
+/* ============ Leaderboard / Merit Order ============ */
+/* --- Podium (top 3) --- */
+.podium{
+  display:flex; align-items:flex-end; justify-content:center; gap:18px;
+  margin-top:26px; padding:24px 18px 0;
+}
+.pod-col{
+  flex:1 1 0; max-width:240px;
+  display:flex; flex-direction:column; align-items:center;
+}
+.pod-who{
+  display:flex; flex-direction:column; align-items:center; gap:5px;
+  text-align:center; margin-bottom:14px; width:100%;
+}
+.pod-medal{
+  width:52px; height:52px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-mono); font-size:20px; font-weight:700;
+  color:#fff; margin-bottom:4px;
+  box-shadow:0 3px 10px rgba(26,26,26,.2);
+}
+.pod-medal-gold{background:linear-gradient(150deg,#E2C879,#B8985A); color:#3A2E10; border:2px solid #EAD89B;}
+.pod-medal-silver{background:linear-gradient(150deg,#DADAD2,#A9A9A0); color:#33332E; border:2px solid #ECECE6;}
+.pod-medal-bronze{background:linear-gradient(150deg,#D4A877,#A87A4E); color:#3A2410; border:2px solid #E2BE97;}
+.pod-col.pod-gold .pod-medal{width:62px; height:62px; font-size:26px;}
+.pod-name{font-weight:700; font-size:15px; letter-spacing:-0.01em; color:var(--ink); line-height:1.2; text-wrap:balance;}
+.pod-col.pod-gold .pod-name{font-size:17px;}
+.pod-entry{
+  font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.12em;
+  text-transform:uppercase; color:var(--ink-4);
+}
+.pod-stat{font-size:13px; color:var(--ink-3); margin-top:2px;}
+.pod-stat b{font-size:17px; font-weight:700; color:var(--ink);}
+.pod-of{font-family:var(--font-mono); font-size:10px; color:var(--ink-4);}
+.pod-pct{
+  font-family:var(--font-mono); font-size:10px; letter-spacing:0.1em;
+  text-transform:uppercase; color:var(--olive); font-weight:600;
+}
+.pod-base{
+  width:100%; border-radius:4px 4px 0 0;
+  display:flex; align-items:flex-start; justify-content:center;
+  padding-top:14px; position:relative;
+  border:1px solid var(--olive-line); border-bottom:none;
+}
+.pod-base-gold{height:150px; background:linear-gradient(180deg,#EFE6C8,#E2D2A0); border-color:var(--gold-line);}
+.pod-base-silver{height:112px; background:linear-gradient(180deg,#ECECE6,#DBDBD3); border-color:#BFBFB6;}
+.pod-base-bronze{height:84px; background:linear-gradient(180deg,#EAD9C6,#DCC2A6); border-color:#C9A985;}
+.pod-rank-num{
+  font-family:var(--font-mono); font-weight:700; font-size:34px;
+  color:rgba(26,26,26,.22); line-height:1;
+}
+.pod-col.pod-gold .pod-rank-num{font-size:42px; color:rgba(58,46,16,.32);}
+.pod-me .pod-base{box-shadow:inset 0 -4px 0 var(--olive);}
+
+.pod-yours{
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  margin-top:22px; padding:13px 18px;
+  background:var(--olive-soft); border:1px solid var(--olive);
+  border-left:4px solid var(--olive); border-radius:var(--radius);
+}
+.pod-yours-rank{
+  font-family:var(--font-mono); font-size:18px; font-weight:700; color:var(--olive-darker);
+}
+.pod-yours-txt{font-size:14px; color:var(--ink-2);}
+.pod-yours-stat{
+  margin-left:auto; font-family:var(--font-mono); font-size:11px;
+  letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-3);
+}
+.pod-cta{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  width:100%; margin-top:22px; padding:15px 20px;
+  background:var(--ink); color:var(--paper); border-radius:var(--radius);
+  box-shadow:inset 0 -3px 0 var(--gold);
+  font-family:var(--font-mono); font-size:12px; letter-spacing:0.12em;
+  text-transform:uppercase; font-weight:600;
+  transition:background .15s;
+}
+.pod-cta:hover{background:#000;}
+.pod-cta-meta{color:var(--gold);}
+@media (max-width:560px){
+  .podium{gap:8px; padding:16px 0 0;}
+  .pod-medal{width:42px; height:42px; font-size:16px;}
+  .pod-col.pod-gold .pod-medal{width:50px; height:50px; font-size:20px;}
+  .pod-name{font-size:13px;}
+  .pod-col.pod-gold .pod-name{font-size:14px;}
+  .pod-base-gold{height:110px;} .pod-base-silver{height:84px;} .pod-base-bronze{height:64px;}
+}
+
+/* --- Full standings table --- */
+.lb-toolbar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 18px; border-bottom:1px solid var(--olive-line);
+  background:var(--paper-soft);
+}
+.lb-back{
+  font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.12em;
+  text-transform:uppercase; color:var(--olive); font-weight:600; cursor:pointer;
+}
+.lb-back:hover{color:var(--olive-dark);}
+.lb-toolbar-count{
+  font-family:var(--font-mono); font-size:10px; letter-spacing:0.14em;
+  text-transform:uppercase; color:var(--ink-4);
+}
+.lb-card{padding:0; overflow:hidden;}
+.lb-row{
+  display:grid;
+  grid-template-columns:64px minmax(160px,1.6fr) 78px 96px minmax(120px,1fr);
+  align-items:center; gap:14px;
+  padding:13px 20px;
+  border-bottom:1px solid var(--olive-line);
+}
+.lb-row:last-child{border-bottom:none;}
+.lb-header{
+  background:var(--ink); color:var(--paper);
+  border-bottom:2px solid var(--gold);
+}
+.lb-header span{
+  font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.16em;
+  text-transform:uppercase; color:var(--gold);
+}
+.lb-rank{display:flex; align-items:center;}
+.lb-rank-num{
+  font-family:var(--font-mono); font-size:14px; font-weight:600;
+  color:var(--ink-3); width:30px; text-align:center;
+}
+.lb-medal{
+  width:30px; height:30px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-mono); font-size:13px; font-weight:700;
+  color:#fff; box-shadow:0 1px 3px rgba(26,26,26,.2);
+}
+.lb-medal-gold{background:linear-gradient(150deg,#D9BD6B,#B8985A); color:#3A2E10;}
+.lb-medal-silver{background:linear-gradient(150deg,#CFCFC6,#A9A9A0); color:#33332E;}
+.lb-medal-bronze{background:linear-gradient(150deg,#C89A6B,#A87A4E); color:#3A2410;}
+
+.lb-name{display:flex; align-items:center; gap:8px; flex-wrap:wrap; min-width:0;}
+.lb-name-txt{font-weight:600; font-size:14.5px; color:var(--ink); letter-spacing:-0.005em;}
+.lb-service{
+  font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.12em;
+  text-transform:uppercase; color:var(--ink-4);
+}
+.lb-you{
+  font-family:var(--font-mono); font-size:9px; letter-spacing:0.14em;
+  text-transform:uppercase; font-weight:600;
+  background:var(--olive); color:#fff; padding:2px 6px; border-radius:2px;
+}
+.lb-entry-badge{
+  font-family:var(--font-mono); font-size:10px; letter-spacing:0.12em;
+  text-transform:uppercase; font-weight:600;
+  border:1px solid var(--olive-line); background:var(--paper);
+  color:var(--olive-darker); padding:3px 8px; border-radius:2px;
+}
+.lb-prac{font-size:15px; color:var(--ink-3);}
+.lb-prac b{font-size:18px; font-weight:700; color:var(--ink);}
+.lb-of{font-family:var(--font-mono); font-size:11px; color:var(--ink-4);}
+.lb-pct{display:flex; align-items:center; gap:10px;}
+.lb-bar{
+  flex:1; height:6px; background:var(--paper-deep); border-radius:2px;
+  border:1px solid var(--olive-line); overflow:hidden; min-width:60px;
+}
+.lb-bar > i{display:block; height:100%; background:var(--olive); transition:width .4s;}
+.lb-pct-num{
+  font-family:var(--font-mono); font-size:11px; font-weight:600;
+  color:var(--ink-2); width:38px; text-align:right;
+}
+
+/* medal row tints */
+.lb-gold{background:linear-gradient(90deg, rgba(197,165,90,.14), rgba(197,165,90,.02));}
+.lb-silver{background:linear-gradient(90deg, rgba(150,150,140,.12), transparent);}
+.lb-bronze{background:linear-gradient(90deg, rgba(168,122,78,.12), transparent);}
+.lb-me{
+  box-shadow:inset 3px 0 0 var(--olive);
+  background:linear-gradient(90deg, rgba(74,93,35,.10), transparent);
+}
+.lb-me.lb-gold{background:linear-gradient(90deg, rgba(197,165,90,.18), rgba(74,93,35,.05));}
+
+@media (max-width:640px){
+  .lb-row{
+    grid-template-columns:44px 1fr 70px;
+    grid-template-areas:
+      "rank name entry"
+      "rank prac pct";
+    gap:4px 10px; padding:12px 14px;
+  }
+  .lb-header{display:none;}
+  .lb-rank{grid-area:rank;}
+  .lb-name{grid-area:name;}
+  .lb-entry{grid-area:entry; justify-self:end;}
+  .lb-prac{grid-area:prac; font-size:13px;}
+  .lb-prac b{font-size:15px;}
+  .lb-pct{grid-area:pct;}
+  .lb-pct-num{width:auto;}
+}
+
 /* ============ Practice screen ============ */
 .practice-wrap{
   max-width:780px; margin:0 auto;
@@ -598,6 +792,48 @@ async function clearPractice(uid){
   if (!snap.empty) await batch.commit();
 }
 
+// --- leaderboard (public stats only) ---
+// Each user writes ONE doc: leaderboard/{uid}. No PIQ details — just merit data.
+async function upsertLeaderboard(uid, data){
+  if (!uid) return;
+  try{
+    await db.collection('leaderboard').doc(uid).set({
+      uid,
+      name: data.name || "Candidate",
+      entryType: data.entryType || "—",
+      service: data.service || "—",
+      questionsPracticed: data.questionsPracticed || 0,
+      totalQuestions: data.totalQuestions || 0,
+      lastActive: FV.serverTimestamp(),
+    }, { merge: true });
+  } catch(e){ console.warn("leaderboard write failed", e); }
+}
+// Push the current user's standing using in-memory state.
+async function syncMyStanding(){
+  if (!state.uid || !state.profile) return;
+  await upsertLeaderboard(state.uid, {
+    name: state.profile.fullName || "Candidate",
+    entryType: state.profile.entryType || "—",
+    service: state.profile.service || "—",
+    questionsPracticed: Object.keys(state.practice || {}).length,
+    totalQuestions: state.questions.length,
+  });
+}
+async function loadLeaderboard(){
+  const snap = await db.collection('leaderboard').get();
+  const rows = [];
+  snap.forEach(d => rows.push(d.data()));
+  // rank: most practiced first, then completion %, then name
+  rows.sort((a,b) => {
+    if ((b.questionsPracticed||0) !== (a.questionsPracticed||0)) return (b.questionsPracticed||0) - (a.questionsPracticed||0);
+    const ap = a.totalQuestions ? a.questionsPracticed/a.totalQuestions : 0;
+    const bp = b.totalQuestions ? b.questionsPracticed/b.totalQuestions : 0;
+    if (bp !== ap) return bp - ap;
+    return (a.name||"").localeCompare(b.name||"");
+  });
+  return rows;
+}
+
 function humanizeAuthError(e){
   const c = (e && e.code) || "";
   if (c === "auth/email-already-in-use") return "An account with this email already exists. Try signing in.";
@@ -631,6 +867,10 @@ const state = {
   // dashboard
   questions: [],
   practice: {},   // { [qId]: { answer, feedback, rating, ts } }
+  // leaderboard
+  leaderboard: null,   // array once loaded
+  leaderboardLoading: false,
+  lbView: "podium",    // 'podium' | 'full'
   // practice screen
   activeQ: null,
   answerDraft: "",
@@ -708,6 +948,7 @@ function render(){
     case "login":     view = renderLogin(); break;
     case "piq":       view = renderPIQ(); break;
     case "dashboard": view = renderDashboard(); break;
+    case "leaderboard": view = renderLeaderboard(); break;
     case "practice":  view = renderPractice(); break;
     case "loading":   view = renderLoading(); break;
     default:          view = renderLogin();
@@ -1158,6 +1399,7 @@ async function handlePIQNext(){
   render();
   try{
     await saveProfile(state.uid, p);
+    await syncMyStanding();
   } catch(e){
     toast("Save failed — " + (e.message || "check security rules."));
     state.screen = "piq"; render(); return;
@@ -1239,6 +1481,7 @@ Return ONLY a JSON array of objects, no prose, no markdown fences:
   try{
     await saveQuestionSet(state.uid, parsed);
     await clearPractice(state.uid);
+    await syncMyStanding();
   } catch(e){
     console.error(e);
     toast("Saved locally but cloud sync failed: " + (e.message || ""));
@@ -1338,6 +1581,7 @@ function renderDashboard(){
   head.appendChild(headL);
 
   const actions = el("div", {class:"row"});
+  actions.appendChild(el("button", {class:"btn btn-dark btn-mono", onClick:()=>openLeaderboard()}, "★ Merit List"));
   actions.appendChild(el("button", {class:"btn btn-ghost btn-mono", onClick:()=>{
     state.piqDraft = JSON.parse(JSON.stringify(state.profile));
     state.piqStep = 1; state.piqError = ""; state.screen = "piq"; render();
@@ -1407,6 +1651,201 @@ function renderQuestionCard(q){
   actions.appendChild(el("button", {class:"btn btn-primary btn-sm btn-mono", onClick:()=>openPractice(q)}, done ? "Practice Again" : "Practice This"));
   card.appendChild(actions);
   return card;
+}
+
+/* =========================================================
+   Leaderboard — Merit Order
+   ========================================================= */
+async function openLeaderboard(){
+  state.screen = "leaderboard";
+  state.lbView = "podium";
+  state.leaderboardLoading = true;
+  state.leaderboard = null;
+  render();
+  // make sure our own standing is current before reading the board
+  try{ await syncMyStanding(); }catch(e){}
+  try{
+    state.leaderboard = await loadLeaderboard();
+  }catch(e){
+    console.error(e);
+    toast("Could not load leaderboard — " + (e.message || "check rules."));
+    state.leaderboard = [];
+  }
+  state.leaderboardLoading = false;
+  render();
+}
+
+function renderLeaderboard(){
+  const wrap = el("div", {class:"page fade-in"});
+
+  // head
+  const head = el("div", {class:"dash-head"});
+  const headL = el("div", {});
+  headL.appendChild(el("div", {class:"eyebrow eyebrow-gold"}, "Merit Order · Candidate Standings"));
+  headL.appendChild(el("h1", {class:"h-page", style:{marginTop:"4px"}}, "Leaderboard"));
+  headL.appendChild(el("div", {class:"hint", style:{marginTop:"6px"}}, "Ranked by questions practiced. Keep climbing — boards reward consistency."));
+  head.appendChild(headL);
+
+  const actions = el("div", {class:"row"});
+  actions.appendChild(el("button", {class:"btn btn-ghost btn-mono", onClick:()=>openLeaderboard()}, "↻ Refresh"));
+  actions.appendChild(el("button", {class:"btn btn-primary btn-mono", onClick:()=>{ state.screen="dashboard"; render(); }}, "← Back to Questions"));
+  head.appendChild(actions);
+  wrap.appendChild(head);
+
+  if (state.leaderboardLoading){
+    wrap.appendChild(renderInlineLoading("Compiling merit order…", "Reading candidate standings."));
+    return wrap;
+  }
+
+  const rows = state.leaderboard || [];
+  if (rows.length === 0){
+    wrap.appendChild(el("div", {class:"card card-pad", style:{marginTop:"22px"}},
+      el("div", {class:"muted center"}, "No standings yet. Be the first — practice a few questions and your name appears here.")
+    ));
+    return wrap;
+  }
+
+  if (state.lbView === "podium"){
+    wrap.appendChild(renderPodium(rows));
+  } else {
+    wrap.appendChild(renderFullStandings(rows));
+  }
+
+  // footnote
+  wrap.appendChild(el("div", {class:"hint", style:{marginTop:"16px", textAlign:"center"}},
+    "Standings show public data only — name, entry type and practice count. Your answers and PIQ remain private."
+  ));
+
+  return wrap;
+}
+
+function pctOf(r){
+  const t = r.totalQuestions || 0;
+  return t ? Math.round(100*(r.questionsPracticed||0)/t) : 0;
+}
+
+function renderPodium(rows){
+  const stage = el("div", {});
+  const top3 = rows.slice(0,3);
+  // visual order: 2nd, 1st, 3rd
+  const order = [];
+  if (top3[1]) order.push({ r: top3[1], rank: 2 });
+  if (top3[0]) order.push({ r: top3[0], rank: 1 });
+  if (top3[2]) order.push({ r: top3[2], rank: 3 });
+
+  const podium = el("div", {class:"podium"});
+  for (const { r, rank } of order){
+    const medal = rank === 1 ? "gold" : rank === 2 ? "silver" : "bronze";
+    const isMe = r.uid === state.uid;
+    const col = el("div", {class:"pod-col pod-"+medal + (isMe ? " pod-me" : "")});
+
+    // candidate block (above pedestal)
+    const who = el("div", {class:"pod-who"});
+    who.appendChild(el("div", {class:"pod-medal pod-medal-"+medal}, rank === 1 ? "★" : String(rank)));
+    const nm = el("div", {class:"pod-name"}, r.name || "Candidate");
+    who.appendChild(nm);
+    if (isMe) who.appendChild(el("span", {class:"lb-you"}, "You"));
+    who.appendChild(el("div", {class:"pod-entry"}, (r.entryType||"—") + (r.service && r.service!=="—" ? " · "+r.service : "")));
+    who.appendChild(el("div", {class:"pod-stat"},
+      el("b", {}, String(r.questionsPracticed||0)),
+      el("span", {class:"pod-of"}, (r.totalQuestions? " / "+r.totalQuestions : "") + " practiced")
+    ));
+    who.appendChild(el("div", {class:"pod-pct"}, pctOf(r) + "% complete"));
+    col.appendChild(who);
+
+    // pedestal
+    const ped = el("div", {class:"pod-base pod-base-"+medal});
+    ped.appendChild(el("span", {class:"pod-rank-num"}, String(rank)));
+    col.appendChild(ped);
+
+    podium.appendChild(col);
+  }
+  stage.appendChild(podium);
+
+  // "your standing" chip if user is outside top 3
+  const myIdx = rows.findIndex(r => r.uid === state.uid);
+  if (myIdx >= 3){
+    const me = rows[myIdx];
+    stage.appendChild(el("div", {class:"pod-yours"},
+      el("span", {class:"pod-yours-rank"}, "#" + (myIdx+1)),
+      el("span", {class:"pod-yours-txt"}, "Your standing — ", el("b",{}, me.name||"You")),
+      el("span", {class:"pod-yours-stat"}, `${me.questionsPracticed||0} practiced · ${pctOf(me)}%`)
+    ));
+  }
+
+  // CTA into full list
+  const cta = el("button", {class:"pod-cta", onClick:()=>{ state.lbView="full"; render(); }},
+    el("span", {}, `View full merit list`),
+    el("span", {class:"pod-cta-meta"}, `${rows.length} candidate${rows.length===1?"":"s"} →`)
+  );
+  stage.appendChild(cta);
+
+  return stage;
+}
+
+function renderFullStandings(rows){
+  const board = el("div", {class:"card lb-card"});
+
+  // back-to-podium strip
+  const strip = el("div", {class:"lb-toolbar"});
+  strip.appendChild(el("button", {class:"lb-back", onClick:()=>{ state.lbView="podium"; render(); }}, "← Top 3 podium"));
+  strip.appendChild(el("span", {class:"lb-toolbar-count"}, `${rows.length} candidate${rows.length===1?"":"s"}`));
+  board.appendChild(strip);
+
+  const header = el("div", {class:"lb-row lb-header"});
+  header.appendChild(el("span", {class:"lb-rank"}, "Rank"));
+  header.appendChild(el("span", {class:"lb-name"}, "Candidate"));
+  header.appendChild(el("span", {class:"lb-entry"}, "Entry"));
+  header.appendChild(el("span", {class:"lb-prac"}, "Practiced"));
+  header.appendChild(el("span", {class:"lb-pct"}, "Completion"));
+  board.appendChild(header);
+
+  rows.forEach((r, i) => {
+    const rank = i + 1;
+    const isMe = r.uid === state.uid;
+    const medal = rank === 1 ? "gold" : rank === 2 ? "silver" : rank === 3 ? "bronze" : "";
+    const row = el("div", {class:"lb-row" + (medal ? " lb-"+medal : "") + (isMe ? " lb-me" : "")});
+
+    // rank
+    const rankCell = el("span", {class:"lb-rank"});
+    if (medal){
+      rankCell.appendChild(el("span", {class:"lb-medal lb-medal-"+medal}, String(rank)));
+    } else {
+      rankCell.appendChild(el("span", {class:"lb-rank-num"}, String(rank)));
+    }
+    row.appendChild(rankCell);
+
+    // name
+    const nameCell = el("span", {class:"lb-name"});
+    nameCell.appendChild(el("span", {class:"lb-name-txt"}, r.name || "Candidate"));
+    if (isMe) nameCell.appendChild(el("span", {class:"lb-you"}, "You"));
+    if (r.service && r.service !== "—") nameCell.appendChild(el("span", {class:"lb-service"}, r.service));
+    row.appendChild(nameCell);
+
+    // entry badge
+    const entryCell = el("span", {class:"lb-entry"});
+    entryCell.appendChild(el("span", {class:"lb-entry-badge"}, r.entryType || "—"));
+    row.appendChild(entryCell);
+
+    // practiced
+    const total = r.totalQuestions || 0;
+    const prac = r.questionsPracticed || 0;
+    const pracCell = el("span", {class:"lb-prac"});
+    pracCell.appendChild(el("b", {}, String(prac)));
+    pracCell.appendChild(el("span", {class:"lb-of"}, total ? ` / ${total}` : ""));
+    row.appendChild(pracCell);
+
+    // completion
+    const pct = total ? Math.round(100*prac/total) : 0;
+    const pctCell = el("span", {class:"lb-pct"});
+    pctCell.appendChild(el("div", {class:"lb-bar"}, el("i", {style:{width:pct+"%"}})));
+    pctCell.appendChild(el("span", {class:"lb-pct-num"}, pct + "%"));
+    row.appendChild(pctCell);
+
+    board.appendChild(row);
+  });
+
+  return board;
 }
 
 function renderStatsCard(groups){
@@ -1624,6 +2063,7 @@ Return ONLY a JSON object (no prose, no markdown):
       feedback: state.feedback,
       rating: state.feedback.rating,
     });
+    await syncMyStanding();
   } catch(e){
     console.error(e);
     toast("Saved in session but cloud write failed.");
