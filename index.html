@@ -1,27 +1,1713 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=1440" />
-  <title>FAOSSB — Practice Platform</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>SSB Interview Question Prep — Future Army Officers Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-functions-compat.js"></script>
+<style>
+/* ============ Tokens (FAOSSB brand) ============ */
+:root{
+  --olive:#4A5D23; --olive-dark:#3B4A1C; --olive-darker:#2A3614;
+  --olive-tint:#6B7E45; --olive-soft:#E8E6D9; --olive-line:#C7C5B0;
+  --gold:#C5A55A; --gold-soft:#E8D9B4; --gold-line:#B8995A;
+  --paper:#F5F3EE; --paper-soft:#EFEDE6; --paper-deep:#E8E5DC;
+  --ink:#1A1A1A; --ink-2:#3A3A36; --ink-3:#5A5A56; --ink-4:#8A8A82; --ink-5:#B8B6AC;
+  --success:#2E7D32; --warning:#F57F17; --danger:#C62828;
+  --radius:4px; --radius-lg:8px;
+  --shadow-card:0 1px 0 rgba(58,58,54,.04), 0 2px 6px rgba(58,58,54,.04);
+  --shadow-pop:0 8px 28px rgba(26,26,26,.14);
+  --font-sans:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --tracking-hd:0.12em; --tracking-md:0.08em;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:var(--font-sans); font-size:14px; line-height:1.5;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  min-height:100vh;
+}
+button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit;}
+input,textarea,select{font-family:inherit; color:inherit;}
+a{color:var(--olive); text-decoration:none;}
+a:hover{text-decoration:underline;}
+
+/* ============ Type ============ */
+.mono{font-family:var(--font-mono);}
+.eyebrow{
+  font-family:var(--font-mono); font-size:10.5px; letter-spacing:var(--tracking-hd);
+  text-transform:uppercase; color:var(--ink-3); font-weight:500;
+}
+.eyebrow-olive{color:var(--olive);}
+.eyebrow-gold{color:var(--gold-line);}
+.h-section{
+  font-weight:700; font-size:11px; letter-spacing:var(--tracking-hd);
+  text-transform:uppercase; color:var(--ink); margin:0;
+}
+.h-page{
+  font-weight:700; font-size:26px; letter-spacing:-0.02em;
+  color:var(--ink); margin:0; line-height:1.15;
+}
+.h-card{font-weight:600; font-size:15px; letter-spacing:-0.005em; color:var(--ink); margin:0;}
+
+/* ============ Top banner ============ */
+.banner{
+  background:#fff; color:var(--ink);
+  border-bottom:1px solid var(--olive-line);
+  box-shadow:inset 0 -3px 0 var(--gold);
+  padding:12px 24px 14px;
+  display:flex; align-items:center; gap:18px;
+}
+.banner-logo{
+  height:42px; width:auto; flex:none;
+  display:block;
+}
+.banner-divider{
+  width:1px; height:34px; background:var(--olive-line); flex:none;
+}
+.banner-tag{
+  font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.18em;
+  text-transform:uppercase; color:var(--olive); font-weight:600;
+  line-height:1.3;
+}
+.banner-tag small{
+  display:block; font-size:9.5px; letter-spacing:0.16em;
+  color:var(--ink-4); font-weight:500; margin-top:3px;
+}
+.banner-right{margin-left:auto; display:flex; align-items:center; gap:14px;}
+.banner-user{
+  font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.14em;
+  text-transform:uppercase; color:var(--ink-3);
+}
+.banner-stamp{
+  border:1px solid var(--gold-line); background:var(--paper);
+  padding:4px 9px; font-family:var(--font-mono);
+  font-size:9.5px; letter-spacing:0.2em; text-transform:uppercase;
+  color:var(--olive-darker);
+}
+@media (max-width:640px){
+  .banner{padding:10px 14px 12px; gap:12px;}
+  .banner-logo{height:34px;}
+  .banner-divider{display:none;}
+  .banner-tag{display:none;}
+  .banner-right{gap:8px;}
+  .banner-stamp{display:none;}
+}
+
+/* ============ Page frame ============ */
+.page{
+  max-width:1180px; margin:0 auto; padding:28px 24px 60px;
+}
+@media (max-width:640px){ .page{padding:18px 14px 60px;} }
+
+/* ============ Card primitive ============ */
+.card{
+  background:#fff; border:1px solid var(--olive-line);
+  border-radius:var(--radius); box-shadow:var(--shadow-card);
+}
+.card-paper{background:var(--paper-soft); border:1px solid var(--olive-line); border-radius:var(--radius);}
+.card-olive{background:var(--olive); color:#fff; border:1px solid var(--olive-darker); border-radius:var(--radius);}
+.card-pad{padding:22px;}
+.card-pad-sm{padding:14px 16px;}
+@media (max-width:640px){ .card-pad{padding:16px;} }
+
+/* ============ Button ============ */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  height:38px; padding:0 16px; border-radius:var(--radius);
+  border:1px solid transparent; font-weight:500; font-size:13px;
+  letter-spacing:0.005em; white-space:nowrap;
+  transition:background .15s, border-color .15s, color .15s, transform .05s;
+}
+.btn:active{transform:translateY(1px);}
+.btn:disabled{opacity:.5; cursor:not-allowed;}
+.btn-primary{background:var(--olive); color:#fff; border-color:var(--olive-dark);}
+.btn-primary:hover:not(:disabled){background:var(--olive-dark);}
+.btn-ghost{background:transparent; color:var(--ink); border-color:var(--olive-line);}
+.btn-ghost:hover:not(:disabled){background:#fff;}
+.btn-gold{background:var(--gold); color:var(--olive-darker); border-color:var(--gold-line);}
+.btn-gold:hover:not(:disabled){background:#B8985A;}
+.btn-dark{background:var(--ink); color:var(--paper); border-color:var(--ink);}
+.btn-dark:hover:not(:disabled){background:#000;}
+.btn-danger-ghost{background:transparent; color:var(--danger); border-color:var(--danger);}
+.btn-sm{height:30px; padding:0 11px; font-size:12px;}
+.btn-lg{height:46px; padding:0 22px; font-size:14px;}
+.btn-block{width:100%;}
+.btn-mono{
+  font-family:var(--font-mono); text-transform:uppercase;
+  letter-spacing:var(--tracking-md); font-size:11px;
+}
+
+/* ============ Inputs ============ */
+.field{display:flex; flex-direction:column; gap:6px;}
+.field-row{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+@media (max-width:640px){ .field-row{grid-template-columns:1fr;} }
+.label{
+  font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.14em;
+  text-transform:uppercase; color:var(--ink-3); font-weight:500;
+}
+.input, .select, .textarea{
+  width:100%; background:#fff; border:1px solid var(--olive-line);
+  border-radius:var(--radius); padding:10px 12px; font-size:14px;
+  color:var(--ink); transition:border-color .12s, box-shadow .12s;
+}
+.input:focus, .select:focus, .textarea:focus{
+  outline:none; border-color:var(--olive);
+  box-shadow:0 0 0 3px rgba(74,93,35,.12);
+}
+.textarea{min-height:96px; resize:vertical; line-height:1.55;}
+.select{appearance:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='%235A5A56' stroke-width='1.4' fill='none' stroke-linecap='round'/></svg>");
+  background-repeat:no-repeat; background-position:right 12px center;
+  padding-right:32px;
+}
+.hint{font-size:12px; color:var(--ink-3);}
+.err{font-size:12px; color:var(--danger); font-weight:500;}
+
+.check-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:8px;}
+.check{
+  display:flex; align-items:center; gap:8px; padding:9px 11px;
+  border:1px solid var(--olive-line); border-radius:var(--radius);
+  background:#fff; cursor:pointer; user-select:none;
+  font-size:13px; transition:background .12s, border-color .12s;
+}
+.check:hover{background:var(--paper-soft);}
+.check input{accent-color:var(--olive); width:14px; height:14px; flex:none;}
+.check.on{background:var(--olive-soft); border-color:var(--olive); color:var(--olive-darker); font-weight:500;}
+
+.radio-row{display:flex; gap:8px; flex-wrap:wrap;}
+.radio-pill{
+  padding:8px 14px; border:1px solid var(--olive-line); border-radius:999px;
+  background:#fff; font-size:13px; cursor:pointer; transition:all .12s;
+}
+.radio-pill.on{background:var(--ink); color:var(--paper); border-color:var(--ink);}
+
+/* ============ Login ============ */
+.login-wrap{
+  min-height:calc(100vh - 80px);
+  display:flex; align-items:center; justify-content:center;
+  padding:40px 20px;
+}
+.login-card{
+  width:100%; max-width:420px;
+  background:#fff; border:1px solid var(--olive-line);
+  border-radius:var(--radius-lg);
+  overflow:hidden;
+  box-shadow:var(--shadow-pop);
+}
+.login-head{
+  background:#fff; color:var(--ink);
+  padding:22px 26px 20px;
+  border-bottom:1px solid var(--olive-line);
+  box-shadow:inset 0 -3px 0 var(--gold);
+}
+.login-head .login-logo{
+  height:46px; width:auto; display:block; margin-bottom:14px;
+}
+.login-head .eyebrow{color:var(--olive);}
+.login-head h1{
+  margin:6px 0 0; font-size:20px; font-weight:700; letter-spacing:-0.01em;
+}
+.login-body{padding:24px 26px 26px; display:flex; flex-direction:column; gap:14px;}
+.login-foot{
+  border-top:1px solid var(--olive-line); background:var(--paper-soft);
+  padding:14px 26px; text-align:center; font-size:12.5px; color:var(--ink-3);
+}
+.login-toggle{
+  background:none; border:none; color:var(--olive); font-weight:600;
+  font-size:12.5px; cursor:pointer; padding:0; margin-left:4px;
+}
+.login-toggle:hover{text-decoration:underline;}
+
+/* ============ PIQ wizard ============ */
+.wizard-head{
+  display:flex; align-items:flex-end; justify-content:space-between;
+  gap:16px; margin-bottom:18px; flex-wrap:wrap;
+}
+.wizard-step-pill{
+  font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.16em;
+  text-transform:uppercase; color:var(--olive);
+  border:1px solid var(--olive-line); background:#fff;
+  padding:5px 10px; border-radius:2px;
+}
+.progress{
+  display:flex; gap:6px; margin-top:14px;
+}
+.progress-seg{
+  flex:1; height:6px; border-radius:2px;
+  background:var(--paper-deep); border:1px solid var(--olive-line);
+  position:relative; overflow:hidden;
+}
+.progress-seg.done{background:var(--olive); border-color:var(--olive-dark);}
+.progress-seg.cur{
+  background:repeating-linear-gradient(45deg,var(--gold) 0 6px, var(--gold-soft) 6px 12px);
+  border-color:var(--gold-line);
+}
+.progress-labels{
+  display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-top:8px;
+  font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.14em;
+  text-transform:uppercase; color:var(--ink-4);
+}
+.progress-labels span.cur{color:var(--olive); font-weight:600;}
+.progress-labels span.done{color:var(--ink-3);}
+@media (max-width:560px){
+  .progress-labels{display:none;}
+}
+
+.section-title{
+  display:flex; align-items:center; gap:10px;
+  font-family:var(--font-mono); font-size:11px; letter-spacing:0.18em;
+  text-transform:uppercase; color:var(--olive);
+  margin:0 0 14px;
+}
+.section-title::before{
+  content:""; width:18px; height:1px; background:var(--olive);
+}
+.fields-stack{display:flex; flex-direction:column; gap:14px;}
+.wizard-foot{
+  display:flex; justify-content:space-between; gap:10px; margin-top:22px;
+  padding-top:18px; border-top:1px dashed var(--olive-line);
+}
+
+/* ============ Dashboard ============ */
+.dash-grid{
+  display:grid; grid-template-columns:1fr 300px; gap:24px;
+  align-items:start;
+}
+@media (max-width:900px){ .dash-grid{grid-template-columns:1fr;} }
+
+.dash-head{
+  display:flex; align-items:flex-end; justify-content:space-between;
+  gap:14px; flex-wrap:wrap; margin-bottom:6px;
+}
+.dash-meta{
+  display:flex; gap:18px; flex-wrap:wrap;
+  font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.14em;
+  text-transform:uppercase; color:var(--ink-3); margin-top:6px;
+}
+.dash-meta b{color:var(--ink); font-weight:600;}
+
+.cat-group{margin-top:22px;}
+.cat-head{
+  display:flex; align-items:center; gap:12px; margin-bottom:10px;
+  padding-bottom:8px; border-bottom:1px solid var(--olive-line);
+}
+.cat-head h3{
+  margin:0; font-size:12px; font-weight:700; letter-spacing:var(--tracking-hd);
+  text-transform:uppercase; color:var(--ink);
+}
+.cat-count{
+  font-family:var(--font-mono); font-size:10px; letter-spacing:0.14em;
+  text-transform:uppercase; color:var(--ink-4); margin-left:auto;
+}
+
+.q-card{
+  background:#fff; border:1px solid var(--olive-line);
+  border-radius:var(--radius); padding:14px 16px;
+  display:flex; flex-direction:column; gap:10px;
+  margin-bottom:10px;
+  transition:border-color .12s, box-shadow .12s;
+  position:relative;
+}
+.q-card:hover{border-color:var(--olive-line-strong, #9CA084); box-shadow:var(--shadow-card);}
+.q-card.done{background:var(--paper-soft); border-color:var(--olive-line);}
+.q-card-top{
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+}
+.q-id{
+  font-family:var(--font-mono); font-size:10px; letter-spacing:0.14em;
+  color:var(--ink-4);
+}
+.q-badge{
+  font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.16em;
+  text-transform:uppercase; padding:3px 7px; border-radius:2px;
+  border:1px solid var(--olive-line); background:var(--paper);
+  color:var(--ink-3);
+}
+.q-badge.diff-easy{background:#EFF4E6; color:#3B5A1C; border-color:#B8C99A;}
+.q-badge.diff-medium{background:#FFF6E0; color:#8A6A1A; border-color:var(--gold-line);}
+.q-badge.diff-hard{background:#FBE6E6; color:#8B1A1A; border-color:#D9A8A8;}
+.q-badge.cat{background:#fff;}
+.q-check{
+  margin-left:auto; width:22px; height:22px; border-radius:50%;
+  background:var(--olive); color:#fff;
+  display:none; align-items:center; justify-content:center;
+  font-size:12px;
+}
+.q-card.done .q-check{display:flex;}
+.q-text{
+  font-size:14.5px; line-height:1.5; color:var(--ink); margin:0;
+}
+.q-actions{display:flex; gap:8px; justify-content:flex-end;}
+
+/* ============ Sidebar stats ============ */
+.stat-card{padding:18px;}
+.stat-row{
+  display:flex; justify-content:space-between; align-items:baseline;
+  padding:9px 0; border-bottom:1px dashed var(--olive-line);
+  font-size:13px;
+}
+.stat-row:last-of-type{border-bottom:none;}
+.stat-row .k{
+  font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.14em;
+  text-transform:uppercase; color:var(--ink-3);
+}
+.stat-row .v{font-weight:700; font-size:16px; color:var(--ink);}
+
+.cat-bar{margin-top:10px;}
+.cat-bar-row{
+  display:flex; justify-content:space-between; align-items:center;
+  font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.1em;
+  text-transform:uppercase; color:var(--ink-3); margin-bottom:5px;
+}
+.cat-bar-row b{color:var(--ink); font-weight:600;}
+.bar{
+  height:6px; background:var(--paper-deep); border-radius:2px;
+  border:1px solid var(--olive-line); overflow:hidden; margin-bottom:10px;
+}
+.bar > i{
+  display:block; height:100%; background:var(--olive); transition:width .4s;
+}
+
+/* ============ Practice screen ============ */
+.practice-wrap{
+  max-width:780px; margin:0 auto;
+}
+.practice-back{
+  display:inline-flex; align-items:center; gap:6px;
+  font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.14em;
+  text-transform:uppercase; color:var(--ink-3); cursor:pointer;
+  margin-bottom:14px;
+}
+.practice-back:hover{color:var(--olive);}
+.practice-q{
+  padding:24px 26px;
+  background:#fff; border:1px solid var(--olive-line);
+  border-left:4px solid var(--olive);
+  border-radius:var(--radius);
+}
+.practice-q .q-text{
+  font-size:20px; line-height:1.35; font-weight:600;
+  letter-spacing:-0.01em; color:var(--ink); margin-top:8px;
+}
+.practice-area{margin-top:18px; padding:18px;}
+.word-row{
+  display:flex; justify-content:space-between; align-items:center;
+  margin-top:8px;
+  font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.12em;
+  text-transform:uppercase; color:var(--ink-4);
+}
+.word-row b{color:var(--ink); font-weight:600;}
+.word-row .ok{color:var(--success);}
+
+.fb-card{
+  margin-top:20px; padding:18px 20px;
+  background:#fff; border:1px solid var(--olive-line);
+  border-left:4px solid var(--ink-3); border-radius:var(--radius);
+}
+.fb-card.fb-strong{border-left-color:var(--success); background:#F4F8EF;}
+.fb-card.fb-acceptable{border-left-color:var(--gold-line); background:#FBF6E8;}
+.fb-card.fb-needs{border-left-color:var(--warning); background:#FDF2E0;}
+.fb-card.fb-poor{border-left-color:var(--danger); background:#FBE6E6;}
+.fb-rating{
+  display:inline-block; font-family:var(--font-mono); font-size:11px;
+  letter-spacing:0.18em; text-transform:uppercase; font-weight:700;
+  padding:4px 10px; border-radius:2px; background:var(--ink); color:var(--paper);
+}
+.fb-strong .fb-rating{background:var(--success);}
+.fb-acceptable .fb-rating{background:var(--gold-line); color:var(--olive-darker);}
+.fb-needs .fb-rating{background:var(--warning); color:var(--ink);}
+.fb-poor .fb-rating{background:var(--danger);}
+.fb-section{margin-top:14px;}
+.fb-section h4{
+  margin:0 0 6px; font-size:11px; font-weight:700;
+  letter-spacing:var(--tracking-hd); text-transform:uppercase; color:var(--ink);
+}
+.fb-section p{margin:0; font-size:14px; line-height:1.55; color:var(--ink-2); white-space:pre-wrap;}
+.fb-example{
+  background:var(--paper); border:1px dashed var(--olive-line);
+  padding:12px 14px; border-radius:var(--radius);
+  font-size:14px; line-height:1.55; color:var(--ink); white-space:pre-wrap;
+  font-style:italic;
+}
+
+/* ============ Loading ============ */
+.loading-wrap{
+  padding:60px 24px; display:flex; flex-direction:column; align-items:center;
+  gap:18px; text-align:center;
+}
+.loading-mark{
+  width:54px; height:54px; border:2px solid var(--olive-line);
+  border-top-color:var(--olive); border-radius:50%;
+  animation:spin 1.1s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-msg{
+  font-family:var(--font-mono); font-size:11.5px; letter-spacing:0.18em;
+  text-transform:uppercase; color:var(--olive);
+}
+.loading-sub{font-size:13px; color:var(--ink-3); max-width:380px;}
+
+/* ============ Toast ============ */
+.toast{
+  position:fixed; bottom:22px; left:50%; transform:translateX(-50%);
+  background:var(--ink); color:var(--paper);
+  padding:10px 18px; border-radius:var(--radius);
+  font-family:var(--font-mono); font-size:11px; letter-spacing:0.14em;
+  text-transform:uppercase; z-index:50;
+  box-shadow:var(--shadow-pop);
+  opacity:0; pointer-events:none; transition:opacity .2s, transform .2s;
+}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(-4px);}
+
+/* ============ Briefing intro animation ============ */
+.fade-in{animation:fadeIn .35s ease-out;}
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(6px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
+/* small util */
+.row{display:flex; align-items:center; gap:10px;}
+.row-between{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;}
+.spacer{flex:1;}
+.divider{height:1px; background:var(--olive-line); margin:18px 0;}
+.muted{color:var(--ink-3);}
+.center{text-align:center;}
+</style>
 </head>
 <body>
-  <div id="root"></div>
 
-  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<header class="banner" id="banner" style="display:none;">
+  <img class="banner-logo" src="fao-logo.png" alt="Future Army Officers Academy" />
+  <div class="banner-divider"></div>
+  <div class="banner-tag">SSB Interview Question Prep<small>Candidate Practice Platform</small></div>
+  <div class="banner-right">
+    <div class="banner-user" id="bannerUser"></div>
+    <div class="banner-stamp">Restricted · Candidate Use</div>
+  </div>
+</header>
 
-  <script type="text/babel" src="tweaks-panel.jsx"></script>
-  <script type="text/babel" src="components.jsx"></script>
-  <script type="text/babel" src="screens-core.jsx"></script>
-  <script type="text/babel" src="screens-psych.jsx"></script>
-  <script type="text/babel" src="screens-gto.jsx"></script>
-  <script type="text/babel" src="screens-other.jsx"></script>
-  <script type="text/babel" src="app.jsx"></script>
+<main id="app"></main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   Firebase (Rowy backend)
+   ========================================================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyDC2XzW81tq7WFY5MVhbYnIbxJWhZTs_Gg",
+  authDomain: "ssb-playground.firebaseapp.com",
+  projectId: "ssb-playground",
+  storageBucket: "ssb-playground.firebasestorage.app",
+  messagingSenderId: "565583117305",
+  appId: "1:565583117305:web:c1c81c02bf9b7dbd46db28",
+  measurementId: "G-FHCCXCSSZ6"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db   = firebase.firestore();
+const fns  = firebase.functions(); // default region us-central1
+const FV   = firebase.firestore.FieldValue;
+
+// AI: prefer Cloud Function (works on any hosted domain),
+// fall back to window.claude.complete inside the Claude artifact viewer.
+const _aiCompleteFn = fns.httpsCallable("aiComplete");
+async function aiComplete(promptOrObj, opts = {}) {
+  let prompt;
+  if (typeof promptOrObj === "string") prompt = promptOrObj;
+  else if (promptOrObj && Array.isArray(promptOrObj.messages))
+    prompt = promptOrObj.messages.map(m => m.content).join("\n\n");
+  else throw new Error("aiComplete: bad prompt");
+
+  // 1) Cloud Function path (production hosting)
+  if (auth.currentUser) {
+    try {
+      const res = await _aiCompleteFn({ prompt, maxTokens: opts.maxTokens || 2000 });
+      if (res && res.data && typeof res.data.text === "string") return res.data.text;
+    } catch (e) {
+      // If the function isn't deployed yet, fall through to the artifact helper.
+      const code = e && e.code;
+      const isMissing = code === "functions/not-found" || code === "functions/internal" || code === "not-found";
+      if (!isMissing && typeof window.claude?.complete !== "function") throw e;
+      console.warn("aiComplete: cloud function failed, falling back.", e);
+    }
+  }
+
+  // 2) In-Claude fallback
+  if (typeof window.claude?.complete === "function") {
+    return await window.claude.complete(prompt);
+  }
+  throw new Error("No AI backend available. Deploy the aiComplete Cloud Function.");
+}
+
+// Firestore helpers — collections: profiles, questionSets, practice
+async function loadProfile(uid){
+  const snap = await db.collection('profiles').doc(uid).get();
+  return snap.exists ? snap.data() : null;
+}
+async function saveProfile(uid, profile){
+  await db.collection('profiles').doc(uid).set(
+    { ...profile, updatedAt: FV.serverTimestamp() },
+    { merge: true }
+  );
+}
+async function loadQuestionSet(uid){
+  const snap = await db.collection('questionSets').doc(uid).get();
+  return snap.exists ? (snap.data().questions || []) : [];
+}
+async function saveQuestionSet(uid, questions){
+  await db.collection('questionSets').doc(uid).set({
+    questions,
+    generatedAt: FV.serverTimestamp()
+  });
+}
+async function loadPractice(uid){
+  const qs = await db.collection('practice').where('uid','==',uid).get();
+  const map = {};
+  qs.forEach(d => {
+    const x = d.data();
+    map[x.questionId] = { answer: x.answer, feedback: x.feedback, rating: x.rating, ts: x.ts };
+  });
+  return map;
+}
+async function savePracticeItem(uid, questionId, payload){
+  await db.collection('practice').doc(`${uid}_${questionId}`).set({
+    uid,
+    questionId,
+    answer: payload.answer || "",
+    feedback: payload.feedback || null,
+    rating: payload.rating || "",
+    ts: FV.serverTimestamp()
+  });
+}
+async function clearPractice(uid){
+  const snap = await db.collection('practice').where('uid','==',uid).get();
+  const batch = db.batch();
+  snap.forEach(d => batch.delete(d.ref));
+  if (!snap.empty) await batch.commit();
+}
+
+function humanizeAuthError(e){
+  const c = (e && e.code) || "";
+  if (c === "auth/email-already-in-use") return "An account with this email already exists. Try signing in.";
+  if (c === "auth/invalid-credential" || c === "auth/wrong-password" || c === "auth/user-not-found") return "Incorrect email or password.";
+  if (c === "auth/weak-password") return "Password must be at least 6 characters.";
+  if (c === "auth/invalid-email") return "Enter a valid email address.";
+  if (c === "auth/network-request-failed") return "Network error. Check your connection.";
+  if (c === "auth/too-many-requests") return "Too many attempts. Wait a minute and try again.";
+  return (e && e.message) || "Authentication failed.";
+}
+
+/* =========================================================
+   App state + render machinery
+   ========================================================= */
+const state = {
+  screen: "loading",    // 'login' | 'piq' | 'dashboard' | 'practice' | 'loading'
+  loadingMsg: "Connecting…",
+  loadingSub: "Establishing secure session.",
+  // login
+  authMode: "signin",   // 'signin' | 'signup'
+  authError: "",
+  authBusy: false,
+  // session
+  uid: null,
+  email: null,
+  profile: null,
+  // piq
+  piqStep: 1,
+  piqDraft: null,
+  piqError: "",
+  // dashboard
+  questions: [],
+  practice: {},   // { [qId]: { answer, feedback, rating, ts } }
+  // practice screen
+  activeQ: null,
+  answerDraft: "",
+  feedbackLoading: false,
+  feedback: null,
+  generatingQuestions: false,
+};
+
+const $app = document.getElementById("app");
+const $banner = document.getElementById("banner");
+const $bannerUser = document.getElementById("bannerUser");
+const $toast = document.getElementById("toast");
+
+function toast(msg){
+  $toast.textContent = msg;
+  $toast.classList.add("show");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=> $toast.classList.remove("show"), 2200);
+}
+
+auth.onAuthStateChanged(async (user) => {
+  if (!user){
+    state.uid = null;
+    state.email = null;
+    state.profile = null;
+    state.questions = [];
+    state.practice = {};
+    state.activeQ = null;
+    state.feedback = null;
+    state.answerDraft = "";
+    state.authBusy = false;
+    state.authError = "";
+    state.screen = "login";
+    render();
+    return;
+  }
+  state.uid = user.uid;
+  state.email = user.email;
+  state.screen = "loading";
+  state.loadingMsg = "Loading your briefing…";
+  state.loadingSub = "Pulling profile and question set.";
+  render();
+  try{
+    state.profile = await loadProfile(user.uid);
+    state.questions = await loadQuestionSet(user.uid);
+    state.practice = await loadPractice(user.uid);
+  } catch(e){
+    console.error(e);
+    toast("Failed to load data — " + (e.message || "check security rules."));
+  }
+  state.authBusy = false;
+  if (!state.profile || !state.profile._complete){
+    state.piqDraft = state.profile || blankProfile();
+    state.piqStep = 1;
+    state.screen = "piq";
+  } else {
+    state.screen = "dashboard";
+  }
+  render();
+});
+
+function render(){
+  // banner visibility
+  if (state.email){
+    $banner.style.display = "flex";
+    $bannerUser.textContent = state.profile?.fullName
+      ? `Cdt. ${state.profile.fullName.split(" ")[0]} · ${state.email}`
+      : state.email;
+  } else {
+    $banner.style.display = "none";
+  }
+  $app.innerHTML = "";
+  let view;
+  switch(state.screen){
+    case "login":     view = renderLogin(); break;
+    case "piq":       view = renderPIQ(); break;
+    case "dashboard": view = renderDashboard(); break;
+    case "practice":  view = renderPractice(); break;
+    case "loading":   view = renderLoading(); break;
+    default:          view = renderLogin();
+  }
+  $app.appendChild(view);
+  window.scrollTo({top:0, behavior:"instant"});
+}
+
+function el(tag, attrs={}, ...children){
+  const e = document.createElement(tag);
+  for (const [k,v] of Object.entries(attrs||{})){
+    if (k === "class") e.className = v;
+    else if (k === "style" && typeof v === "object") Object.assign(e.style, v);
+    else if (k.startsWith("on") && typeof v === "function") e.addEventListener(k.slice(2).toLowerCase(), v);
+    else if (k === "html") e.innerHTML = v;
+    else if (v === true) e.setAttribute(k, "");
+    else if (v === false || v == null) {}
+    else e.setAttribute(k, v);
+  }
+  for (const c of children.flat()){
+    if (c == null || c === false) continue;
+    if (typeof c === "string" || typeof c === "number") e.appendChild(document.createTextNode(c));
+    else e.appendChild(c);
+  }
+  return e;
+}
+
+/* =========================================================
+   Screen: Login
+   ========================================================= */
+function renderLogin(){
+  const wrap = el("div", {class:"login-wrap fade-in"});
+  const card = el("div", {class:"login-card"});
+
+  const head = el("div", {class:"login-head"});
+  head.appendChild(el("img", {class:"login-logo", src:"fao-logo.png", alt:"Future Army Officers Academy"}));
+  head.appendChild(el("div", {class:"eyebrow"}, "SSB Interview Question Prep"));
+  head.appendChild(el("h1", {}, state.authMode === "signin" ? "Candidate Sign-in" : "New Candidate Registration"));
+  card.appendChild(head);
+
+  const body = el("div", {class:"login-body"});
+
+  if (state.authError){
+    body.appendChild(el("div", {class:"err", style:{marginBottom:"4px"}}, state.authError));
+  }
+
+  const email = el("input", {class:"input", type:"email", placeholder:"you@example.com", autocomplete:"email"});
+  const pw = el("input", {class:"input", type:"password", placeholder:"Password (min. 6 chars)", autocomplete:state.authMode==="signin" ? "current-password" : "new-password"});
+
+  body.appendChild(el("div", {class:"field"},
+    el("div", {class:"label"}, "Email"),
+    email
+  ));
+  body.appendChild(el("div", {class:"field"},
+    el("div", {class:"label"}, "Password"),
+    pw
+  ));
+
+  const submitBtn = el("button",
+    {class:"btn btn-primary btn-block btn-lg",
+     onClick:()=> handleAuth(email.value.trim().toLowerCase(), pw.value)
+    },
+    state.authBusy ? "Working…" : (state.authMode === "signin" ? "Sign In" : "Create Account")
+  );
+  if (state.authBusy) submitBtn.disabled = true;
+  body.appendChild(submitBtn);
+
+  [email, pw].forEach(inp => inp.addEventListener("keydown", e => {
+    if (e.key === "Enter") handleAuth(email.value.trim().toLowerCase(), pw.value);
+  }));
+
+  card.appendChild(body);
+
+  const foot = el("div", {class:"login-foot"});
+  if (state.authMode === "signin"){
+    foot.appendChild(document.createTextNode("New here?"));
+    foot.appendChild(el("button", {class:"login-toggle", onClick:()=>{ state.authMode="signup"; state.authError=""; render(); }}, "Create account"));
+  } else {
+    foot.appendChild(document.createTextNode("Already registered?"));
+    foot.appendChild(el("button", {class:"login-toggle", onClick:()=>{ state.authMode="signin"; state.authError=""; render(); }}, "Sign in"));
+  }
+  card.appendChild(foot);
+
+  wrap.appendChild(card);
+  return wrap;
+}
+
+async function handleAuth(email, pw){
+  state.authError = "";
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ state.authError = "Enter a valid email address."; render(); return; }
+  if (!pw || pw.length < 6){ state.authError = "Password must be at least 6 characters."; render(); return; }
+  if (state.authBusy) return;
+  state.authBusy = true; render();
+  try{
+    if (state.authMode === "signup"){
+      await auth.createUserWithEmailAndPassword(email, pw);
+    } else {
+      await auth.signInWithEmailAndPassword(email, pw);
+    }
+    // onAuthStateChanged will load profile + route to next screen
+  } catch(e){
+    state.authBusy = false;
+    state.authError = humanizeAuthError(e);
+    render();
+  }
+}
+
+async function logout(){
+  try{ await auth.signOut(); }
+  catch(e){ toast("Sign-out failed."); }
+  // onAuthStateChanged resets state
+}
+
+/* =========================================================
+   PIQ Wizard
+   ========================================================= */
+const HOBBY_OPTIONS = ["Cricket","Football","Guitar","Reading","Photography","Painting","Swimming","Running","Chess","Cooking","Coding","Singing"];
+const ENTRY_TYPES = ["NDA","CDS","TES","SSC","AFCAT","TGC"];
+const SERVICES = ["Army","Navy","Air Force"];
+const STREAMS = ["Science (PCM)","Science (PCB)","Commerce","Humanities/Arts","Other"];
+const ATTEMPTS = ["0","1","2","3+"];
+
+function blankProfile(){
+  return {
+    _complete:false,
+    fullName:"", state:"", fatherOcc:"", motherOcc:"",
+    cls10:"", cls12:"", stream:"", gradDegree:"", gradPct:"",
+    dropYears:"no", dropReason:"",
+    entryType:"NDA", service:"Army", attempts:"0", whyDefence:"",
+    hobbies:[], hobbyOther:"",
+    sports:"", routine:"",
+    bestFriend:"", friendQuality:"",
+    roleModel:"", roleModelWhy:"",
+  };
+}
+
+function renderPIQ(){
+  const wrap = el("div", {class:"page fade-in"});
+  const p = state.piqDraft || blankProfile();
+  state.piqDraft = p;
+
+  // head
+  const head = el("div", {class:"wizard-head"});
+  const headL = el("div", {});
+  headL.appendChild(el("div", {class:"eyebrow eyebrow-olive"}, "Candidate Briefing Form"));
+  headL.appendChild(el("h1", {class:"h-page", style:{marginTop:"4px"}}, "Personal Information Questionnaire"));
+  headL.appendChild(el("div", {class:"hint", style:{marginTop:"6px"}}, "Complete all four sections. This forms the basis of your SSB question set."));
+  head.appendChild(headL);
+  head.appendChild(el("div", {class:"wizard-step-pill"}, `Step 0${state.piqStep} / 04`));
+  wrap.appendChild(head);
+
+  // progress
+  const prog = el("div", {class:"progress"});
+  for (let i=1; i<=4; i++){
+    const seg = el("div", {class:"progress-seg" + (i < state.piqStep ? " done" : i === state.piqStep ? " cur" : "")});
+    prog.appendChild(seg);
+  }
+  wrap.appendChild(prog);
+  const labels = el("div", {class:"progress-labels"});
+  ["Basic","Education","SSB","Personal"].forEach((label, i) => {
+    const c = i+1 === state.piqStep ? "cur" : i+1 < state.piqStep ? "done" : "";
+    labels.appendChild(el("span", {class:c}, `0${i+1} · ${label}`));
+  });
+  wrap.appendChild(labels);
+
+  // body
+  const card = el("div", {class:"card card-pad", style:{marginTop:"22px"}});
+
+  if (state.piqError){
+    card.appendChild(el("div", {class:"err", style:{marginBottom:"12px"}}, state.piqError));
+  }
+
+  if (state.piqStep === 1) card.appendChild(piqStep1(p));
+  if (state.piqStep === 2) card.appendChild(piqStep2(p));
+  if (state.piqStep === 3) card.appendChild(piqStep3(p));
+  if (state.piqStep === 4) card.appendChild(piqStep4(p));
+
+  // foot
+  const foot = el("div", {class:"wizard-foot"});
+  const backBtn = el("button", {
+    class:"btn btn-ghost btn-mono",
+    onClick:()=>{
+      if (state.piqStep === 1){
+        // if user already has a complete profile, go back to dashboard
+        if (state.profile && state.profile._complete){ state.screen="dashboard"; state.piqError=""; render(); }
+      } else { state.piqStep--; state.piqError=""; render(); }
+    }
+  }, state.piqStep === 1 ? (state.profile && state.profile._complete ? "Cancel" : "—") : "← Back");
+  if (state.piqStep === 1 && !(state.profile && state.profile._complete)) backBtn.disabled = true;
+  foot.appendChild(backBtn);
+
+  const nextBtn = el("button", {
+    class:"btn btn-primary btn-mono",
+    onClick:()=> handlePIQNext()
+  }, state.piqStep === 4 ? "Save & Generate Questions →" : "Continue →");
+  foot.appendChild(nextBtn);
+
+  card.appendChild(foot);
+  wrap.appendChild(card);
+
+  return wrap;
+}
+
+function piqStep1(p){
+  const root = el("div", {});
+  root.appendChild(el("div", {class:"section-title"}, "Basic Identification"));
+  const stack = el("div", {class:"fields-stack"});
+  stack.appendChild(el("div", {class:"field"},
+    el("div", {class:"label"}, "Full Name"),
+    inputBind(p, "fullName", "As per Class 10 marksheet")
+  ));
+  stack.appendChild(el("div", {class:"field-row"},
+    el("div", {class:"field"},
+      el("div", {class:"label"}, "State / City"),
+      inputBind(p, "state", "e.g. Jodhpur, Rajasthan")
+    ),
+  ));
+  stack.appendChild(el("div", {class:"field-row"},
+    el("div", {class:"field"},
+      el("div", {class:"label"}, "Father's Occupation"),
+      inputBind(p, "fatherOcc", "e.g. Farmer, Govt. Service, Retired Army")
+    ),
+    el("div", {class:"field"},
+      el("div", {class:"label"}, "Mother's Occupation"),
+      inputBind(p, "motherOcc", "e.g. Homemaker, Teacher")
+    )
+  ));
+  root.appendChild(stack);
+  return root;
+}
+
+function piqStep2(p){
+  const root = el("div", {});
+  root.appendChild(el("div", {class:"section-title"}, "Academic Record"));
+  const stack = el("div", {class:"fields-stack"});
+
+  stack.appendChild(el("div", {class:"field-row"},
+    el("div", {class:"field"},
+      el("div", {class:"label"}, "Class 10 — Percentage"),
+      inputBind(p, "cls10", "e.g. 86.4")
+    ),
+    el("div", {class:"field"},
+      el("div", {class:"label"}, "Class 12 — Percentage"),
+      inputBind(p, "cls12", "e.g. 78.2")
+    )
+  ));
+
+  stack.appendChild(el("div", {class:"field-row"},
+    el("div", {class:"field"},
+      el("div", {class:"label"}, "Class 12 — Stream"),
+      selectBind(p, "stream", STREAMS)
+    ),
+    el("div", {class:"field"},
+      el("div", {class:"label"}, "Graduation — Degree"),
+      inputBind(p, "gradDegree", "e.g. B.Tech (Mech), B.A.; or 'NA'")
+    )
+  ));
+
+  stack.appendChild(el("div", {class:"field-row"},
+    el("div", {class:"field"},
+      el("div", {class:"label"}, "Graduation — Percentage / CGPA"),
+      inputBind(p, "gradPct", "e.g. 72.5 or 7.4 CGPA; or 'NA'")
+    ),
+    el("div", {class:"field"},
+      el("div", {class:"label"}, "Drop Year(s)?"),
+      pillBind(p, "dropYears", ["no","yes"])
+    )
+  ));
+
+  if (p.dropYears === "yes"){
+    stack.appendChild(el("div", {class:"field"},
+      el("div", {class:"label"}, "Reason for Drop / Gap Year"),
+      textareaBind(p, "dropReason", "Be honest. Whatever you write, you must own at the interview.")
+    ));
+  }
+
+  root.appendChild(stack);
+  return root;
+}
+
+function piqStep3(p){
+  const root = el("div", {});
+  root.appendChild(el("div", {class:"section-title"}, "SSB Entry Details"));
+  const stack = el("div", {class:"fields-stack"});
+
+  stack.appendChild(el("div", {class:"field-row"},
+    el("div", {class:"field"},
+      el("div", {class:"label"}, "Entry Type"),
+      selectBind(p, "entryType", ENTRY_TYPES)
+    ),
+    el("div", {class:"field"},
+      el("div", {class:"label"}, "Preferred Service"),
+      pillBind(p, "service", SERVICES)
+    )
+  ));
+
+  stack.appendChild(el("div", {class:"field"},
+    el("div", {class:"label"}, "Previous SSB Attempts"),
+    pillBind(p, "attempts", ATTEMPTS)
+  ));
+
+  stack.appendChild(el("div", {class:"field"},
+    el("div", {class:"label"}, "Why do you want to join the Defence Forces?"),
+    textareaBind(p, "whyDefence", "Write personally. Avoid generic motivation — examiners can tell.")
+  ));
+
+  root.appendChild(stack);
+  return root;
+}
+
+function piqStep4(p){
+  const root = el("div", {});
+  root.appendChild(el("div", {class:"section-title"}, "Personal Background"));
+  const stack = el("div", {class:"fields-stack"});
+
+  stack.appendChild(el("div", {class:"field"},
+    el("div", {class:"label"}, "Hobbies — select all that apply"),
+    hobbyGrid(p)
+  ));
+
+  if (p.hobbies && p.hobbies.includes("Other")){
+    stack.appendChild(el("div", {class:"field"},
+      el("div", {class:"label"}, "Other hobby — specify"),
+      inputBind(p, "hobbyOther", "e.g. Trekking, Astronomy")
+    ));
+  }
+
+  stack.appendChild(el("div", {class:"field"},
+    el("div", {class:"label"}, "Sports / Other Achievements"),
+    textareaBind(p, "sports", "List with year, level (district/state/national), and position.")
+  ));
+
+  stack.appendChild(el("div", {class:"field"},
+    el("div", {class:"label"}, "Daily Routine Summary"),
+    textareaBind(p, "routine", "A typical weekday from waking up to sleeping.")
+  ));
+
+  stack.appendChild(el("div", {class:"field-row"},
+    el("div", {class:"field"},
+      el("div", {class:"label"}, "Best Friend — Name"),
+      inputBind(p, "bestFriend", "")
+    ),
+    el("div", {class:"field"},
+      el("div", {class:"label"}, "One Quality You Admire in Them"),
+      inputBind(p, "friendQuality", "e.g. Discipline, Honesty")
+    )
+  ));
+
+  stack.appendChild(el("div", {class:"field-row"},
+    el("div", {class:"field"},
+      el("div", {class:"label"}, "Role Model"),
+      inputBind(p, "roleModel", "e.g. Field Marshal Sam Manekshaw")
+    ),
+    el("div", {class:"field"},
+      el("div", {class:"label"}, "Why?"),
+      inputBind(p, "roleModelWhy", "One specific reason")
+    )
+  ));
+
+  root.appendChild(stack);
+  return root;
+}
+
+function hobbyGrid(p){
+  const grid = el("div", {class:"check-grid"});
+  const opts = [...HOBBY_OPTIONS, "Other"];
+  for (const opt of opts){
+    const on = p.hobbies?.includes(opt);
+    const lab = el("label", {class:"check" + (on ? " on" : "")});
+    const cb = el("input", {type:"checkbox"});
+    cb.checked = !!on;
+    cb.addEventListener("change", () => {
+      const set = new Set(p.hobbies || []);
+      if (cb.checked) set.add(opt); else set.delete(opt);
+      p.hobbies = [...set];
+      render();
+    });
+    lab.appendChild(cb);
+    lab.appendChild(document.createTextNode(opt));
+    grid.appendChild(lab);
+  }
+  return grid;
+}
+
+function inputBind(p, key, ph){
+  const i = el("input", {class:"input", type:"text", placeholder:ph||""});
+  i.value = p[key] || "";
+  i.addEventListener("input", e => p[key] = e.target.value);
+  return i;
+}
+function textareaBind(p, key, ph){
+  const t = el("textarea", {class:"textarea", placeholder:ph||""});
+  t.value = p[key] || "";
+  t.addEventListener("input", e => p[key] = e.target.value);
+  return t;
+}
+function selectBind(p, key, options){
+  const s = el("select", {class:"select"});
+  for (const opt of options){
+    const o = el("option", {value:opt}, opt);
+    if ((p[key]||options[0]) === opt) o.selected = true;
+    s.appendChild(o);
+  }
+  if (!p[key]) p[key] = options[0];
+  s.addEventListener("change", e => p[key] = e.target.value);
+  return s;
+}
+function pillBind(p, key, options){
+  const row = el("div", {class:"radio-row"});
+  for (const opt of options){
+    const cur = p[key] || options[0];
+    const b = el("button", {
+      type:"button",
+      class:"radio-pill" + (cur === opt ? " on" : ""),
+      onClick:()=>{ p[key] = opt; render(); }
+    }, opt);
+    row.appendChild(b);
+  }
+  if (!p[key]) p[key] = options[0];
+  return row;
+}
+
+async function handlePIQNext(){
+  const p = state.piqDraft;
+  state.piqError = "";
+  // Per-step validation (light)
+  if (state.piqStep === 1){
+    if (!p.fullName?.trim() || !p.state?.trim()){ state.piqError = "Full name and state are required."; render(); return; }
+  } else if (state.piqStep === 2){
+    if (!p.cls10 || !p.cls12){ state.piqError = "Class 10 and Class 12 percentages are required."; render(); return; }
+  } else if (state.piqStep === 3){
+    if (!p.whyDefence?.trim() || p.whyDefence.trim().length < 30){ state.piqError = "‘Why defence?’ — write at least a couple of sentences."; render(); return; }
+  } else if (state.piqStep === 4){
+    if (!p.hobbies || p.hobbies.length === 0){ state.piqError = "Pick at least one hobby. (Or pick Other and specify.)"; render(); return; }
+    if (!p.roleModel?.trim()){ state.piqError = "Role model is required."; render(); return; }
+  }
+
+  if (state.piqStep < 4){ state.piqStep++; render(); return; }
+
+  // Final save
+  p._complete = true;
+  p._savedAt = Date.now();
+  p.email = state.email;
+  state.profile = p;
+  state.screen = "loading";
+  state.loadingMsg = "Saving profile…";
+  state.loadingSub = "Writing to your secure record.";
+  render();
+  try{
+    await saveProfile(state.uid, p);
+  } catch(e){
+    toast("Save failed — " + (e.message || "check security rules."));
+    state.screen = "piq"; render(); return;
+  }
+  // Always regenerate when the form is re-submitted
+  generateQuestions();
+}
+
+/* =========================================================
+   AI: Generate questions
+   ========================================================= */
+async function generateQuestions(){
+  state.generatingQuestions = true;
+  state.screen = "loading";
+  state.loadingMsg = "Analyzing your profile…";
+  state.loadingSub = "Cross-referencing PIQ entries against likely board questions.";
+  render();
+
+  // rotate the message a couple of times so it feels alive
+  const msgs = [
+    ["Analyzing your profile…", "Cross-referencing PIQ entries against likely board questions."],
+    ["Preparing your briefing…", "Building hobby deep-dives and current-affairs links."],
+    ["Stamping the question set…", "Tagging difficulty and category."],
+  ];
+  let mi = 0;
+  const ticker = setInterval(() => {
+    mi = (mi + 1) % msgs.length;
+    state.loadingMsg = msgs[mi][0];
+    state.loadingSub = msgs[mi][1];
+    // light DOM patch
+    const m = document.querySelector(".loading-msg");
+    const s = document.querySelector(".loading-sub");
+    if (m) m.textContent = state.loadingMsg;
+    if (s) s.textContent = state.loadingSub;
+  }, 2200);
+
+  const sys = `You are an SSB Interview coach for Future Army Officers Academy. Based on the candidate's PIQ profile, generate 20-25 specific interview questions they are most likely to face at SSB.
+
+Rules:
+- 70% questions should be based on their PIQ (education, family, hobbies, state, background)
+- 15% should be follow-up/deep-dive questions (especially on hobbies — if they listed Guitar, ask about Capo, strings, chords vs leads, famous guitarists)
+- 15% should be current affairs / geo-political (India's relations with neighbours, defence news)
+- For hobbies: ask DEEP technical questions, not surface level. If they can't answer these, they shouldn't list that hobby.
+- If they have drop years or marks drop, include "Why did your percentage drop from X to Y?"
+- If they are repeaters (attempts > 0), include "Where did you lack in previous attempts?" and "What improvements have you made?"
+- If their state is a border state, include questions about that border's strategic importance
+- Include 2-3 rapid fire questions (e.g., "Name 5 indigenous weapons of Indian Army")
+- Include 1 calculation/perception question
+
+Return ONLY a JSON array of objects, no prose, no markdown fences:
+[{"id": 1, "question": "...", "category": "Education|Family|Hobbies|Defence|Current Affairs|Rapid Fire", "difficulty": "Easy|Medium|Hard"}]`;
+
+  const profileJson = JSON.stringify(redactProfile(state.profile), null, 2);
+  const user = `CANDIDATE PIQ PROFILE:\n${profileJson}\n\nGenerate the question set as specified.`;
+
+  let raw = "";
+  try{
+    raw = await aiComplete(sys + "\n\n" + user, { maxTokens: 2000 });
+  } catch(e){
+    clearInterval(ticker);
+    state.generatingQuestions = false;
+    state.screen = "dashboard";
+    toast("Could not reach AI. Showing fallback set.");
+    state.questions = fallbackQuestions(state.profile);
+    try{ await saveQuestionSet(state.uid, state.questions); }catch(_){}
+    render();
+    return;
+  }
+  clearInterval(ticker);
+  state.generatingQuestions = false;
+
+  let parsed = parseQuestions(raw);
+  if (!parsed || !parsed.length){
+    parsed = fallbackQuestions(state.profile);
+    toast("AI returned an unexpected format. Using fallback questions.");
+  }
+  state.questions = parsed;
+  state.practice = {}; // reset practice on fresh set
+  try{
+    await saveQuestionSet(state.uid, parsed);
+    await clearPractice(state.uid);
+  } catch(e){
+    console.error(e);
+    toast("Saved locally but cloud sync failed: " + (e.message || ""));
+  }
+  state.screen = "dashboard";
+  render();
+}
+
+function redactProfile(p){
+  // strip internal flags
+  const { _complete, _savedAt, ...rest } = p || {};
+  return rest;
+}
+
+function parseQuestions(raw){
+  if (!raw) return null;
+  // Find first '[' and last ']'
+  const i = raw.indexOf("["); const j = raw.lastIndexOf("]");
+  if (i < 0 || j < 0 || j <= i) return null;
+  const jsonStr = raw.slice(i, j+1);
+  try{
+    const arr = JSON.parse(jsonStr);
+    if (!Array.isArray(arr)) return null;
+    return arr.map((q, idx) => ({
+      id: q.id ?? (idx+1),
+      question: String(q.question || "").trim(),
+      category: normalizeCat(q.category),
+      difficulty: normalizeDiff(q.difficulty),
+    })).filter(q => q.question);
+  } catch(e){ return null; }
+}
+function normalizeCat(c){
+  const s = (c||"").toString().trim();
+  const allow = ["Education","Family","Hobbies","Defence","Current Affairs","Rapid Fire"];
+  const m = allow.find(a => a.toLowerCase() === s.toLowerCase());
+  return m || "General";
+}
+function normalizeDiff(d){
+  const s = (d||"").toString().trim().toLowerCase();
+  if (s.startsWith("e")) return "Easy";
+  if (s.startsWith("h")) return "Hard";
+  return "Medium";
+}
+
+function fallbackQuestions(p){
+  // Used if API is unreachable or returns garbage.
+  const qs = [];
+  let id = 1;
+  const push = (q, category, difficulty="Medium") => qs.push({ id: id++, question: q, category, difficulty });
+  push(`Walk me through your daily routine, in detail.`, "Family", "Easy");
+  push(`Tell me three strengths and three weaknesses, with one example each.`, "Family", "Medium");
+  push(`Why do you want to join the ${p.service || "Indian Armed Forces"}?`, "Defence", "Medium");
+  push(`Why this entry — ${p.entryType || "NDA"} — and not others?`, "Defence", "Medium");
+  push(`What does your father do, and how has it shaped you?`, "Family", "Easy");
+  push(`Class 10: ${p.cls10 || "—"}%. What was your study strategy?`, "Education", "Easy");
+  push(`Class 12: ${p.cls12 || "—"}%. What changed between Class 10 and 12?`, "Education", "Medium");
+  if (p.dropYears === "yes") push(`You had a drop year — defend that decision in 90 seconds.`, "Education", "Hard");
+  if (Number((p.attempts||"0").replace("+",""))>0) push(`Where did you lack in your previous SSB attempt(s), specifically?`, "Defence", "Hard");
+  (p.hobbies || []).slice(0,4).forEach(h => {
+    push(`You listed ${h} as a hobby. Take me deep — show me you really do it.`, "Hobbies", "Hard");
+  });
+  push(`Name five indigenous weapons or platforms of the Indian Army.`, "Rapid Fire", "Medium");
+  push(`Name three current Service Chiefs.`, "Rapid Fire", "Easy");
+  push(`Pick one neighbour of India and explain a recent point of friction.`, "Current Affairs", "Hard");
+  push(`Name three Param Vir Chakra recipients and one action each.`, "Rapid Fire", "Hard");
+  push(`A train of 240m crosses a 360m bridge in 30 seconds. Speed?`, "Rapid Fire", "Medium");
+  push(`Your role model — ${p.roleModel || "—"} — give one act of theirs you would emulate as an officer.`, "Family", "Medium");
+  push(`What is one thing about you no one in your family knows?`, "Family", "Hard");
+  push(`Define moral courage with an example from your own life.`, "Defence", "Hard");
+  push(`What would you do if your senior gave an order you knew to be wrong?`, "Defence", "Hard");
+  push(`Five things you would change in your own state if you were CM for a day.`, "Current Affairs", "Medium");
+  return qs;
+}
+
+/* =========================================================
+   Dashboard
+   ========================================================= */
+const CATEGORY_ORDER = ["Education","Family","Hobbies","Defence","Current Affairs","Rapid Fire","General"];
+
+function renderDashboard(){
+  const wrap = el("div", {class:"page fade-in"});
+
+  // head
+  const head = el("div", {class:"dash-head"});
+  const headL = el("div", {});
+  headL.appendChild(el("div", {class:"eyebrow eyebrow-olive"}, "Briefing Document · Question Set"));
+  headL.appendChild(el("h1", {class:"h-page", style:{marginTop:"4px"}}, "Questions You Must Prepare"));
+  const meta = el("div", {class:"dash-meta"});
+  const total = state.questions.length;
+  const practiced = Object.keys(state.practice).length;
+  meta.appendChild(el("span", {}, "Candidate: ", el("b",{},state.profile?.fullName || "—")));
+  meta.appendChild(el("span", {}, "Entry: ", el("b",{},state.profile?.entryType || "—")));
+  meta.appendChild(el("span", {}, "Service: ", el("b",{},state.profile?.service || "—")));
+  meta.appendChild(el("span", {}, "Set: ", el("b",{},`${total} questions`)));
+  meta.appendChild(el("span", {}, "Practiced: ", el("b",{},`${practiced}/${total}`)));
+  headL.appendChild(meta);
+  head.appendChild(headL);
+
+  const actions = el("div", {class:"row"});
+  actions.appendChild(el("button", {class:"btn btn-ghost btn-mono", onClick:()=>{
+    state.piqDraft = JSON.parse(JSON.stringify(state.profile));
+    state.piqStep = 1; state.piqError = ""; state.screen = "piq"; render();
+  }}, "Edit Profile"));
+  actions.appendChild(el("button", {class:"btn btn-gold btn-mono", onClick:()=>{
+    if (confirm("Regenerate the full question set? Your practiced answers will be cleared.")) generateQuestions();
+  }}, "Regenerate"));
+  actions.appendChild(el("button", {class:"btn btn-danger-ghost btn-mono btn-sm", onClick:logout}, "Sign Out"));
+  head.appendChild(actions);
+  wrap.appendChild(head);
+
+  // grid
+  const grid = el("div", {class:"dash-grid", style:{marginTop:"22px"}});
+
+  // Left: question groups
+  const left = el("div", {});
+  // group by category
+  const groups = {};
+  for (const q of state.questions){
+    (groups[q.category] = groups[q.category] || []).push(q);
+  }
+  const orderedCats = CATEGORY_ORDER.filter(c => groups[c]?.length).concat(
+    Object.keys(groups).filter(c => !CATEGORY_ORDER.includes(c))
+  );
+  if (orderedCats.length === 0){
+    left.appendChild(el("div", {class:"card card-pad"},
+      el("div", {class:"muted center"}, "No questions yet. Click Regenerate to build your set.")
+    ));
+  } else {
+    for (const cat of orderedCats){
+      const group = el("div", {class:"cat-group"});
+      const ch = el("div", {class:"cat-head"});
+      ch.appendChild(el("h3", {}, cat));
+      const done = groups[cat].filter(q => state.practice[q.id]).length;
+      ch.appendChild(el("div", {class:"cat-count"}, `${done} / ${groups[cat].length} practiced`));
+      group.appendChild(ch);
+      for (const q of groups[cat]) group.appendChild(renderQuestionCard(q));
+      left.appendChild(group);
+    }
+  }
+  grid.appendChild(left);
+
+  // Right: stats sidebar
+  const right = el("div", {});
+  right.appendChild(renderStatsCard(groups));
+  right.appendChild(renderTipsCard());
+  grid.appendChild(right);
+
+  wrap.appendChild(grid);
+  return wrap;
+}
+
+function renderQuestionCard(q){
+  const done = !!state.practice[q.id];
+  const card = el("div", {class:"q-card" + (done ? " done" : "")});
+  const top = el("div", {class:"q-card-top"});
+  top.appendChild(el("span", {class:"q-id"}, `Q${String(q.id).padStart(2,"0")}`));
+  top.appendChild(el("span", {class:"q-badge cat"}, q.category));
+  top.appendChild(el("span", {class:"q-badge diff-"+q.difficulty.toLowerCase()}, q.difficulty));
+  top.appendChild(el("span", {class:"q-check", title:"Practiced"}, "✓"));
+  card.appendChild(top);
+  card.appendChild(el("p", {class:"q-text"}, q.question));
+  const actions = el("div", {class:"q-actions"});
+  if (done){
+    actions.appendChild(el("button", {class:"btn btn-ghost btn-sm btn-mono", onClick:()=>openPractice(q)}, "Review Feedback"));
+  }
+  actions.appendChild(el("button", {class:"btn btn-primary btn-sm btn-mono", onClick:()=>openPractice(q)}, done ? "Practice Again" : "Practice This"));
+  card.appendChild(actions);
+  return card;
+}
+
+function renderStatsCard(groups){
+  const c = el("div", {class:"card stat-card"});
+  c.appendChild(el("div", {class:"eyebrow eyebrow-olive"}, "Preparation Status"));
+  c.appendChild(el("h3", {class:"h-card", style:{marginTop:"4px"}}, "Briefing Progress"));
+  c.appendChild(el("div", {class:"divider"}));
+
+  const total = state.questions.length;
+  const practiced = Object.keys(state.practice).length;
+  const remaining = total - practiced;
+  c.appendChild(rowKV("Total questions", total));
+  c.appendChild(rowKV("Practiced", practiced));
+  c.appendChild(rowKV("Remaining", remaining));
+  c.appendChild(el("div", {class:"divider"}));
+
+  c.appendChild(el("div", {class:"eyebrow", style:{marginBottom:"10px"}}, "By Category"));
+  const cats = CATEGORY_ORDER.filter(k => groups[k]?.length);
+  for (const cat of cats){
+    const list = groups[cat];
+    const done = list.filter(q => state.practice[q.id]).length;
+    const pct = list.length ? Math.round(100*done/list.length) : 0;
+    c.appendChild(el("div", {class:"cat-bar"},
+      el("div", {class:"cat-bar-row"},
+        el("span", {}, cat),
+        el("b", {}, `${done}/${list.length}`)
+      ),
+      el("div", {class:"bar"}, el("i", {style:{width:pct+"%"}}))
+    ));
+  }
+  return c;
+}
+
+function rowKV(k, v){
+  return el("div", {class:"stat-row"},
+    el("span", {class:"k"}, k),
+    el("span", {class:"v"}, String(v))
+  );
+}
+
+function renderTipsCard(){
+  const c = el("div", {class:"card-paper card-pad", style:{marginTop:"16px"}});
+  c.appendChild(el("div", {class:"eyebrow eyebrow-gold"}, "Coach's Note"));
+  c.appendChild(el("p", {style:{margin:"6px 0 0", fontSize:"13px", lineHeight:"1.55", color:"var(--ink-2)"}},
+    "Answer in essay form, with specific examples. One-liners fail boards. " +
+    "If you listed a hobby, you must defend its depth. Be ready to be cross-examined."
+  ));
+  return c;
+}
+
+/* =========================================================
+   Practice
+   ========================================================= */
+function openPractice(q){
+  state.activeQ = q;
+  const prev = state.practice[q.id];
+  state.answerDraft = prev?.answer || "";
+  state.feedback = prev?.feedback || null;
+  state.feedbackLoading = false;
+  state.screen = "practice";
+  render();
+}
+
+function renderPractice(){
+  const wrap = el("div", {class:"page fade-in"});
+  const inner = el("div", {class:"practice-wrap"});
+
+  const back = el("div", {class:"practice-back", onClick:()=>{ state.screen="dashboard"; render(); }},
+    "← Back to question set"
+  );
+  inner.appendChild(back);
+
+  const q = state.activeQ;
+  const qBox = el("div", {class:"practice-q"});
+  const top = el("div", {class:"q-card-top"});
+  top.appendChild(el("span", {class:"q-id"}, `Q${String(q.id).padStart(2,"0")}`));
+  top.appendChild(el("span", {class:"q-badge cat"}, q.category));
+  top.appendChild(el("span", {class:"q-badge diff-"+q.difficulty.toLowerCase()}, q.difficulty));
+  qBox.appendChild(top);
+  qBox.appendChild(el("p", {class:"q-text"}, q.question));
+  inner.appendChild(qBox);
+
+  const area = el("div", {class:"card practice-area"});
+  area.appendChild(el("div", {class:"label", style:{marginBottom:"6px"}}, "Your Answer"));
+  const ta = el("textarea", {class:"textarea", placeholder:"Answer in detail — essay type. Give examples. Minimum 50 words.", style:{minHeight:"180px"}});
+  ta.value = state.answerDraft || "";
+  ta.addEventListener("input", e => {
+    state.answerDraft = e.target.value;
+    updateWordCount();
+  });
+  area.appendChild(ta);
+
+  const wordRow = el("div", {class:"word-row"});
+  const wc = el("span", {id:"wcLabel"}, "");
+  const minNote = el("span", {class:"muted"}, "Minimum: 50 words · essay-type answers expected");
+  wordRow.appendChild(wc);
+  wordRow.appendChild(minNote);
+  area.appendChild(wordRow);
+
+  const actionRow = el("div", {class:"row", style:{marginTop:"14px", justifyContent:"flex-end", gap:"8px", flexWrap:"wrap"}});
+  if (state.feedback){
+    actionRow.appendChild(el("button", {
+      class:"btn btn-ghost btn-mono",
+      onClick:()=>{ state.feedback = null; render(); }
+    }, "Re-attempt"));
+  }
+  const fbBtn = el("button", {
+    class:"btn btn-primary btn-mono",
+    onClick:()=> requestFeedback()
+  }, state.feedbackLoading ? "Analyzing…" : "Get Feedback");
+  if (state.feedbackLoading) fbBtn.disabled = true;
+  actionRow.appendChild(fbBtn);
+
+  // Next Question
+  const nextQ = nextQuestion(q);
+  if (nextQ){
+    actionRow.appendChild(el("button", {
+      class:"btn btn-dark btn-mono",
+      onClick:()=>openPractice(nextQ)
+    }, "Next Question →"));
+  }
+  area.appendChild(actionRow);
+
+  inner.appendChild(area);
+
+  if (state.feedbackLoading){
+    inner.appendChild(renderInlineLoading("Coach is reviewing your answer…", "Checking depth, examples, and PIQ-consistency."));
+  } else if (state.feedback){
+    inner.appendChild(renderFeedbackCard(state.feedback));
+  }
+
+  wrap.appendChild(inner);
+
+  // run wordcount once
+  setTimeout(updateWordCount, 0);
+  return wrap;
+}
+
+function updateWordCount(){
+  const txt = (state.answerDraft || "").trim();
+  const n = txt ? txt.split(/\s+/).length : 0;
+  const lab = document.getElementById("wcLabel");
+  if (!lab) return;
+  lab.innerHTML = "";
+  lab.appendChild(el("span", {}, "Words: "));
+  const b = el("b", {class: n >= 50 ? "ok" : ""}, String(n));
+  lab.appendChild(b);
+}
+
+function nextQuestion(q){
+  const idx = state.questions.findIndex(x => x.id === q.id);
+  if (idx < 0 || idx >= state.questions.length - 1) return null;
+  return state.questions[idx + 1];
+}
+
+async function requestFeedback(){
+  const q = state.activeQ;
+  const answer = (state.answerDraft || "").trim();
+  if (answer.split(/\s+/).filter(Boolean).length < 20){
+    toast("Write at least 20 words before asking for feedback.");
+    return;
+  }
+  state.feedbackLoading = true;
+  state.feedback = null;
+  render();
+
+  const sys = `You are a strict SSB Interview coach. The candidate was asked: "${q.question}". Their answer: "${answer}". Their profile: ${JSON.stringify(redactProfile(state.profile))}.
+
+Give brutally honest feedback. Rules:
+1. Was the answer detailed (essay-type) or a one-liner? One-liners are unacceptable in SSB.
+2. Did they give specific examples? Examples are mandatory to avoid misunderstanding.
+3. Is the answer consistent with their PIQ profile? If they claim something not in their profile, flag it.
+4. For hobby questions: Did they show DEEP knowledge or surface-level generic answers?
+5. For "why defence" type questions: Is it genuine and personal, or copied/generic motivation?
+6. Rate the answer: Strong / Acceptable / Needs Work / Poor
+7. Give a specific rewritten example of how a better answer would sound (2-3 lines).
+
+Be direct. No "great effort" nonsense. If it's bad, say it's bad and say exactly why.
+
+Return ONLY a JSON object (no prose, no markdown):
+{
+  "rating": "Strong" | "Acceptable" | "Needs Work" | "Poor",
+  "whats_wrong": "...",
+  "whats_right": "...",
+  "better_answer": "..."
+}`;
+
+  let raw = "";
+  try{
+    raw = await aiComplete(sys, { maxTokens: 1200 });
+  } catch(e){
+    state.feedbackLoading = false;
+    toast("Could not reach AI. Try again.");
+    render(); return;
+  }
+
+  const parsed = parseFeedback(raw);
+  state.feedbackLoading = false;
+  if (!parsed){
+    // surface the raw text as a fallback
+    state.feedback = { rating:"Needs Work", whats_wrong:"", whats_right:"", better_answer:"", raw };
+  } else {
+    state.feedback = parsed;
+  }
+  // persist
+  state.practice[q.id] = {
+    answer,
+    feedback: state.feedback,
+    rating: state.feedback.rating,
+    ts: Date.now(),
+  };
+  try{
+    await savePracticeItem(state.uid, q.id, {
+      answer,
+      feedback: state.feedback,
+      rating: state.feedback.rating,
+    });
+  } catch(e){
+    console.error(e);
+    toast("Saved in session but cloud write failed.");
+  }
+  render();
+}
+
+function parseFeedback(raw){
+  if (!raw) return null;
+  const i = raw.indexOf("{"); const j = raw.lastIndexOf("}");
+  if (i < 0 || j < 0 || j <= i) return null;
+  try{
+    const obj = JSON.parse(raw.slice(i, j+1));
+    return {
+      rating: normalizeRating(obj.rating),
+      whats_wrong: String(obj.whats_wrong || "").trim(),
+      whats_right: String(obj.whats_right || "").trim(),
+      better_answer: String(obj.better_answer || "").trim(),
+    };
+  } catch(e){ return null; }
+}
+function normalizeRating(r){
+  const s = (r||"").toString().trim().toLowerCase();
+  if (s.startsWith("strong")) return "Strong";
+  if (s.startsWith("accept")) return "Acceptable";
+  if (s.startsWith("poor")) return "Poor";
+  return "Needs Work";
+}
+
+function renderFeedbackCard(fb){
+  const cls =
+    fb.rating === "Strong" ? "fb-strong" :
+    fb.rating === "Acceptable" ? "fb-acceptable" :
+    fb.rating === "Poor" ? "fb-poor" : "fb-needs";
+  const c = el("div", {class:"fb-card " + cls});
+
+  const top = el("div", {class:"row-between"});
+  top.appendChild(el("div", {class:"eyebrow"}, "Coach's Verdict"));
+  top.appendChild(el("span", {class:"fb-rating"}, fb.rating));
+  c.appendChild(top);
+
+  if (fb.raw){
+    c.appendChild(el("div", {class:"fb-section"},
+      el("h4", {}, "Feedback"),
+      el("p", {}, fb.raw)
+    ));
+    return c;
+  }
+
+  if (fb.whats_wrong) c.appendChild(el("div", {class:"fb-section"},
+    el("h4", {}, "What's Wrong"),
+    el("p", {}, fb.whats_wrong)
+  ));
+  if (fb.whats_right) c.appendChild(el("div", {class:"fb-section"},
+    el("h4", {}, "What's Right"),
+    el("p", {}, fb.whats_right)
+  ));
+  if (fb.better_answer) c.appendChild(el("div", {class:"fb-section"},
+    el("h4", {}, "Better Answer — Example"),
+    el("div", {class:"fb-example"}, fb.better_answer)
+  ));
+  return c;
+}
+
+/* =========================================================
+   Loading screen (full)
+   ========================================================= */
+function renderLoading(){
+  return renderInlineLoading(state.loadingMsg || "Working…", state.loadingSub || "");
+}
+function renderInlineLoading(msg, sub){
+  const c = el("div", {class:"card card-pad fade-in", style:{marginTop:"18px"}});
+  const w = el("div", {class:"loading-wrap"});
+  w.appendChild(el("div", {class:"loading-mark"}));
+  w.appendChild(el("div", {class:"loading-msg"}, msg));
+  if (sub) w.appendChild(el("div", {class:"loading-sub"}, sub));
+  c.appendChild(w);
+  return c;
+}
+
+/* =========================================================
+   Boot — onAuthStateChanged drives routing
+   ========================================================= */
+render();
+</script>
 </body>
 </html>
