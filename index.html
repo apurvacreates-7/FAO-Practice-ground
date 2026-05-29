@@ -11,6 +11,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-functions-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-storage-compat.js"></script>
 <style>
 /* ============ Tokens (FAOSSB brand) ============ */
 :root{
@@ -572,6 +573,190 @@ a:hover{text-decoration:underline;}
   .lb-pct-num{width:auto;}
 }
 
+/* ============ Daily PT ============ */
+.pt-tabs{
+  display:flex; align-items:center; gap:8px; margin:18px 0 0;
+  border-bottom:1px solid var(--olive-line); padding-bottom:0; flex-wrap:wrap;
+}
+.pt-tab{
+  font-family:var(--font-mono); font-size:11px; letter-spacing:0.1em;
+  text-transform:uppercase; font-weight:600; color:var(--ink-3);
+  padding:10px 16px; border-bottom:2px solid transparent; margin-bottom:-1px;
+  cursor:pointer;
+}
+.pt-tab:hover{color:var(--ink);}
+.pt-tab.on{color:var(--olive); border-bottom-color:var(--olive);}
+.pt-tab-edit{
+  margin-left:auto; font-family:var(--font-mono); font-size:10px;
+  letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-4);
+  cursor:pointer; padding:10px 4px;
+}
+.pt-tab-edit:hover{color:var(--olive);}
+
+.pt-streak{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:1px;
+  background:var(--olive-line); border:1px solid var(--olive-line);
+  border-radius:var(--radius); overflow:hidden; margin-top:20px;
+}
+.pt-streak-cell{
+  background:var(--ink); color:var(--paper);
+  padding:16px 14px; text-align:center;
+}
+.pt-streak-flame{background:var(--olive);}
+.pt-streak-num{font-family:var(--font-mono); font-size:30px; font-weight:700; line-height:1; color:var(--gold);}
+.pt-streak-flame .pt-streak-num{color:#fff;}
+.pt-streak-icon{font-size:26px; line-height:1;}
+.pt-streak-lbl{
+  font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.16em;
+  text-transform:uppercase; color:rgba(245,243,238,.7); margin-top:7px;
+}
+
+.pt-order-head{
+  display:flex; align-items:baseline; justify-content:space-between;
+  gap:12px; margin-top:24px; flex-wrap:wrap;
+}
+.pt-order-date{
+  font-family:var(--font-mono); font-size:11px; letter-spacing:0.16em;
+  text-transform:uppercase; color:var(--ink); font-weight:600;
+}
+
+.pt-progress{margin-top:12px;}
+.pt-progress-row{
+  display:flex; justify-content:space-between; gap:10px; margin-bottom:6px;
+}
+.pt-progress-lbl{
+  font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.12em;
+  text-transform:uppercase; color:var(--ink-3);
+}
+.pt-progress-bar{
+  height:8px; background:var(--paper-deep); border:1px solid var(--olive-line);
+  border-radius:2px; overflow:hidden;
+}
+.pt-progress-bar > i{display:block; height:100%; background:var(--olive); transition:width .4s;}
+
+.pt-list{display:flex; flex-direction:column; gap:10px; margin-top:18px;}
+.ex-card{
+  display:flex; gap:14px; padding:16px;
+  background:#fff; border:1px solid var(--olive-line); border-radius:var(--radius);
+  transition:border-color .12s, background .15s;
+}
+.ex-card.ex-done{background:var(--paper-soft); border-color:var(--olive-line);}
+.ex-left{display:flex; flex-direction:column; align-items:center; gap:10px; flex:none;}
+.ex-num{
+  font-family:var(--font-mono); font-size:11px; letter-spacing:0.1em;
+  color:var(--ink-4); font-weight:600;
+}
+.ex-check{
+  width:34px; height:34px; border-radius:6px;
+  border:2px solid var(--olive-line); background:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px; color:#fff; transition:all .15s; cursor:pointer;
+}
+.ex-check:hover{border-color:var(--olive);}
+.ex-check.on{background:var(--olive); border-color:var(--olive-dark);}
+
+.ex-body{flex:1; min-width:0;}
+.ex-top{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+.ex-name{margin:0; font-size:16px; font-weight:700; letter-spacing:-0.01em; color:var(--ink);}
+.ex-card.ex-done .ex-name{color:var(--ink-3);}
+.ex-type{
+  font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.14em;
+  text-transform:uppercase; font-weight:600; padding:3px 8px; border-radius:2px;
+  border:1px solid var(--olive-line);
+}
+.ex-type-upper-body{background:#EFF4E6; color:#3B5A1C; border-color:#B8C99A;}
+.ex-type-lower-body{background:#FBF0E0; color:#8A5A1A; border-color:var(--gold-line);}
+.ex-type-core{background:#E8EEF4; color:#1C415A; border-color:#A0B6C9;}
+.ex-type-cardio{background:#FBE6E6; color:#8B1A1A; border-color:#D9A8A8;}
+.ex-type-conditioning{background:var(--paper); color:var(--ink-3);}
+.ex-presc{
+  font-family:var(--font-mono); font-size:15px; font-weight:600;
+  color:var(--olive-darker); margin-top:8px; letter-spacing:0.02em;
+}
+.ex-notes{font-size:13.5px; line-height:1.5; color:var(--ink-2); margin-top:8px;}
+.ex-gto{
+  display:flex; align-items:flex-start; gap:8px; margin-top:10px;
+  font-size:12.5px; line-height:1.45; color:var(--ink-3);
+}
+.ex-gto-lbl{
+  font-family:var(--font-mono); font-size:9px; letter-spacing:0.14em;
+  text-transform:uppercase; font-weight:700; color:var(--olive);
+  border:1px solid var(--olive-line); background:var(--olive-soft);
+  padding:2px 6px; border-radius:2px; flex:none; margin-top:1px;
+}
+
+.ex-run{
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  margin-top:14px; padding-top:14px; border-top:1px dashed var(--olive-line);
+}
+.ex-run-btn{
+  display:inline-flex; align-items:center; gap:6px;
+  height:38px; padding:0 16px; border-radius:var(--radius);
+  background:var(--ink); color:var(--paper);
+  font-family:var(--font-mono); font-size:11px; letter-spacing:0.08em;
+  text-transform:uppercase; font-weight:600; cursor:pointer;
+  transition:background .15s;
+}
+.ex-run-btn:hover{background:#000;}
+.ex-run-btn-sm{height:30px; padding:0 11px; background:transparent; color:var(--olive); border:1px solid var(--olive-line);}
+.ex-run-btn-sm:hover{background:var(--paper-soft);}
+.ex-run-cam{font-size:14px;}
+.ex-run-hint{font-size:11.5px; color:var(--ink-4);}
+.ex-run-prog{
+  font-family:var(--font-mono); font-size:11px; font-weight:700;
+  margin-left:4px; color:var(--gold);
+}
+.ex-run-ok{
+  font-family:var(--font-mono); font-size:11px; letter-spacing:0.1em;
+  text-transform:uppercase; font-weight:600; color:var(--success);
+}
+.ex-run-thumb{display:block; width:54px; height:54px; border-radius:var(--radius); overflow:hidden; border:1px solid var(--olive-line);}
+.ex-run-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+
+/* completion stamp / seal */
+.pt-stamp{
+  display:flex; align-items:center; gap:18px; margin-top:20px;
+  padding:18px 20px; background:var(--olive); color:#fff;
+  border:1px solid var(--olive-darker); border-radius:var(--radius);
+  box-shadow:inset 0 -3px 0 var(--gold);
+}
+.pt-stamp-seal{
+  width:88px; height:88px; flex:none; border-radius:50%;
+  border:3px double var(--gold); color:var(--gold);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  transform:rotate(-8deg);
+}
+.pt-stamp-star{font-size:20px; line-height:1;}
+.pt-stamp-txt{
+  font-family:var(--font-mono); font-size:11px; letter-spacing:0.14em;
+  font-weight:700; text-align:center; white-space:pre; line-height:1.25; margin-top:3px;
+}
+.pt-stamp-h{font-size:17px; font-weight:700; letter-spacing:-0.01em;}
+.pt-stamp-sub{font-size:13px; color:rgba(245,243,238,.82); margin-top:5px; line-height:1.5; max-width:420px;}
+
+/* PT leaderboard full table */
+.pt-lb-row{
+  grid-template-columns:56px minmax(120px,1.4fr) 70px 84px 70px 100px !important;
+}
+.pt-lb-row .lb-medal{width:28px; height:28px; font-size:12px;}
+.pt-lb-row b{font-size:17px; font-weight:700; color:var(--ink);}
+.pt-lb-row span[class^="ptlb-c"]{display:flex; align-items:center; gap:6px; min-width:0;}
+.lb-header span[class^="ptlb-c"]{
+  font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.14em;
+  text-transform:uppercase; color:var(--gold);
+}
+.ptlb-c4{font-family:var(--font-mono); font-size:12px; color:var(--ink-2);}
+.ptlb-c5{font-family:var(--font-mono); font-size:11px; color:var(--ink-4);}
+@media (max-width:640px){
+  .pt-streak-num{font-size:24px;}
+  .pt-lb-row{
+    grid-template-columns:40px 1fr 60px 56px !important;
+  }
+  .ptlb-c5{display:none !important;}
+  .ptlb-c4{font-size:11px;}
+  .ex-name{font-size:15px;}
+}
+
 /* ============ Practice screen ============ */
 .practice-wrap{
   max-width:780px; margin:0 auto;
@@ -712,6 +897,7 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db   = firebase.firestore();
 const fns  = firebase.functions(); // default region us-central1
+const storage = firebase.storage();
 const FV   = firebase.firestore.FieldValue;
 
 // AI: prefer Cloud Function (works on any hosted domain),
@@ -834,6 +1020,238 @@ async function loadLeaderboard(){
   return rows;
 }
 
+/* =========================================================
+   Daily PT — date utils + Firestore/Storage helpers
+   ========================================================= */
+function todayKey(d){
+  d = d || new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,"0");
+  const day = String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
+}
+function prettyDate(key){
+  const [y,m,d] = key.split("-").map(Number);
+  const dt = new Date(y, m-1, d);
+  return dt.toLocaleDateString(undefined, { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+}
+function shiftDate(key, deltaDays){
+  const [y,m,d] = key.split("-").map(Number);
+  const dt = new Date(y, m-1, d);
+  dt.setDate(dt.getDate()+deltaDays);
+  return todayKey(dt);
+}
+function monthKey(key){ return key.slice(0,7); } // YYYY-MM
+
+// fitnessProfile lives inside profiles/{uid} as a field
+async function saveFitnessProfile(uid, fp){
+  await db.collection('profiles').doc(uid).set(
+    { fitnessProfile: fp, updatedAt: FV.serverTimestamp() },
+    { merge: true }
+  );
+}
+
+// workouts/{uid}_{date}
+async function loadWorkout(uid, date){
+  const snap = await db.collection('workouts').doc(`${uid}_${date}`).get();
+  return snap.exists ? snap.data() : null;
+}
+async function saveWorkout(uid, date, data){
+  await db.collection('workouts').doc(`${uid}_${date}`).set(stripUndefined({
+    uid, date, ...data, updatedAt: FV.serverTimestamp()
+  }), { merge: true });
+}
+// recent completed workouts for streak + monthly count
+async function loadMyWorkouts(uid){
+  const snap = await db.collection('workouts').where('uid','==',uid).get();
+  const rows = [];
+  snap.forEach(d => rows.push(d.data()));
+  return rows;
+}
+// consecutive-day streak ending today or yesterday
+function computeStreak(workouts){
+  const done = new Set(workouts.filter(w => w.completedAll).map(w => w.date));
+  if (done.size === 0) return 0;
+  let streak = 0;
+  let cursor = todayKey();
+  // allow streak to count even if today not done yet (start from yesterday)
+  if (!done.has(cursor)) cursor = shiftDate(cursor, -1);
+  while (done.has(cursor)){
+    streak++;
+    cursor = shiftDate(cursor, -1);
+  }
+  return streak;
+}
+function countThisMonth(workouts){
+  const mk = monthKey(todayKey());
+  return workouts.filter(w => w.completedAll && monthKey(w.date) === mk).length;
+}
+
+// run screenshot → Firebase Storage runs/{uid}/{date}.jpg
+// Downscale first (phone screenshots are huge) then upload with progress + timeout.
+function resizeImage(file, maxDim=1400, quality=0.82){
+  return new Promise((resolve, reject)=>{
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = ()=>{
+      URL.revokeObjectURL(url);
+      const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+      const w = Math.max(1, Math.round(img.width*scale));
+      const h = Math.max(1, Math.round(img.height*scale));
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      canvas.toBlob(b => b ? resolve(b) : reject(new Error("Image compression failed.")), 'image/jpeg', quality);
+    };
+    img.onerror = ()=>{ URL.revokeObjectURL(url); reject(new Error("Could not read that image.")); };
+    img.src = url;
+  });
+}
+async function uploadRunScreenshot(uid, date, blob){
+  const ref = storage.ref().child(`runs/${uid}/${date}.jpg`);
+  const task = ref.put(blob, { contentType: "image/jpeg" });
+  await new Promise((resolve, reject)=>{
+    const to = setTimeout(()=> reject(new Error("Upload timed out. Your Storage bucket likely needs CORS configured — see DEPLOY.md.")), 40000);
+    task.on('state_changed',
+      (snap)=>{
+        state.runProgress = snap.totalBytes ? Math.round(100*snap.bytesTransferred/snap.totalBytes) : 0;
+        const lbl = document.querySelector('.ex-run-prog');
+        if (lbl) lbl.textContent = state.runProgress + "%";
+      },
+      (err)=>{ clearTimeout(to); reject(err); },
+      ()=>{ clearTimeout(to); resolve(); }
+    );
+  });
+  return await ref.getDownloadURL();
+}
+
+// ptLeaderboard/{uid}
+async function upsertPtLeaderboard(uid, data){
+  if (!uid) return;
+  try{
+    await db.collection('ptLeaderboard').doc(uid).set({
+      uid,
+      name: data.name || "Candidate",
+      entryType: data.entryType || "—",
+      workoutsThisMonth: data.workoutsThisMonth || 0,
+      streak: data.streak || 0,
+      lastWorkoutDate: data.lastWorkoutDate || "",
+      lastActive: FV.serverTimestamp(),
+    }, { merge: true });
+  } catch(e){ console.warn("ptLeaderboard write failed", e); }
+}
+async function syncMyPtStanding(){
+  if (!state.uid || !state.profile) return;
+  const workouts = state.myWorkouts || await loadMyWorkouts(state.uid);
+  state.myWorkouts = workouts;
+  const completed = workouts.filter(w => w.completedAll).map(w => w.date).sort();
+  await upsertPtLeaderboard(state.uid, {
+    name: state.profile.fullName || "Candidate",
+    entryType: state.profile.entryType || "—",
+    workoutsThisMonth: countThisMonth(workouts),
+    streak: computeStreak(workouts),
+    lastWorkoutDate: completed[completed.length-1] || "",
+  });
+}
+async function loadPtLeaderboard(){
+  const snap = await db.collection('ptLeaderboard').get();
+  const rows = [];
+  snap.forEach(d => rows.push(d.data()));
+  rows.sort((a,b) => {
+    if ((b.workoutsThisMonth||0) !== (a.workoutsThisMonth||0)) return (b.workoutsThisMonth||0) - (a.workoutsThisMonth||0);
+    if ((b.streak||0) !== (a.streak||0)) return (b.streak||0) - (a.streak||0);
+    return (a.name||"").localeCompare(b.name||"");
+  });
+  return rows;
+}
+
+/* =========================================================
+   Daily PT — AI workout generation
+   ========================================================= */
+async function generateWorkout(date, didYesterday){
+  const fp = state.profile.fitnessProfile || {};
+  const sys = `You are a military fitness coach preparing SSB candidates for GTO obstacles. Based on the candidate's fitness profile, generate today's workout.
+
+Rules:
+- 5-6 exercises total
+- Mix of: upper body (pull-ups, push-ups, dead hangs for rope climbing prep), core (planks, leg raises for balance), lower body (squats, lunges, box jumps for obstacle jumping), and cardio (running with specific distance and pace target)
+- One exercise must always be running with a specific distance and target pace
+- Scale difficulty to their current level (if they can only do 5 push-ups, don't prescribe 50)
+- Progressive overload: ${didYesterday ? "they COMPLETED yesterday's workout — increase volume slightly today" : "they did not complete a workout yesterday — keep today's load steady, do not over-prescribe"}
+- If they train at home: bodyweight exercises only. If gym: include pull-up bar, dumbbell exercises. If both: you may use either.
+- Today's date is ${date}. Treat this date as a seed so the plan is deterministic for the day.
+
+Return ONLY a JSON array (no prose, no markdown fences):
+[{"id": 1, "name": "Push-ups", "sets": 3, "reps": 15, "type": "Upper Body", "notes": "Keep core tight, full range of motion", "gto_relevance": "Rope climbing & obstacle vaulting strength"}]
+For running use: {"id": 6, "name": "Running", "sets": 1, "reps": 1, "type": "Cardio", "distance_km": 2.5, "target_pace": "6:00 min/km", "notes": "Maintain steady pace, don't stop", "gto_relevance": "Stamina for full GTO day"}`;
+
+  const user = `CANDIDATE FITNESS PROFILE:\n${JSON.stringify(fp, null, 2)}\n\nSSB entry type: ${state.profile.entryType || "—"}. Generate today's PT order.`;
+
+  const raw = await aiComplete(sys + "\n\n" + user, { maxTokens: 1500 });
+  return parseWorkout(raw);
+}
+function parseWorkout(raw){
+  if (!raw) return null;
+  const i = raw.indexOf("["); const j = raw.lastIndexOf("]");
+  if (i < 0 || j < 0 || j <= i) return null;
+  try{
+    const arr = JSON.parse(raw.slice(i, j+1));
+    if (!Array.isArray(arr) || !arr.length) return null;
+    return arr.map((e, idx) => {
+      const type = normalizePtType(e.type);
+      const isRun = /run/i.test(e.name||"") || (/cardio/i.test(type) && e.distance_km != null);
+      const ex = {
+        id: e.id ?? (idx+1),
+        name: String(e.name || "Exercise").trim(),
+        sets: Number(e.sets) || 1,
+        reps: Number(e.reps) || 1,
+        type,
+        notes: String(e.notes || "").trim(),
+        gto_relevance: String(e.gto_relevance || "").trim(),
+        isRun: !!isRun,
+      };
+      // only attach optional run fields when present (Firestore rejects undefined)
+      if (e.distance_km != null && e.distance_km !== "") ex.distance_km = Number(e.distance_km);
+      if (e.target_pace) ex.target_pace = String(e.target_pace).trim();
+      return ex;
+    });
+  } catch(e){ return null; }
+}
+
+// Firestore rejects `undefined`. Strip it recursively before any write.
+function stripUndefined(v){
+  if (Array.isArray(v)) return v.map(stripUndefined);
+  if (v && typeof v === "object"){
+    const out = {};
+    for (const [k, val] of Object.entries(v)){
+      if (val === undefined) continue;
+      out[k] = stripUndefined(val);
+    }
+    return out;
+  }
+  return v;
+}
+function normalizePtType(t){
+  const s = (t||"").toString().trim().toLowerCase();
+  if (s.includes("upper")) return "Upper Body";
+  if (s.includes("lower") || s.includes("leg")) return "Lower Body";
+  if (s.includes("core")) return "Core";
+  if (s.includes("cardio") || s.includes("run")) return "Cardio";
+  return "Conditioning";
+}
+function fallbackWorkout(){
+  const fp = state.profile.fitnessProfile || {};
+  const base = Math.max(5, Number(fp.pushups) || 10);
+  return [
+    { id:1, name:"Push-ups", sets:3, reps:Math.round(base*0.8), type:"Upper Body", notes:"Full range, chest to floor. Rest 60s between sets.", gto_relevance:"Vaulting & rope-climb pushing strength", isRun:false },
+    { id:2, name:"Dead Hang", sets:3, reps:1, type:"Upper Body", notes:"Hang from a bar as long as possible. Log seconds.", gto_relevance:"Grip endurance for rope climbing", isRun:false },
+    { id:3, name:"Bodyweight Squats", sets:3, reps:20, type:"Lower Body", notes:"Thighs parallel, controlled tempo.", gto_relevance:"Power for high-wall & jump obstacles", isRun:false },
+    { id:4, name:"Plank Hold", sets:3, reps:1, type:"Core", notes:"Hold 45–60s. Keep a straight line.", gto_relevance:"Balance on beams & tarzan swing", isRun:false },
+    { id:5, name:"Walking Lunges", sets:3, reps:12, type:"Lower Body", notes:"12 each leg. Knee tracks over toe.", gto_relevance:"Single-leg control for balancing tasks", isRun:false },
+    { id:6, name:"Running", sets:1, reps:1, type:"Cardio", distance_km:2, target_pace:"7:00 min/km", notes:"Maintain a steady pace, do not stop.", gto_relevance:"Stamina for the full GTO day", isRun:true },
+  ];
+}
+
 function humanizeAuthError(e){
   const c = (e && e.code) || "";
   if (c === "auth/email-already-in-use") return "An account with this email already exists. Try signing in.";
@@ -871,6 +1289,19 @@ const state = {
   leaderboard: null,   // array once loaded
   leaderboardLoading: false,
   lbView: "podium",    // 'podium' | 'full'
+  // daily PT
+  ptTab: "workout",        // 'workout' | 'leaderboard'
+  ptStep: "check",         // internal: which sub-state of workout screen
+  workout: null,           // today's workout doc { plan, done, runScreenshotUrl, completedAll }
+  workoutDate: null,
+  workoutLoading: false,
+  workoutError: "",
+  myWorkouts: null,        // cached array for streak
+  ptLeaderboard: null,
+  ptLeaderboardLoading: false,
+  ptLbView: "podium",
+  fitDraft: null,          // fitness profile being edited
+  runUploading: false,
   // practice screen
   activeQ: null,
   answerDraft: "",
@@ -949,6 +1380,7 @@ function render(){
     case "piq":       view = renderPIQ(); break;
     case "dashboard": view = renderDashboard(); break;
     case "leaderboard": view = renderLeaderboard(); break;
+    case "pt":        view = renderPT(); break;
     case "practice":  view = renderPractice(); break;
     case "loading":   view = renderLoading(); break;
     default:          view = renderLogin();
@@ -1581,6 +2013,7 @@ function renderDashboard(){
   head.appendChild(headL);
 
   const actions = el("div", {class:"row"});
+  actions.appendChild(el("button", {class:"btn btn-gold btn-mono", onClick:()=>openPT()}, "⛰ Daily PT"));
   actions.appendChild(el("button", {class:"btn btn-dark btn-mono", onClick:()=>openLeaderboard()}, "★ Merit List"));
   actions.appendChild(el("button", {class:"btn btn-ghost btn-mono", onClick:()=>{
     state.piqDraft = JSON.parse(JSON.stringify(state.profile));
@@ -2126,6 +2559,521 @@ function renderFeedbackCard(fb){
     el("div", {class:"fb-example"}, fb.better_answer)
   ));
   return c;
+}
+
+/* =========================================================
+   Daily PT — screens
+   ========================================================= */
+async function openPT(){
+  state.screen = "pt";
+  state.ptTab = "workout";
+  state.workoutError = "";
+  // need a fitness profile first
+  if (!state.profile.fitnessProfile){
+    state.fitDraft = blankFitness();
+    render();
+    return;
+  }
+  await loadTodayWorkout();
+}
+
+function blankFitness(){
+  return {
+    weight:"", height:"", trainAt:"Home", track:"yes",
+    runCap:"1-2km", pushups:"", ssbDate:"",
+  };
+}
+
+async function loadTodayWorkout(){
+  const date = todayKey();
+  state.workoutDate = date;
+  state.workoutLoading = true;
+  state.workout = null;
+  render();
+  try{
+    let doc = await loadWorkout(state.uid, date);
+    if (doc && Array.isArray(doc.plan) && doc.plan.length){
+      state.workout = doc;
+    } else {
+      // generate fresh for today (deterministic-ish via date seed)
+      const yKey = shiftDate(date, -1);
+      const yDoc = await loadWorkout(state.uid, yKey);
+      const didYesterday = !!(yDoc && yDoc.completedAll);
+      let plan;
+      try{ plan = await generateWorkout(date, didYesterday); }
+      catch(e){ plan = null; }
+      if (!plan || !plan.length){ plan = fallbackWorkout(); }
+      doc = { uid:state.uid, date, plan, done:{}, runScreenshotUrl:"", completedAll:false };
+      await saveWorkout(state.uid, date, { plan, done:{}, runScreenshotUrl:"", completedAll:false });
+      state.workout = doc;
+    }
+    // refresh cached workouts + streak standing
+    state.myWorkouts = await loadMyWorkouts(state.uid);
+  } catch(e){
+    console.error(e);
+    state.workoutError = e.message || "Could not load workout.";
+  }
+  state.workoutLoading = false;
+  render();
+}
+
+function workoutHasRun(plan){ return (plan||[]).some(e => e.isRun); }
+function workoutIsComplete(w){
+  if (!w || !Array.isArray(w.plan)) return false;
+  const allChecked = w.plan.every(e => w.done && w.done[e.id]);
+  const runOk = workoutHasRun(w.plan) ? !!w.runScreenshotUrl : true;
+  return allChecked && runOk;
+}
+
+async function toggleExercise(id){
+  const w = state.workout;
+  w.done = w.done || {};
+  w.done[id] = !w.done[id];
+  const wasComplete = w.completedAll;
+  w.completedAll = workoutIsComplete(w);
+  render();
+  try{
+    await saveWorkout(state.uid, w.date, {
+      done: w.done,
+      completedAll: w.completedAll,
+      completedAt: w.completedAll && !wasComplete ? FV.serverTimestamp() : (w.completedAt || null),
+    });
+    if (w.completedAll && !wasComplete){
+      toast("PT COMPLETE — logged.");
+      state.myWorkouts = await loadMyWorkouts(state.uid);
+      await syncMyPtStanding();
+      render();
+    }
+  } catch(e){ console.error(e); toast("Save failed."); }
+}
+
+async function handleRunUpload(file){
+  if (!file) return;
+  if (!file.type.startsWith("image/")){ toast("Upload an image file."); return; }
+  state.runUploading = true; state.runProgress = 0; render();
+  try{
+    let blob;
+    try{ blob = await resizeImage(file); }
+    catch(_){ blob = file; } // fall back to original if canvas fails
+    const url = await uploadRunScreenshot(state.uid, state.workout.date, blob);
+    state.workout.runScreenshotUrl = url;
+    const wasComplete = state.workout.completedAll;
+    state.workout.completedAll = workoutIsComplete(state.workout);
+    await saveWorkout(state.uid, state.workout.date, {
+      runScreenshotUrl: url,
+      completedAll: state.workout.completedAll,
+      completedAt: state.workout.completedAll && !wasComplete ? FV.serverTimestamp() : (state.workout.completedAt || null),
+    });
+    if (state.workout.completedAll && !wasComplete){
+      toast("PT COMPLETE — logged.");
+      state.myWorkouts = await loadMyWorkouts(state.uid);
+      await syncMyPtStanding();
+    } else {
+      toast("Run screenshot uploaded.");
+    }
+  } catch(e){
+    console.error(e);
+    toast("Upload failed — " + (e.message || "check Storage rules / CORS."));
+  }
+  state.runUploading = false;
+  render();
+}
+
+function renderPT(){
+  const wrap = el("div", {class:"page fade-in"});
+
+  // head
+  const head = el("div", {class:"dash-head"});
+  const headL = el("div", {});
+  headL.appendChild(el("div", {class:"eyebrow eyebrow-gold"}, "Physical Training · GTO Obstacle Prep"));
+  headL.appendChild(el("h1", {class:"h-page", style:{marginTop:"4px"}}, "Daily PT"));
+  head.appendChild(headL);
+  const actions = el("div", {class:"row"});
+  actions.appendChild(el("button", {class:"btn btn-primary btn-mono", onClick:()=>{ state.screen="dashboard"; render(); }}, "← Question Set"));
+  head.appendChild(actions);
+  wrap.appendChild(head);
+
+  // fitness profile gate
+  if (!state.profile.fitnessProfile){
+    wrap.appendChild(renderFitnessForm());
+    return wrap;
+  }
+
+  // tabs
+  const tabs = el("div", {class:"pt-tabs"});
+  tabs.appendChild(el("button", {
+    class:"pt-tab" + (state.ptTab==="workout"?" on":""),
+    onClick:()=>{ state.ptTab="workout"; render(); }
+  }, "Today's Order"));
+  tabs.appendChild(el("button", {
+    class:"pt-tab" + (state.ptTab==="leaderboard"?" on":""),
+    onClick:()=>openPtLeaderboard()
+  }, "PT Leaderboard"));
+  tabs.appendChild(el("button", {
+    class:"pt-tab-edit",
+    onClick:()=>{ state.fitDraft = JSON.parse(JSON.stringify(state.profile.fitnessProfile)); state.profile.fitnessProfile = null; render(); }
+  }, "Edit Fitness Profile"));
+  wrap.appendChild(tabs);
+
+  if (state.ptTab === "leaderboard"){
+    wrap.appendChild(renderPtLeaderboardBody());
+    return wrap;
+  }
+
+  // workout body
+  if (state.workoutLoading){
+    wrap.appendChild(renderInlineLoading("Issuing today's PT order…", "Scaling exercises to your fitness profile."));
+    return wrap;
+  }
+  if (state.workoutError){
+    wrap.appendChild(el("div", {class:"card card-pad", style:{marginTop:"18px"}},
+      el("div", {class:"err"}, state.workoutError),
+      el("button", {class:"btn btn-primary btn-mono", style:{marginTop:"12px"}, onClick:()=>loadTodayWorkout()}, "Retry")
+    ));
+    return wrap;
+  }
+  wrap.appendChild(renderWorkoutBody());
+  return wrap;
+}
+
+function renderStreakStrip(){
+  const workouts = state.myWorkouts || [];
+  const streak = computeStreak(workouts);
+  const month = countThisMonth(workouts);
+  const strip = el("div", {class:"pt-streak"});
+  const s1 = el("div", {class:"pt-streak-cell"});
+  s1.appendChild(el("div", {class:"pt-streak-num"}, String(streak)));
+  s1.appendChild(el("div", {class:"pt-streak-lbl"}, streak === 1 ? "Day Streak" : "Day Streak"));
+  strip.appendChild(s1);
+  const s2 = el("div", {class:"pt-streak-cell"});
+  s2.appendChild(el("div", {class:"pt-streak-num"}, String(month)));
+  s2.appendChild(el("div", {class:"pt-streak-lbl"}, "This Month"));
+  strip.appendChild(s2);
+  // flame / status
+  const s3 = el("div", {class:"pt-streak-cell pt-streak-flame"});
+  s3.appendChild(el("div", {class:"pt-streak-icon"}, streak > 0 ? "🔥" : "—"));
+  s3.appendChild(el("div", {class:"pt-streak-lbl"}, streak > 0 ? "On Track" : "Start Today"));
+  strip.appendChild(s3);
+  return strip;
+}
+
+function renderWorkoutBody(){
+  const root = el("div", {});
+  const w = state.workout;
+
+  root.appendChild(renderStreakStrip());
+
+  // PT order header
+  const orderHead = el("div", {class:"pt-order-head"});
+  orderHead.appendChild(el("div", {class:"eyebrow eyebrow-olive"}, "PT Order"));
+  orderHead.appendChild(el("div", {class:"pt-order-date"}, prettyDate(w.date).toUpperCase()));
+  root.appendChild(orderHead);
+
+  // progress
+  const total = w.plan.length;
+  const doneCount = w.plan.filter(e => w.done && w.done[e.id]).length;
+  const runPending = workoutHasRun(w.plan) && !w.runScreenshotUrl;
+  const pct = Math.round(100*doneCount/total);
+  const prog = el("div", {class:"pt-progress"});
+  prog.appendChild(el("div", {class:"pt-progress-row"},
+    el("span", {class:"pt-progress-lbl"}, `${doneCount}/${total} exercises completed`),
+    el("span", {class:"pt-progress-lbl"}, runPending ? "Run screenshot pending" : "")
+  ));
+  prog.appendChild(el("div", {class:"pt-progress-bar"}, el("i", {style:{width:pct+"%"}})));
+  root.appendChild(prog);
+
+  // complete stamp
+  if (w.completedAll){
+    root.appendChild(renderCompleteStamp());
+  }
+
+  // exercise cards
+  const list = el("div", {class:"pt-list"});
+  w.plan.forEach((e, idx) => list.appendChild(renderExerciseCard(e, idx+1)));
+  root.appendChild(list);
+
+  return root;
+}
+
+function renderCompleteStamp(){
+  const s = el("div", {class:"pt-stamp"});
+  const seal = el("div", {class:"pt-stamp-seal"});
+  seal.appendChild(el("div", {class:"pt-stamp-star"}, "★"));
+  seal.appendChild(el("div", {class:"pt-stamp-txt"}, "PT\nCOMPLETE"));
+  s.appendChild(seal);
+  const meta = el("div", {class:"pt-stamp-meta"});
+  meta.appendChild(el("div", {class:"pt-stamp-h"}, "Today's order cleared"));
+  meta.appendChild(el("div", {class:"pt-stamp-sub"}, "Logged to your record. Streak maintained — report back tomorrow."));
+  s.appendChild(meta);
+  return s;
+}
+
+function renderExerciseCard(e, num){
+  const checked = !!(state.workout.done && state.workout.done[e.id]);
+  const card = el("div", {class:"ex-card" + (checked ? " ex-done" : "")});
+
+  // number + checkbox column
+  const left = el("div", {class:"ex-left"});
+  left.appendChild(el("div", {class:"ex-num"}, String(num).padStart(2,"0")));
+  const box = el("button", {
+    class:"ex-check" + (checked ? " on" : ""),
+    onClick:()=>toggleExercise(e.id),
+    "aria-label":"Mark complete"
+  }, checked ? "✓" : "");
+  left.appendChild(box);
+  card.appendChild(left);
+
+  // body
+  const body = el("div", {class:"ex-body"});
+  const top = el("div", {class:"ex-top"});
+  top.appendChild(el("h3", {class:"ex-name"}, e.name));
+  top.appendChild(el("span", {class:"ex-type ex-type-"+e.type.toLowerCase().replace(/\s+/g,'-')}, e.type));
+  body.appendChild(top);
+
+  // prescription
+  let presc;
+  if (e.isRun){
+    const bits = [];
+    if (e.distance_km) bits.push(`${e.distance_km} km`);
+    if (e.target_pace) bits.push(`@ ${e.target_pace}`);
+    presc = bits.join("  ") || "Steady run";
+  } else {
+    const repsTxt = e.reps > 1 ? `${e.reps} reps` : "max hold";
+    presc = `${e.sets} × ${repsTxt}`;
+  }
+  body.appendChild(el("div", {class:"ex-presc"}, presc));
+
+  if (e.notes) body.appendChild(el("div", {class:"ex-notes"}, e.notes));
+  if (e.gto_relevance) body.appendChild(el("div", {class:"ex-gto"},
+    el("span", {class:"ex-gto-lbl"}, "GTO"),
+    el("span", {}, e.gto_relevance)
+  ));
+
+  // run upload
+  if (e.isRun){
+    const runRow = el("div", {class:"ex-run"});
+    if (state.workout.runScreenshotUrl){
+      const thumb = el("a", {class:"ex-run-thumb", href:state.workout.runScreenshotUrl, target:"_blank"});
+      thumb.appendChild(el("img", {src:state.workout.runScreenshotUrl, alt:"Run screenshot"}));
+      runRow.appendChild(thumb);
+      runRow.appendChild(el("span", {class:"ex-run-ok"}, "✓ Run logged"));
+      const re = el("label", {class:"ex-run-btn ex-run-btn-sm"});
+      re.appendChild(document.createTextNode("Replace"));
+      re.appendChild(fileInput());
+      runRow.appendChild(re);
+    } else {
+      const btn = el("label", {class:"ex-run-btn"});
+      btn.appendChild(el("span", {class:"ex-run-cam"}, "📷"));
+      btn.appendChild(document.createTextNode(state.runUploading ? " Uploading " : " Upload Run Screenshot"));
+      if (state.runUploading) btn.appendChild(el("span", {class:"ex-run-prog"}, (state.runProgress||0)+"%"));
+      btn.appendChild(fileInput());
+      runRow.appendChild(btn);
+      runRow.appendChild(el("span", {class:"ex-run-hint"}, "From Strava, Nike Run, any app"));
+    }
+    body.appendChild(runRow);
+  }
+
+  card.appendChild(body);
+  return card;
+}
+
+function fileInput(){
+  const inp = el("input", {type:"file", accept:"image/*", style:{display:"none"}});
+  inp.addEventListener("change", e => {
+    const f = e.target.files && e.target.files[0];
+    if (f) handleRunUpload(f);
+  });
+  if (state.runUploading) inp.disabled = true;
+  return inp;
+}
+
+/* ---- Fitness profile setup ---- */
+function renderFitnessForm(){
+  const p = state.fitDraft || blankFitness();
+  state.fitDraft = p;
+
+  const card = el("div", {class:"card card-pad", style:{marginTop:"18px"}});
+  card.appendChild(el("div", {class:"section-title"}, "Fitness Profile · One-time Setup"));
+  card.appendChild(el("p", {class:"hint", style:{margin:"0 0 16px"}}, "We scale every workout to your current level so the load is safe and progressive. Be honest — under-reporting only hurts your prep."));
+
+  const stack = el("div", {class:"fields-stack"});
+
+  stack.appendChild(el("div", {class:"field-row"},
+    el("div", {class:"field"}, el("div", {class:"label"}, "Current Weight (kg)"), inputBind(p, "weight", "e.g. 68")),
+    el("div", {class:"field"}, el("div", {class:"label"}, "Height (cm)"), inputBind(p, "height", "e.g. 174"))
+  ));
+
+  stack.appendChild(el("div", {class:"field-row"},
+    el("div", {class:"field"}, el("div", {class:"label"}, "Where Do You Train?"), pillBind(p, "trainAt", ["Home","Gym","Both"])),
+    el("div", {class:"field"}, el("div", {class:"label"}, "Access to Running Track / Open Ground?"), pillBind(p, "track", ["yes","no"]))
+  ));
+
+  stack.appendChild(el("div", {class:"field"},
+    el("div", {class:"label"}, "How Far Can You Run Without Stopping?"),
+    selectBind(p, "runCap", ["Less than 1km","1-2km","2-3km","3-5km","5km+"])
+  ));
+
+  stack.appendChild(el("div", {class:"field-row"},
+    el("div", {class:"field"}, el("div", {class:"label"}, "Push-ups In One Go"), inputBind(p, "pushups", "e.g. 20")),
+    el("div", {class:"field"}, el("div", {class:"label"}, "SSB Date (if known)"), dateBind(p, "ssbDate"))
+  ));
+
+  card.appendChild(stack);
+
+  const foot = el("div", {class:"wizard-foot"});
+  // allow cancel only if a profile already exists (editing)
+  foot.appendChild(el("div", {}));
+  foot.appendChild(el("button", {class:"btn btn-primary btn-mono", onClick:()=>saveFitnessAndStart()}, "Save & Start Training →"));
+  card.appendChild(foot);
+
+  return card;
+}
+
+function dateBind(p, key){
+  const i = el("input", {class:"input", type:"date"});
+  i.value = p[key] || "";
+  i.addEventListener("input", e => p[key] = e.target.value);
+  return i;
+}
+
+async function saveFitnessAndStart(){
+  const p = state.fitDraft;
+  if (!p.weight || !p.height){ toast("Weight and height are required."); return; }
+  if (!p.pushups){ toast("Enter your current push-up count."); return; }
+  state.profile.fitnessProfile = p;
+  try{
+    await saveFitnessProfile(state.uid, p);
+  } catch(e){ toast("Save failed — " + (e.message||"")); state.profile.fitnessProfile = null; render(); return; }
+  await loadTodayWorkout();
+}
+
+/* ---- PT Leaderboard ---- */
+async function openPtLeaderboard(){
+  state.ptTab = "leaderboard";
+  state.ptLbView = "podium";
+  state.ptLeaderboardLoading = true;
+  state.ptLeaderboard = null;
+  render();
+  try{ await syncMyPtStanding(); }catch(e){}
+  try{ state.ptLeaderboard = await loadPtLeaderboard(); }
+  catch(e){ console.error(e); toast("Could not load PT leaderboard."); state.ptLeaderboard = []; }
+  state.ptLeaderboardLoading = false;
+  render();
+}
+
+function renderPtLeaderboardBody(){
+  const root = el("div", {});
+  root.appendChild(el("div", {class:"pt-order-head", style:{marginTop:"4px"}},
+    el("div", {class:"eyebrow eyebrow-gold"}, "Merit Order · Physical Training"),
+    el("div", {class:"pt-order-date"}, "WORKOUTS THIS MONTH · " + monthName())
+  ));
+
+  if (state.ptLeaderboardLoading){
+    root.appendChild(renderInlineLoading("Compiling PT standings…", "Counting this month's completed workouts."));
+    return root;
+  }
+  const rows = state.ptLeaderboard || [];
+  if (rows.length === 0){
+    root.appendChild(el("div", {class:"card card-pad", style:{marginTop:"18px"}},
+      el("div", {class:"muted center"}, "No PT standings yet. Complete a workout to appear here.")
+    ));
+    return root;
+  }
+
+  if (state.ptLbView === "podium"){
+    root.appendChild(renderPtPodium(rows));
+  } else {
+    root.appendChild(renderPtFull(rows));
+  }
+  return root;
+}
+
+function monthName(){
+  return new Date().toLocaleDateString(undefined, { month:"long", year:"numeric" }).toUpperCase();
+}
+
+function renderPtPodium(rows){
+  const stage = el("div", {});
+  const top3 = rows.slice(0,3);
+  const order = [];
+  if (top3[1]) order.push({ r: top3[1], rank: 2 });
+  if (top3[0]) order.push({ r: top3[0], rank: 1 });
+  if (top3[2]) order.push({ r: top3[2], rank: 3 });
+
+  const podium = el("div", {class:"podium"});
+  for (const { r, rank } of order){
+    const medal = rank===1?"gold":rank===2?"silver":"bronze";
+    const isMe = r.uid === state.uid;
+    const col = el("div", {class:"pod-col pod-"+medal + (isMe?" pod-me":"")});
+    const who = el("div", {class:"pod-who"});
+    who.appendChild(el("div", {class:"pod-medal pod-medal-"+medal}, rank===1?"★":String(rank)));
+    who.appendChild(el("div", {class:"pod-name"}, r.name||"Candidate"));
+    who.appendChild(el("div", {class:"pod-entry"}, r.entryType||"—"));
+    who.appendChild(el("div", {class:"pod-stat"}, el("b",{},String(r.workoutsThisMonth||0)), el("span",{class:"pod-of"}," workouts")));
+    who.appendChild(el("div", {class:"pod-pct"}, `🔥 ${r.streak||0} day streak`));
+    col.appendChild(who);
+    const ped = el("div", {class:"pod-base pod-base-"+medal});
+    ped.appendChild(el("span", {class:"pod-rank-num"}, String(rank)));
+    col.appendChild(ped);
+    podium.appendChild(col);
+  }
+  stage.appendChild(podium);
+
+  const myIdx = rows.findIndex(r => r.uid === state.uid);
+  if (myIdx >= 3){
+    const me = rows[myIdx];
+    stage.appendChild(el("div", {class:"pod-yours"},
+      el("span", {class:"pod-yours-rank"}, "#"+(myIdx+1)),
+      el("span", {class:"pod-yours-txt"}, "Your standing — ", el("b",{}, me.name||"You")),
+      el("span", {class:"pod-yours-stat"}, `${me.workoutsThisMonth||0} workouts · 🔥${me.streak||0}`)
+    ));
+  }
+  stage.appendChild(el("button", {class:"pod-cta", onClick:()=>{ state.ptLbView="full"; render(); }},
+    el("span", {}, "View full PT standings"),
+    el("span", {class:"pod-cta-meta"}, `${rows.length} candidate${rows.length===1?"":"s"} →`)
+  ));
+  return stage;
+}
+
+function renderPtFull(rows){
+  const board = el("div", {class:"card lb-card"});
+  const strip = el("div", {class:"lb-toolbar"});
+  strip.appendChild(el("button", {class:"lb-back", onClick:()=>{ state.ptLbView="podium"; render(); }}, "← Top 3 podium"));
+  strip.appendChild(el("span", {class:"lb-toolbar-count"}, `${rows.length} candidate${rows.length===1?"":"s"}`));
+  board.appendChild(strip);
+
+  const header = el("div", {class:"lb-row pt-lb-row lb-header"});
+  ["Rank","Candidate","Entry","Workouts","Streak","Last Active"].forEach((h,i)=>{
+    header.appendChild(el("span", {class:"ptlb-c"+i}, h));
+  });
+  board.appendChild(header);
+
+  rows.forEach((r,i)=>{
+    const rank = i+1;
+    const isMe = r.uid === state.uid;
+    const medal = rank===1?"gold":rank===2?"silver":rank===3?"bronze":"";
+    const row = el("div", {class:"lb-row pt-lb-row" + (medal?" lb-"+medal:"") + (isMe?" lb-me":"")});
+    // rank
+    const c0 = el("span", {class:"ptlb-c0"});
+    if (medal) c0.appendChild(el("span", {class:"lb-medal lb-medal-"+medal}, String(rank)));
+    else c0.appendChild(el("span", {class:"lb-rank-num"}, String(rank)));
+    row.appendChild(c0);
+    // name
+    const c1 = el("span", {class:"ptlb-c1"});
+    c1.appendChild(el("span", {class:"lb-name-txt"}, r.name||"Candidate"));
+    if (isMe) c1.appendChild(el("span", {class:"lb-you"}, "You"));
+    row.appendChild(c1);
+    // entry
+    row.appendChild(el("span", {class:"ptlb-c2"}, el("span", {class:"lb-entry-badge"}, r.entryType||"—")));
+    // workouts
+    row.appendChild(el("span", {class:"ptlb-c3"}, el("b",{}, String(r.workoutsThisMonth||0))));
+    // streak
+    row.appendChild(el("span", {class:"ptlb-c4"}, (r.streak>0?"🔥 ":"") + (r.streak||0) + "d"));
+    // last active
+    row.appendChild(el("span", {class:"ptlb-c5"}, r.lastWorkoutDate || "—"));
+    board.appendChild(row);
+  });
+  return board;
 }
 
 /* =========================================================
