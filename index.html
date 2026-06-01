@@ -848,6 +848,58 @@ body.has-side #app{ padding-left:248px; }
 }
 
 /* ============ OIR Practice ============ */
+.oir-load-card{
+  margin-top:18px; padding:48px 28px;
+  background:var(--ink); color:var(--paper);
+  border-radius:var(--radius); box-shadow:inset 0 -3px 0 var(--gold);
+  display:flex; flex-direction:column; align-items:center; text-align:center; gap:18px;
+  min-height:300px; justify-content:center;
+}
+.oir-load-spinner{
+  width:52px; height:52px; border-radius:50%;
+  border:3px solid rgba(197,165,90,.22); border-top-color:var(--gold);
+  animation:spin 1s linear infinite;
+}
+.oir-prog-track{
+  width:100%; max-width:480px; height:10px; border-radius:999px;
+  background:rgba(245,243,238,.12); overflow:hidden;
+}
+.oir-prog-fill{
+  height:100%; width:0%; border-radius:999px;
+  background:linear-gradient(90deg, #B8985A, var(--gold));
+  transition:width .25s ease-out;
+}
+.oir-prog-pct{
+  font-family:var(--font-mono); font-size:14px; font-weight:700;
+  letter-spacing:0.08em; color:var(--gold);
+}
+.oir-load-title{
+  font-family:var(--font-mono); font-size:12px; letter-spacing:0.16em;
+  text-transform:uppercase; color:var(--gold); font-weight:600;
+}
+.oir-tip{
+  font-size:15px; line-height:1.55; font-style:italic;
+  color:rgba(245,243,238,.7); max-width:420px;
+  transition:opacity .32s ease; min-height:46px;
+  display:flex; align-items:center;
+}
+.oir-tip.fade-out{ opacity:0; }
+.oir-ready-card{ gap:10px; }
+.oir-ready-lbl{
+  font-family:var(--font-mono); font-size:12px; letter-spacing:0.24em;
+  text-transform:uppercase; color:rgba(245,243,238,.6); font-weight:600;
+}
+.oir-ready-num{
+  font-family:var(--font-mono); font-size:80px; font-weight:700; line-height:1;
+  color:var(--gold); animation:oirPop .9s ease-out;
+}
+@keyframes oirPop{
+  0%{ transform:scale(.55); opacity:0; }
+  35%{ transform:scale(1.08); opacity:1; }
+  100%{ transform:scale(1); opacity:1; }
+}
+.oir-ready-sub{ font-size:13px; color:rgba(245,243,238,.55); }
+
 .oir-count-row{
   display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-top:20px;
 }
@@ -3637,23 +3689,104 @@ function fmtClock(s){
   return `${String(m).padStart(2,"0")}:${String(ss).padStart(2,"0")}`;
 }
 
+const OIR_TIPS = [
+  "Grab a rough notebook and pen — you'll need it for calculations.",
+  "OIR tests your speed and accuracy. Stay calm, don't overthink.",
+  "For non-verbal questions, trust your first instinct.",
+  "Time is limited — attempt every question, don't leave blanks.",
+  "Rough work is your best friend. Jot down steps quickly.",
+  "Read every option before you commit — distractors are designed to tempt.",
+  "Stuck on a question? Mark a best guess and move on. Never freeze.",
+  "Coding-decoding: write the alphabet out with position numbers first.",
+  "Blood relations: draw a quick family tree, mark gender and generation.",
+  "Direction sense: sketch a compass and trace each turn on paper.",
+  "Series questions: check differences, then ratios, then alternate patterns.",
+  "Accuracy beats bravado — a calm, attempted paper scores better than a rushed one.",
+];
+function startOirTips(){
+  stopOirTips();
+  state._oirTipIdx = 0;
+  state._oirTipTimer = setInterval(()=>{
+    state._oirTipIdx = (state._oirTipIdx + 1) % OIR_TIPS.length;
+    const tip = document.querySelector(".oir-tip");
+    if (tip){
+      tip.classList.add("fade-out");
+      setTimeout(()=>{
+        tip.textContent = OIR_TIPS[state._oirTipIdx];
+        tip.classList.remove("fade-out");
+      }, 320);
+    }
+  }, 3000);
+}
+function stopOirTips(){ if (state._oirTipTimer){ clearInterval(state._oirTipTimer); state._oirTipTimer = null; } }
+
+// Progress bar: animate 0→90% over ~12s (ease-in-out), hold, then jump to 100%
+function paintOirProgress(){
+  const fill = document.querySelector(".oir-prog-fill");
+  const pct = document.querySelector(".oir-prog-pct");
+  if (fill) fill.style.width = state.oirProgress + "%";
+  if (pct) pct.textContent = state.oirProgress + "%";
+}
+function startOirProgress(){
+  stopOirProgress();
+  state.oirProgress = 0;
+  state._oirProgStart = Date.now();
+  const dur = 12000;
+  state._oirProgTimer = setInterval(()=>{
+    const t = Math.min(1, (Date.now() - state._oirProgStart)/dur);
+    const eased = t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t+2, 2)/2;
+    state.oirProgress = Math.round(eased * 90);
+    paintOirProgress();
+    if (t >= 1) stopOirProgress(); // hold at 90% until AI responds
+  }, 80);
+}
+function stopOirProgress(){ if (state._oirProgTimer){ clearInterval(state._oirProgTimer); state._oirProgTimer = null; } }
+async function finishOirProgress(){
+  stopOirProgress();
+  state.oirProgress = 100;
+  paintOirProgress();
+  await new Promise(r => setTimeout(r, 450));
+}
+
+// "GET READY" 5→1 countdown, 1s each, before revealing the test
+function runOirGetReady(){
+  return new Promise(resolve => {
+    let n = 5;
+    state.oirCountdown = n;
+    render();
+    const iv = setInterval(()=>{
+      n--;
+      if (n <= 0){ clearInterval(iv); state.oirCountdown = null; resolve(); }
+      else { state.oirCountdown = n; render(); }
+    }, 1000);
+  });
+}
+
 async function startOirTest(){
   state.oirView = "test";
   state.oirLoading = true;
   state.oirTest = null;
   state.oirSubmitted = false;
+  state.oirCountdown = null;
   state.oirLimit = OIR_LIMITS[state.oirCount] || 480;
   render();
+  startOirProgress();
+  startOirTips();
   let qs;
   try{ qs = await generateOirTest(state.oirCount, state.oirType); }
   catch(e){ qs = null; }
+  stopOirTips();
   if (!qs || qs.length < 5){
+    stopOirProgress();
     state.oirLoading = false;
     state.oirView = "dashboard";
     toast("Could not generate the test. Try again in a moment.");
     render();
     return;
   }
+  // questions ready → fill bar to 100%, then GET READY countdown, then reveal
+  await finishOirProgress();
+  await runOirGetReady();
   state.oirTest = { questions: qs, answers: {}, startTs: Date.now() };
   state.oirElapsed = 0;
   state.oirLoading = false;
@@ -3852,10 +3985,33 @@ function fmtSessionDate(ts, isoFallback){
   return `${dd} ${mmm} ${d.getFullYear()}`;
 }
 
+function renderOirLoadingCard(){
+  const c = el("div", {class:"oir-load-card fade-in"});
+  c.appendChild(el("div", {class:"oir-load-title"}, "Generating your OIR test"));
+  const track = el("div", {class:"oir-prog-track"});
+  track.appendChild(el("div", {class:"oir-prog-fill", style:{width:(state.oirProgress||0)+"%"}}));
+  c.appendChild(track);
+  c.appendChild(el("div", {class:"oir-prog-pct"}, (state.oirProgress||0) + "%"));
+  c.appendChild(el("div", {class:"oir-tip"}, OIR_TIPS[state._oirTipIdx || 0]));
+  return c;
+}
+
+function renderOirGetReady(){
+  const c = el("div", {class:"oir-load-card oir-ready-card"});
+  c.appendChild(el("div", {class:"oir-ready-lbl"}, "Get Ready"));
+  c.appendChild(el("div", {class:"oir-ready-num", key:state.oirCountdown}, String(state.oirCountdown)));
+  c.appendChild(el("div", {class:"oir-ready-sub"}, "Get your notebook ready…"));
+  return c;
+}
+
 function renderOirTest(){
   const root = el("div", {});
+  if (state.oirCountdown != null){
+    root.appendChild(renderOirGetReady());
+    return root;
+  }
   if (state.oirLoading || !state.oirTest){
-    root.appendChild(renderInlineLoading("Generating your OIR test…", "Mixing verbal and non-verbal reasoning. This takes a few seconds."));
+    root.appendChild(renderOirLoadingCard());
     return root;
   }
   const t = state.oirTest;
