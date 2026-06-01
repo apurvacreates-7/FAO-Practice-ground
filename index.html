@@ -888,7 +888,7 @@ body.has-side #app{ padding-left:248px; }
 
 .oir-tbl{ overflow:hidden; }
 .oir-tr{
-  display:grid; grid-template-columns:120px 110px 96px 1fr 70px;
+  display:grid; grid-template-columns:108px 104px 92px 1fr 64px 64px;
   align-items:center; gap:12px; padding:13px 18px;
   border-bottom:1px solid var(--olive-line); font-size:13px;
 }
@@ -988,6 +988,14 @@ body.has-side #app{ padding-left:248px; }
 .oir-opt.opt-wrong{ background:#FBE9E9; border-color:var(--danger); }
 .oir-opt.opt-wrong .oir-opt-key{ background:var(--danger); border-color:var(--danger); color:#fff; }
 .oir-opt[onclick=""]{ cursor:default; }
+.oir-opt-static{ cursor:default; }
+.oir-opt-static:hover{ background:#fff; }
+.oir-opt-static.opt-correct:hover{ background:#EFF6E6; }
+.oir-opt-static.opt-wrong:hover{ background:#FBE9E9; }
+.oir-skip-note{
+  font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.1em;
+  text-transform:uppercase; color:var(--ink-4); padding:6px 2px 0;
+}
 
 .oir-expl{
   display:flex; gap:9px; margin-top:13px; padding-top:13px;
@@ -1027,7 +1035,7 @@ body.has-side #app{ padding-left:248px; }
 .oir-score-stats b{ color:var(--ink); font-weight:700; }
 .oir-score-cta{ flex:none; }
 @media (max-width:640px){
-  .oir-tr{ grid-template-columns:84px 70px 1fr; gap:8px 10px; }
+  .oir-tr{ grid-template-columns:78px 60px 1fr 56px; gap:8px 10px; }
   .oir-c2, .oir-c4{ display:none; }
   .oir-score{ gap:16px; }
   .oir-score-ring{ width:92px; height:92px; }
@@ -1504,7 +1512,7 @@ async function loadOirSessions(uid){
 }
 async function saveOirSession(uid, session){
   const ref = await db.collection('oirSessions').doc(uid).collection('sessions')
-    .add(stripUndefined({ ...session, date: FV.serverTimestamp() }));
+    .add(stripUndefined({ ...session, date: FV.serverTimestamp(), dateISO: new Date().toISOString() }));
   return ref.id;
 }
 
@@ -1722,11 +1730,12 @@ const state = {
   fitDraft: null,          // fitness profile being edited
   runUploading: false,
   // OIR
-  oirView: "dashboard",    // 'dashboard' | 'test' | 'result'
+  oirView: "dashboard",    // 'dashboard' | 'test' | 'result' | 'review'
   oirLoading: false,
   oirSessions: null,       // past attempts
   oirTest: null,           // current { questions, answers, startTs }
   oirResult: null,         // computed result after submit
+  oirReview: null,         // a saved session being viewed read-only
   oirElapsed: 0,
   oirCount: 20,             // 10 | 20 | 50 questions per test
   oirType: "mixed",         // 'verbal' | 'non-verbal' | 'mixed'
@@ -3655,8 +3664,17 @@ async function startOirTest(){
 function selectOirAnswer(qid, letter){
   if (!state.oirTest) return;
   state.oirTest.answers[qid] = letter;
-  // patch just the affected card's option states without full re-render (keeps scroll)
-  render();
+  // Patch the DOM in place — do NOT call render() (it scrolls to top).
+  document.querySelectorAll(`.oir-opt[data-qid="${qid}"]`).forEach(btn => {
+    btn.classList.toggle("opt-sel", btn.getAttribute("data-letter") === letter);
+  });
+  // update answered count + progress bar
+  const answered = Object.keys(state.oirTest.answers).length;
+  const total = state.oirTest.questions.length;
+  const cnt = document.querySelector(".oir-testbar-count");
+  if (cnt) cnt.textContent = `${answered}/${total} answered`;
+  const bar = document.querySelector(".oir-mini-bar > i");
+  if (bar) bar.style.width = Math.round(100*answered/total) + "%";
 }
 
 async function submitOirTest(auto){
@@ -3717,6 +3735,8 @@ function renderOIR(){
     const actions = el("div", {class:"row"});
     if (state.oirView === "result"){
       actions.appendChild(el("button", {class:"btn btn-ghost btn-mono", onClick:()=>openOIR()}, "← OIR Dashboard"));
+    } else if (state.oirView === "review"){
+      actions.appendChild(el("button", {class:"btn btn-primary btn-mono", onClick:()=>openOIR()}, "← Back to Dashboard"));
     }
     head.appendChild(actions);
   }
@@ -3725,6 +3745,7 @@ function renderOIR(){
   if (state.oirView === "dashboard") wrap.appendChild(renderOirDashboard());
   else if (state.oirView === "test") wrap.appendChild(renderOirTest());
   else if (state.oirView === "result") wrap.appendChild(renderOirResult());
+  else if (state.oirView === "review") wrap.appendChild(renderOirReview());
 
   return wrap;
 }
@@ -3793,11 +3814,11 @@ function renderOirDashboard(){
 
   const tbl = el("div", {class:"card oir-tbl"});
   const hd = el("div", {class:"oir-tr oir-th"});
-  ["Date","Score","Grade","Topics Covered","Time"].forEach((h,i)=>hd.appendChild(el("span",{class:"oir-c"+i},h)));
+  ["Date","Score","Grade","Topics Covered","Time",""].forEach((h,i)=>hd.appendChild(el("span",{class:"oir-c"+i},h)));
   tbl.appendChild(hd);
   for (const s of sessions){
     const row = el("div", {class:"oir-tr"});
-    row.appendChild(el("span", {class:"oir-c0"}, fmtSessionDate(s.date)));
+    row.appendChild(el("span", {class:"oir-c0"}, fmtSessionDate(s.date, s.dateISO)));
     const sc = el("span", {class:"oir-c1"});
     sc.appendChild(el("b", {}, (s.score ?? 0) + "%"));
     sc.appendChild(el("span", {class:"oir-frac"}, ` ${s.correctAnswers}/${s.totalQuestions}`));
@@ -3805,17 +3826,30 @@ function renderOirDashboard(){
     row.appendChild(el("span", {class:"oir-c2"}, el("span", {class:"oir-grade-pill oir-g"+s.grade}, "Grade "+s.grade)));
     row.appendChild(el("span", {class:"oir-c3"}, (s.topicsCovered||[]).slice(0,4).join(" · ") + ((s.topicsCovered||[]).length>4 ? " …" : "")));
     row.appendChild(el("span", {class:"oir-c4"}, fmtClock(s.timeTaken||0)));
+    const act = el("span", {class:"oir-c5"});
+    act.appendChild(el("button", {class:"btn btn-ghost btn-sm btn-mono", onClick:()=>openOirReview(s)}, "View"));
+    row.appendChild(act);
     tbl.appendChild(row);
   }
   root.appendChild(tbl);
   return root;
 }
 
-function fmtSessionDate(ts){
-  try{
-    const d = ts && ts.toDate ? ts.toDate() : (ts ? new Date(ts) : new Date());
-    return d.toLocaleDateString(undefined, { day:"numeric", month:"short", year:"numeric" });
-  }catch(e){ return "—"; }
+function toJsDate(ts){
+  if (!ts) return null;
+  if (typeof ts.toDate === "function") return ts.toDate();        // Firestore Timestamp
+  if (typeof ts === "object" && typeof ts.seconds === "number") return new Date(ts.seconds*1000); // raw {seconds}
+  if (typeof ts === "number") return new Date(ts);                 // epoch ms
+  if (typeof ts === "string"){ const d = new Date(ts); return isNaN(d) ? null : d; } // ISO
+  if (ts instanceof Date) return ts;
+  return null;
+}
+function fmtSessionDate(ts, isoFallback){
+  const d = toJsDate(ts) || toJsDate(isoFallback) || null;
+  if (!d || isNaN(d)) return "—";
+  const dd = String(d.getDate()).padStart(2,"0");
+  const mmm = d.toLocaleDateString("en-GB", { month:"short" });
+  return `${dd} ${mmm} ${d.getFullYear()}`;
 }
 
 function renderOirTest(){
@@ -3882,7 +3916,10 @@ function renderOirQuestion(q, num, review){
     }
     const o = el("button", {
       class:cls,
-      onClick: review ? null : (()=>selectOirAnswer(q.id, letter))
+      type:"button",
+      "data-qid": review ? null : String(q.id),
+      "data-letter": review ? null : letter,
+      onClick: review ? null : ((ev)=>{ ev.preventDefault(); selectOirAnswer(q.id, letter); })
     });
     o.appendChild(el("span", {class:"oir-opt-key"}, letter));
     // strip leading "A) " from label if present
@@ -3986,6 +4023,103 @@ function renderMistakeCard(q, num){
     card.appendChild(el("div", {class:"oir-approach"},
       el("div", {class:"oir-approach-lbl"}, "How to approach this"),
       el("p", {class:"oir-approach-txt"}, method)
+    ));
+  }
+  return card;
+}
+
+/* =========================================================
+   OIR — read-only review of a past attempt
+   ========================================================= */
+function openOirReview(session){
+  state.oirReview = session;
+  state.oirView = "review";
+  state.screen = "oir";
+  render();
+}
+
+function renderOirReview(){
+  const root = el("div", {});
+  const s = state.oirReview;
+  if (!s){
+    root.appendChild(el("div", {class:"muted center", style:{marginTop:"20px"}}, "Attempt not found."));
+    return root;
+  }
+
+  // header scorecard (read-only)
+  const card = el("div", {class:"oir-score oir-g"+s.grade+"-bg", style:{marginTop:"18px"}});
+  const ring = el("div", {class:"oir-score-ring"});
+  ring.appendChild(el("div", {class:"oir-score-pct"}, (s.score ?? 0) + "%"));
+  ring.appendChild(el("div", {class:"oir-score-frac"}, `${s.correctAnswers}/${s.totalQuestions}`));
+  card.appendChild(ring);
+  const meta = el("div", {class:"oir-score-meta"});
+  meta.appendChild(el("div", {class:"oir-score-grade"}, "OIR Grade " + s.grade));
+  meta.appendChild(el("div", {class:"oir-score-label"}, OIR_GRADE_LABEL[s.grade] || ""));
+  const stats = el("div", {class:"oir-score-stats"});
+  const timeStr = s.timeLimit ? `${fmtClock(s.timeTaken)} / ${fmtClock(s.timeLimit)}` : fmtClock(s.timeTaken||0);
+  stats.appendChild(el("span", {}, "Date: ", el("b",{}, fmtSessionDate(s.date, s.dateISO))));
+  stats.appendChild(el("span", {}, "Time: ", el("b",{}, timeStr)));
+  stats.appendChild(el("span", {}, "Correct: ", el("b",{}, `${s.correctAnswers}/${s.totalQuestions}`)));
+  meta.appendChild(stats);
+  card.appendChild(meta);
+  root.appendChild(card);
+
+  // all questions, read-only
+  root.appendChild(el("div", {class:"section-title", style:{marginTop:"28px"}}, "Full Attempt"));
+  const list = el("div", {class:"oir-qlist"});
+  (s.questions||[]).forEach((q, idx) => list.appendChild(renderReviewQuestion(q, idx+1)));
+  root.appendChild(list);
+  return root;
+}
+
+// One question in read-only review: options marked green/red/grey + approach on misses.
+function renderReviewQuestion(q, num){
+  const correct = q.isCorrect;
+  const attempted = !!q.userAnswer;
+  const card = el("div", {class:"oir-q" + (correct ? "" : " oir-mistake")});
+  const top = el("div", {class:"oir-q-top"});
+  top.appendChild(el("span", {class:"oir-q-num"}, "Q"+String(num).padStart(2,"0")));
+  top.appendChild(el("span", {class:"oir-q-type oir-q-"+(q.type==="non-verbal"?"nv":"v")}, q.type==="non-verbal"?"Non-Verbal":"Verbal"));
+  top.appendChild(el("span", {class:"oir-q-topic"}, (q.topic||"").toUpperCase()));
+  top.appendChild(el("span", {class:"oir-q-mark " + (correct?"ok":(attempted?"bad":"skip"))},
+    correct ? "✓ Correct" : (attempted ? "✗ Wrong" : "— Not Attempted")));
+  card.appendChild(top);
+  card.appendChild(el("p", {class:"oir-q-text"}, q.question));
+
+  const opts = el("div", {class:"oir-opts"});
+  (q.options||[]).forEach((opt, i) => {
+    const letter = optLetter(i);
+    const isCorrectOpt = letter === q.correct;
+    const isUserOpt = letter === q.userAnswer;
+    let cls = "oir-opt oir-opt-static";
+    if (isCorrectOpt) cls += " opt-correct";
+    else if (isUserOpt) cls += " opt-wrong";
+    const o = el("div", {class:cls});
+    o.appendChild(el("span", {class:"oir-opt-key"}, letter));
+    o.appendChild(el("span", {class:"oir-opt-txt"}, opt.replace(/^\s*[A-D]\)\s*/,"")));
+    if (isCorrectOpt) o.appendChild(el("span", {class:"oir-opt-tag"}, "Correct"));
+    else if (isUserOpt) o.appendChild(el("span", {class:"oir-opt-tag oir-opt-tag-bad"}, "Your answer"));
+    opts.appendChild(o);
+  });
+  // grey "not attempted" note
+  if (!attempted){
+    opts.appendChild(el("div", {class:"oir-skip-note"}, "Not attempted — left blank"));
+  }
+  card.appendChild(opts);
+
+  // approach on wrong/skipped
+  if (!correct){
+    const method = q.approach || q.explanation;
+    if (method){
+      card.appendChild(el("div", {class:"oir-approach"},
+        el("div", {class:"oir-approach-lbl"}, "How to approach this"),
+        el("p", {class:"oir-approach-txt"}, method)
+      ));
+    }
+  } else if (q.explanation){
+    card.appendChild(el("div", {class:"oir-expl"},
+      el("span", {class:"oir-expl-lbl"}, "Why"),
+      el("span", {}, q.explanation)
     ));
   }
   return card;
