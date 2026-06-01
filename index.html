@@ -67,6 +67,7 @@ a:hover{text-decoration:underline;}
   box-shadow:inset 0 -3px 0 var(--gold);
   padding:12px 24px 14px;
   display:flex; align-items:center; gap:18px;
+  position:sticky; top:0; z-index:50;
 }
 .banner-logo{
   height:42px; width:auto; flex:none;
@@ -109,6 +110,95 @@ a:hover{text-decoration:underline;}
   max-width:1180px; margin:0 auto; padding:28px 24px 60px;
 }
 @media (max-width:640px){ .page{padding:18px 14px 60px;} }
+
+/* ============ Sidebar + shell ============ */
+body.has-side #app{ padding-left:248px; }
+@media (max-width:900px){ body.has-side #app{ padding-left:0; } }
+
+.sidebar{
+  position:fixed; top:var(--banner-h,66px); left:0; bottom:0; width:248px; z-index:40;
+  background:var(--ink); color:var(--paper);
+  border-right:1px solid #000;
+  display:flex; flex-direction:column;
+  box-shadow:inset -3px 0 0 var(--gold);
+}
+.side-nav{ flex:1; padding:18px 14px; display:flex; flex-direction:column; gap:4px; overflow-y:auto; }
+.side-brand{
+  display:flex; align-items:center; gap:9px; padding:6px 10px 16px;
+  margin-bottom:6px; border-bottom:1px solid rgba(245,243,238,.1);
+}
+.side-brand-mark{ color:var(--gold); font-size:14px; }
+.side-brand-txt{
+  font-family:var(--font-mono); font-size:10px; letter-spacing:0.16em;
+  text-transform:uppercase; color:rgba(245,243,238,.65);
+}
+.side-link{
+  display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+  padding:11px 12px; border-radius:var(--radius); color:rgba(245,243,238,.82);
+  transition:background .14s, color .14s; cursor:pointer;
+  border-left:2px solid transparent;
+}
+.side-link:hover{ background:rgba(245,243,238,.06); color:#fff; }
+.side-link.on{
+  background:rgba(197,165,90,.14); color:#fff;
+  border-left-color:var(--gold);
+}
+.side-ico{
+  width:26px; height:26px; flex:none; border-radius:5px;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(245,243,238,.08); color:var(--gold); font-size:13px;
+}
+.side-link.on .side-ico{ background:var(--gold); color:var(--olive-darker); }
+.side-link-txt{ display:flex; flex-direction:column; gap:1px; min-width:0; }
+.side-link-label{ font-size:13.5px; font-weight:600; letter-spacing:-0.005em; }
+.side-link-sub{
+  font-family:var(--font-mono); font-size:9px; letter-spacing:0.1em;
+  text-transform:uppercase; color:rgba(245,243,238,.45);
+}
+.side-link.on .side-link-sub{ color:rgba(197,165,90,.85); }
+.side-foot{
+  padding:14px; border-top:1px solid rgba(245,243,238,.1);
+  display:flex; flex-direction:column; gap:10px;
+}
+.side-who-name{ font-size:13px; font-weight:600; color:#fff; }
+.side-who-mail{
+  font-family:var(--font-mono); font-size:10px; letter-spacing:0.06em;
+  color:rgba(245,243,238,.5); margin-top:2px; word-break:break-all;
+}
+.side-signout{
+  font-family:var(--font-mono); font-size:10px; letter-spacing:0.14em;
+  text-transform:uppercase; color:rgba(245,243,238,.7); cursor:pointer;
+  border:1px solid rgba(245,243,238,.18); border-radius:var(--radius);
+  padding:8px; transition:all .14s; text-align:center;
+}
+.side-signout:hover{ border-color:var(--danger); color:#ff9a9a; }
+
+.side-scrim{
+  position:fixed; inset:0; z-index:39; background:rgba(10,10,8,.5);
+  opacity:0; pointer-events:none; transition:opacity .2s;
+}
+.side-scrim.show{ opacity:1; pointer-events:auto; }
+
+.ham{
+  position:fixed; top:9px; right:14px; z-index:45;
+  width:42px; height:42px; border-radius:var(--radius);
+  background:var(--ink); border:1px solid var(--gold-line);
+  display:none; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+}
+.ham span{ display:block; width:18px; height:2px; background:var(--gold); border-radius:2px; }
+
+@media (max-width:900px){
+  .sidebar{
+    top:0; z-index:46;
+    transform:translateX(-100%); transition:transform .22s ease;
+    box-shadow:0 0 40px rgba(0,0,0,.4);
+  }
+  .sidebar.open{ transform:translateX(0); }
+  .ham{ display:flex !important; }
+}
+@media (min-width:901px){
+  .side-scrim{ display:none; }
+}
 
 /* ============ Card primitive ============ */
 .card{
@@ -757,6 +847,234 @@ a:hover{text-decoration:underline;}
   .ex-name{font-size:15px;}
 }
 
+/* ============ OIR Practice ============ */
+.oir-count-row{
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-top:20px;
+}
+.oir-count-lbl{
+  font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.14em;
+  text-transform:uppercase; color:var(--ink-3); font-weight:500;
+}
+.oir-count-pills{ display:flex; gap:8px; }
+.oir-count-pill{
+  font-family:var(--font-mono); font-size:12px; letter-spacing:0.06em;
+  font-weight:600; padding:9px 18px; border-radius:999px;
+  border:1px solid var(--olive-line); background:#fff; color:var(--ink-2);
+  cursor:pointer; transition:all .14s;
+}
+.oir-count-pill:hover{ background:var(--paper-soft); }
+.oir-count-pill.on{
+  background:var(--gold); color:var(--olive-darker);
+  border-color:var(--gold-line); box-shadow:0 1px 4px rgba(197,165,90,.3);
+}
+.oir-count-pill{ display:inline-flex; flex-direction:column; align-items:center; gap:1px; line-height:1.2; }
+.oir-pill-sub{ font-size:8.5px; letter-spacing:0.1em; opacity:.7; font-weight:500; }
+.oir-type-sub{
+  font-size:12.5px; color:var(--ink-3); margin-top:8px;
+  font-style:italic;
+}
+.oir-cta-card{
+  display:flex; align-items:center; justify-content:space-between; gap:18px;
+  flex-wrap:wrap; padding:22px 24px;
+  background:var(--ink); color:var(--paper); border-radius:var(--radius);
+  box-shadow:inset 0 -3px 0 var(--gold);
+}
+.oir-cta-eyebrow{
+  font-family:var(--font-mono); font-size:10px; letter-spacing:0.16em;
+  text-transform:uppercase; color:var(--gold);
+}
+.oir-cta-title{ font-size:20px; font-weight:700; letter-spacing:-0.01em; margin-top:6px; }
+.oir-cta-sub{ font-size:13px; color:rgba(245,243,238,.75); margin-top:6px; max-width:440px; line-height:1.5; }
+
+.oir-tbl{ overflow:hidden; }
+.oir-tr{
+  display:grid; grid-template-columns:120px 110px 96px 1fr 70px;
+  align-items:center; gap:12px; padding:13px 18px;
+  border-bottom:1px solid var(--olive-line); font-size:13px;
+}
+.oir-tr:last-child{ border-bottom:none; }
+.oir-th{ background:var(--ink); }
+.oir-th span{
+  font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.14em;
+  text-transform:uppercase; color:var(--gold);
+}
+.oir-c0{ font-family:var(--font-mono); font-size:12px; color:var(--ink-2); }
+.oir-c1 b{ font-size:16px; font-weight:700; color:var(--ink); }
+.oir-frac{ font-family:var(--font-mono); font-size:11px; color:var(--ink-4); }
+.oir-c3{ font-size:12px; color:var(--ink-3); }
+.oir-c4{ font-family:var(--font-mono); font-size:12px; color:var(--ink-3); }
+.oir-grade-pill{
+  font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.1em;
+  text-transform:uppercase; font-weight:700; padding:3px 8px; border-radius:2px;
+  border:1px solid var(--olive-line);
+}
+.oir-g1{ background:#EFF4E6; color:#3B5A1C; border-color:#B8C99A; }
+.oir-g2{ background:#F2F6E8; color:#4A6322; border-color:#C2CFA0; }
+.oir-g3{ background:#FBF6E8; color:#8A6A1A; border-color:var(--gold-line); }
+.oir-g4{ background:#FBEFE0; color:#8A5A1A; border-color:#D9B98A; }
+.oir-g5{ background:#FBE6E6; color:#8B1A1A; border-color:#D9A8A8; }
+
+/* test bar */
+.oir-testbar{
+  display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+  position:sticky; top:var(--banner-h,66px); z-index:20;
+  margin-top:18px; padding:13px 18px;
+  background:var(--ink); color:var(--paper); border-radius:var(--radius);
+  box-shadow:inset 0 -3px 0 var(--gold), 0 4px 14px rgba(26,26,26,.12);
+}
+.oir-timer{ display:flex; flex-direction:column; gap:1px; }
+.oir-timer-lbl{
+  font-family:var(--font-mono); font-size:8.5px; letter-spacing:0.16em;
+  text-transform:uppercase; color:rgba(245,243,238,.55);
+}
+.oir-timer-val{ font-family:var(--font-mono); font-size:24px; font-weight:700; color:var(--gold); line-height:1; transition:color .2s; }
+.oir-timer-val.danger{ color:#ff7a7a; animation:oirPulse 1s ease-in-out infinite; }
+@keyframes oirPulse{ 0%,100%{opacity:1;} 50%{opacity:.5;} }
+.oir-timer-of{
+  font-family:var(--font-mono); font-size:8.5px; letter-spacing:0.14em;
+  text-transform:uppercase; color:rgba(245,243,238,.5); margin-top:2px;
+}
+.oir-testbar-prog{ flex:1; min-width:140px; }
+.oir-testbar-count{
+  font-family:var(--font-mono); font-size:10px; letter-spacing:0.12em;
+  text-transform:uppercase; color:rgba(245,243,238,.8); margin-bottom:5px;
+}
+.oir-mini-bar{ height:6px; background:rgba(245,243,238,.16); border-radius:2px; overflow:hidden; }
+.oir-mini-bar > i{ display:block; height:100%; background:var(--gold); transition:width .3s; }
+
+.oir-qlist{ display:flex; flex-direction:column; gap:12px; margin-top:18px; }
+.oir-q{
+  background:#fff; border:1px solid var(--olive-line); border-radius:var(--radius);
+  padding:18px 20px;
+}
+.oir-q-top{ display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
+.oir-q-num{ font-family:var(--font-mono); font-size:11px; font-weight:600; color:var(--ink-4); letter-spacing:0.08em; }
+.oir-q-type{
+  font-family:var(--font-mono); font-size:9px; letter-spacing:0.14em;
+  text-transform:uppercase; font-weight:600; padding:3px 7px; border-radius:2px; border:1px solid var(--olive-line);
+}
+.oir-q-v{ background:var(--olive-soft); color:var(--olive-darker); }
+.oir-q-nv{ background:#E8EEF4; color:#1C415A; border-color:#A0B6C9; }
+.oir-q-topic{ font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-4); }
+.oir-q-mark{ margin-left:auto; font-family:var(--font-mono); font-size:10px; letter-spacing:0.1em; text-transform:uppercase; font-weight:700; }
+.oir-q-mark.ok{ color:var(--success); }
+.oir-q-mark.bad{ color:var(--danger); }
+.oir-q-mark.skip{ color:var(--ink-4); }
+.oir-q-text{ font-size:15px; line-height:1.5; color:var(--ink); margin:12px 0 14px; white-space:pre-wrap; }
+
+.oir-opts{ display:flex; flex-direction:column; gap:8px; }
+.oir-opt{
+  display:flex; align-items:center; gap:11px; width:100%; text-align:left;
+  padding:11px 13px; border:1px solid var(--olive-line); border-radius:var(--radius);
+  background:#fff; cursor:pointer; transition:background .12s, border-color .12s;
+}
+.oir-opt:hover{ background:var(--paper-soft); }
+.oir-opt-key{
+  width:24px; height:24px; flex:none; border-radius:4px;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--paper-deep); border:1px solid var(--olive-line);
+  font-family:var(--font-mono); font-size:12px; font-weight:600; color:var(--ink-3);
+}
+.oir-opt-txt{ font-size:14px; color:var(--ink-2); flex:1; }
+.oir-opt-tag{
+  margin-left:auto; font-family:var(--font-mono); font-size:9px; letter-spacing:0.12em;
+  text-transform:uppercase; font-weight:700; color:var(--success);
+}
+.oir-opt-tag-bad{ color:var(--danger); }
+.oir-opt.opt-sel{ background:var(--olive-soft); border-color:var(--olive); }
+.oir-opt.opt-sel .oir-opt-key{ background:var(--olive); border-color:var(--olive-dark); color:#fff; }
+.oir-opt.opt-correct{ background:#EFF6E6; border-color:var(--success); }
+.oir-opt.opt-correct .oir-opt-key{ background:var(--success); border-color:var(--success); color:#fff; }
+.oir-opt.opt-wrong{ background:#FBE9E9; border-color:var(--danger); }
+.oir-opt.opt-wrong .oir-opt-key{ background:var(--danger); border-color:var(--danger); color:#fff; }
+.oir-opt[onclick=""]{ cursor:default; }
+
+.oir-expl{
+  display:flex; gap:9px; margin-top:13px; padding-top:13px;
+  border-top:1px dashed var(--olive-line); font-size:13px; line-height:1.5; color:var(--ink-2);
+}
+.oir-expl-lbl{
+  font-family:var(--font-mono); font-size:9px; letter-spacing:0.14em; text-transform:uppercase;
+  font-weight:700; color:var(--olive); border:1px solid var(--olive-line); background:var(--olive-soft);
+  padding:2px 6px; border-radius:2px; flex:none; height:fit-content; margin-top:1px;
+}
+
+/* result scorecard */
+.oir-score{
+  display:flex; align-items:center; gap:22px; flex-wrap:wrap;
+  padding:24px; border-radius:var(--radius); border:1px solid var(--olive-line);
+  background:#fff;
+}
+.oir-score-ring{
+  width:120px; height:120px; flex:none; border-radius:50%;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  border:5px solid var(--olive); background:#fff;
+}
+.oir-g1-bg .oir-score-ring{ border-color:var(--success); }
+.oir-g2-bg .oir-score-ring{ border-color:#6E8A2E; }
+.oir-g3-bg .oir-score-ring{ border-color:var(--gold-line); }
+.oir-g4-bg .oir-score-ring{ border-color:var(--warning); }
+.oir-g5-bg .oir-score-ring{ border-color:var(--danger); }
+.oir-score-pct{ font-family:var(--font-mono); font-size:30px; font-weight:700; color:var(--ink); line-height:1; }
+.oir-score-frac{ font-family:var(--font-mono); font-size:12px; color:var(--ink-4); margin-top:3px; }
+.oir-score-meta{ flex:1; min-width:200px; }
+.oir-score-grade{ font-size:22px; font-weight:700; letter-spacing:-0.01em; color:var(--ink); }
+.oir-score-label{
+  font-family:var(--font-mono); font-size:11px; letter-spacing:0.12em; text-transform:uppercase;
+  color:var(--olive); font-weight:600; margin-top:4px;
+}
+.oir-score-stats{ display:flex; gap:18px; flex-wrap:wrap; margin-top:12px; font-size:13px; color:var(--ink-3); }
+.oir-score-stats b{ color:var(--ink); font-weight:700; }
+.oir-score-cta{ flex:none; }
+@media (max-width:640px){
+  .oir-tr{ grid-template-columns:84px 70px 1fr; gap:8px 10px; }
+  .oir-c2, .oir-c4{ display:none; }
+  .oir-score{ gap:16px; }
+  .oir-score-ring{ width:92px; height:92px; }
+  .oir-score-pct{ font-size:24px; }
+}
+
+/* perfect score */
+.oir-perfect{
+  display:flex; align-items:center; gap:16px; margin-top:14px;
+  padding:18px 22px; background:#EFF6E6; border:1px solid var(--success);
+  border-left:4px solid var(--success); border-radius:var(--radius);
+}
+.oir-perfect-star{ font-size:30px; color:var(--success); flex:none; }
+.oir-perfect-h{ font-size:16px; font-weight:700; color:#2A5018; letter-spacing:-0.01em; }
+.oir-perfect-sub{ font-size:13px; color:var(--ink-2); margin-top:4px; }
+
+/* mistake review cards */
+.oir-mistake-count{
+  font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.12em;
+  text-transform:uppercase; color:var(--danger); font-weight:600;
+}
+.oir-q.oir-mistake{ border-left:4px solid var(--danger); }
+.oir-ans-rows{ display:flex; flex-direction:column; gap:8px; margin:12px 0 0; }
+.oir-ans-row{
+  display:flex; align-items:center; gap:12px; padding:10px 13px;
+  border-radius:var(--radius); border:1px solid var(--olive-line); font-size:14px;
+}
+.oir-ans-lbl{
+  font-family:var(--font-mono); font-size:9px; letter-spacing:0.14em;
+  text-transform:uppercase; font-weight:700; flex:none; width:88px;
+}
+.oir-ans-val{ color:var(--ink); }
+.oir-ans-user{ background:#FBE9E9; border-color:#D9A8A8; }
+.oir-ans-user .oir-ans-lbl{ color:var(--danger); }
+.oir-ans-skip{ color:var(--ink-4); font-style:italic; }
+.oir-ans-correct{ background:#EFF6E6; border-color:#B8C99A; }
+.oir-ans-correct .oir-ans-lbl{ color:var(--success); }
+.oir-approach{
+  margin-top:13px; padding:13px 15px;
+  background:var(--olive-soft); border:1px solid var(--olive-line); border-radius:var(--radius);
+}
+.oir-approach-lbl{
+  font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.14em;
+  text-transform:uppercase; font-weight:700; color:var(--olive-darker); margin-bottom:6px;
+}
+.oir-approach-txt{ margin:0; font-size:13.5px; line-height:1.55; color:var(--ink-2); white-space:pre-wrap; }
+
 /* ============ Practice screen ============ */
 .practice-wrap{
   max-width:780px; margin:0 auto;
@@ -875,6 +1193,15 @@ a:hover{text-decoration:underline;}
     <div class="banner-stamp">Restricted · Candidate Use</div>
   </div>
 </header>
+<button class="ham" id="ham" style="display:none;" aria-label="Open navigation">
+  <span></span><span></span><span></span>
+</button>
+
+<aside class="sidebar" id="sidebar" style="display:none;">
+  <nav class="side-nav" id="sideNav"></nav>
+  <div class="side-foot" id="sideFoot"></div>
+</aside>
+<div class="side-scrim" id="sideScrim"></div>
 
 <main id="app"></main>
 
@@ -888,7 +1215,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyDC2XzW81tq7WFY5MVhbYnIbxJWhZTs_Gg",
   authDomain: "ssb-playground.firebaseapp.com",
   projectId: "ssb-playground",
-  storageBucket: "ssb-playground.appspot.com",
+  storageBucket: "ssb-playground.firebasestorage.app",
   messagingSenderId: "565583117305",
   appId: "1:565583117305:web:c1c81c02bf9b7dbd46db28",
   measurementId: "G-FHCCXCSSZ6"
@@ -1166,6 +1493,98 @@ async function loadPtLeaderboard(){
 }
 
 /* =========================================================
+   OIR — Firestore (subcollection) + AI generation + scoring
+   ========================================================= */
+async function loadOirSessions(uid){
+  const snap = await db.collection('oirSessions').doc(uid).collection('sessions')
+    .orderBy('date','desc').limit(50).get();
+  const rows = [];
+  snap.forEach(d => rows.push({ _id:d.id, ...d.data() }));
+  return rows;
+}
+async function saveOirSession(uid, session){
+  const ref = await db.collection('oirSessions').doc(uid).collection('sessions')
+    .add(stripUndefined({ ...session, date: FV.serverTimestamp() }));
+  return ref.id;
+}
+
+function oirGrade(pct){
+  if (pct >= 85) return 1;
+  if (pct >= 70) return 2;
+  if (pct >= 50) return 3;
+  if (pct >= 30) return 4;
+  return 5;
+}
+const OIR_GRADE_LABEL = {
+  1:"Outstanding", 2:"Above Average", 3:"Average", 4:"Below Average", 5:"Needs Serious Work"
+};
+
+const OIR_VERBAL_TOPICS = "Coding-Decoding, Blood Relations, Jumbled Words, Alphabet/Common Sense, Arithmetic (age/percentage/speed/profit), Analogies, Odd One Out, Synonyms/Antonyms, Direction Sense, One-Word Substitution";
+const OIR_NONVERBAL_TOPICS = "Number/Figure Series, Odd Figure Out, Mirror/Water Images, Paper Folding, Hidden Figures, Figure Matrix, Dice/Cube";
+const OIR_LIMITS = { 10: 240, 20: 480, 50: 1020 }; // seconds
+
+async function generateOirTest(n, type){
+  const N = [10,20,50].includes(n) ? n : 20;
+  const perTopic = N === 10 ? "1 question" : N === 20 ? "1-2 questions" : "3-4 questions";
+  let topicsBlock, scope;
+  if (type === "verbal"){
+    topicsBlock = `- Verbal topics ONLY: ${OIR_VERBAL_TOPICS}`;
+    scope = `ALL ${N} questions must be Verbal Reasoning. Every question's "type" must be "verbal".`;
+  } else if (type === "non-verbal"){
+    topicsBlock = `- Non-Verbal topics ONLY: ${OIR_NONVERBAL_TOPICS}`;
+    scope = `ALL ${N} questions must be Non-Verbal Reasoning. Every question's "type" must be "non-verbal".`;
+  } else {
+    topicsBlock = `- Verbal topics: ${OIR_VERBAL_TOPICS}\n- Non-Verbal topics: ${OIR_NONVERBAL_TOPICS}`;
+    scope = `Mix verbal and non-verbal questions roughly evenly.`;
+  }
+  const sys = `Generate a mixed OIR (Officer Intelligence Rating) practice test for SSB aspirants. Generate exactly ${N} questions. ${scope} Scale the per-topic question count proportionally — use ${perTopic} from each topic below so the total comes to exactly ${N}:
+${topicsBlock}
+
+For non-verbal questions that require figures, describe the pattern clearly in text form so it can be rendered as a text/ASCII question. Vary the questions each time — do not repeat a fixed set.
+
+Return ONLY a valid JSON array (no prose, no markdown fences). Each question object must have:
+{
+  "id": number,
+  "type": "verbal" | "non-verbal",
+  "topic": string,
+  "question": string,
+  "options": ["A) ...", "B) ...", "C) ...", "D) ..."],
+  "correct": "A" | "B" | "C" | "D",
+  "explanation": string,
+  "approach": "2-3 line explanation of the METHOD or trick to solve this question TYPE (not just this answer) — how a candidate should reason through it"
+}`;
+  const maxTokens = N >= 50 ? 8000 : 4000;
+  const raw = await aiComplete(sys, { maxTokens });
+  return parseOir(raw);
+}
+function parseOir(raw){
+  if (!raw) return null;
+  const i = raw.indexOf("["); const j = raw.lastIndexOf("]");
+  if (i < 0 || j < 0 || j <= i) return null;
+  try{
+    const arr = JSON.parse(raw.slice(i, j+1));
+    if (!Array.isArray(arr) || !arr.length) return null;
+    return arr.map((q, idx) => ({
+      id: q.id ?? (idx+1),
+      type: /non/i.test(q.type||"") ? "non-verbal" : "verbal",
+      topic: String(q.topic || "General").trim(),
+      question: String(q.question || "").trim(),
+      options: Array.isArray(q.options) ? q.options.map(o => String(o)) : [],
+      correct: normalizeOpt(q.correct),
+      explanation: String(q.explanation || "").trim(),
+      approach: String(q.approach || "").trim(),
+    })).filter(q => q.question && q.options.length === 4);
+  } catch(e){ return null; }
+}
+function normalizeOpt(c){
+  const s = (c||"").toString().trim().toUpperCase();
+  const m = s.match(/[ABCD]/);
+  return m ? m[0] : "A";
+}
+// letter for an option index
+function optLetter(i){ return ["A","B","C","D"][i] || "A"; }
+
+/* =========================================================
    Daily PT — AI workout generation
    ========================================================= */
 async function generateWorkout(date, didYesterday){
@@ -1302,6 +1721,17 @@ const state = {
   ptLbView: "podium",
   fitDraft: null,          // fitness profile being edited
   runUploading: false,
+  // OIR
+  oirView: "dashboard",    // 'dashboard' | 'test' | 'result'
+  oirLoading: false,
+  oirSessions: null,       // past attempts
+  oirTest: null,           // current { questions, answers, startTs }
+  oirResult: null,         // computed result after submit
+  oirElapsed: 0,
+  oirCount: 20,             // 10 | 20 | 50 questions per test
+  oirType: "mixed",         // 'verbal' | 'non-verbal' | 'mixed'
+  oirLimit: 480,            // seconds, set per count
+  oirSubmitted: false,      // guard against double submit
   // practice screen
   activeQ: null,
   answerDraft: "",
@@ -1314,6 +1744,108 @@ const $app = document.getElementById("app");
 const $banner = document.getElementById("banner");
 const $bannerUser = document.getElementById("bannerUser");
 const $toast = document.getElementById("toast");
+const $sidebar = document.getElementById("sidebar");
+const $sideNav = document.getElementById("sideNav");
+const $sideFoot = document.getElementById("sideFoot");
+const $sideScrim = document.getElementById("sideScrim");
+const $ham = document.getElementById("ham");
+
+const NAV_ITEMS = [
+  { id:"home", label:"Home",         sub:"PIQ + Interview",  icon:"⌂" },
+  { id:"oir",  label:"OIR Practice", sub:"Reasoning test",   icon:"◉" },
+  { id:"pt",   label:"Daily PT",     sub:"GTO fitness",      icon:"▲" },
+];
+function sectionForScreen(s){
+  if (s === "oir") return "oir";
+  if (s === "pt") return "pt";
+  return "home"; // piq, dashboard, practice, leaderboard, loading
+}
+function navTo(sectionId){
+  closeSidebar();
+  if (sectionId === "home"){
+    if (state.profile && state.profile._complete){ state.screen = "dashboard"; render(); }
+    else { state.piqDraft = state.profile || blankProfile(); state.piqStep = 1; state.screen = "piq"; render(); }
+  } else if (sectionId === "oir"){
+    openOIR();
+  } else if (sectionId === "pt"){
+    openPT();
+  }
+}
+function openSidebar(){ $sidebar.classList.add("open"); $sideScrim.classList.add("show"); }
+function closeSidebar(){ $sidebar.classList.remove("open"); $sideScrim.classList.remove("show"); }
+$ham.addEventListener("click", openSidebar);
+$sideScrim.addEventListener("click", closeSidebar);
+
+function renderSidebar(){
+  const loggedIn = !!state.uid && state.screen !== "login";
+  if (!loggedIn){
+    $sidebar.style.display = "none";
+    $ham.style.display = "none";
+    $sideScrim.classList.remove("show");
+    document.body.classList.remove("has-side");
+    return;
+  }
+  $sidebar.style.display = "flex";
+  $ham.style.display = "flex";
+  document.body.classList.add("has-side");
+  // keep sidebar offset in sync with the (sticky) banner height
+  const bh = $banner.offsetHeight || 66;
+  document.documentElement.style.setProperty("--banner-h", bh + "px");
+
+  const active = sectionForScreen(state.screen);
+  $sideNav.innerHTML = "";
+  $sideNav.appendChild(el("div", {class:"side-brand"},
+    el("span", {class:"side-brand-mark"}, "★"),
+    el("span", {class:"side-brand-txt"}, "Candidate Console")
+  ));
+  for (const item of NAV_ITEMS){
+    const btn = el("button", {
+      class:"side-link" + (item.id === active ? " on" : ""),
+      onClick:()=>navTo(item.id)
+    });
+    btn.appendChild(el("span", {class:"side-ico"}, item.icon));
+    const txt = el("span", {class:"side-link-txt"});
+    txt.appendChild(el("span", {class:"side-link-label"}, item.label));
+    txt.appendChild(el("span", {class:"side-link-sub"}, item.sub));
+    btn.appendChild(txt);
+    $sideNav.appendChild(btn);
+  }
+
+  $sideFoot.innerHTML = "";
+  const who = el("div", {class:"side-who"});
+  who.appendChild(el("div", {class:"side-who-name"}, state.profile?.fullName || "Candidate"));
+  who.appendChild(el("div", {class:"side-who-mail"}, state.email || ""));
+  $sideFoot.appendChild(who);
+  $sideFoot.appendChild(el("button", {class:"side-signout", onClick:logout}, "Sign Out"));
+}
+
+function render(){
+  // banner visibility
+  if (state.email){
+    $banner.style.display = "flex";
+    $bannerUser.textContent = state.profile?.fullName
+      ? `Cdt. ${state.profile.fullName.split(" ")[0]} · ${state.email}`
+      : state.email;
+  } else {
+    $banner.style.display = "none";
+  }
+  renderSidebar();
+  $app.innerHTML = "";
+  let view;
+  switch(state.screen){
+    case "login":     view = renderLogin(); break;
+    case "piq":       view = renderPIQ(); break;
+    case "dashboard": view = renderDashboard(); break;
+    case "leaderboard": view = renderLeaderboard(); break;
+    case "pt":        view = renderPT(); break;
+    case "oir":       view = renderOIR(); break;
+    case "practice":  view = renderPractice(); break;
+    case "loading":   view = renderLoading(); break;
+    default:          view = renderLogin();
+  }
+  $app.appendChild(view);
+  window.scrollTo({top:0, behavior:"instant"});
+}
 
 function toast(msg){
   $toast.textContent = msg;
@@ -1362,32 +1894,6 @@ auth.onAuthStateChanged(async (user) => {
   }
   render();
 });
-
-function render(){
-  // banner visibility
-  if (state.email){
-    $banner.style.display = "flex";
-    $bannerUser.textContent = state.profile?.fullName
-      ? `Cdt. ${state.profile.fullName.split(" ")[0]} · ${state.email}`
-      : state.email;
-  } else {
-    $banner.style.display = "none";
-  }
-  $app.innerHTML = "";
-  let view;
-  switch(state.screen){
-    case "login":     view = renderLogin(); break;
-    case "piq":       view = renderPIQ(); break;
-    case "dashboard": view = renderDashboard(); break;
-    case "leaderboard": view = renderLeaderboard(); break;
-    case "pt":        view = renderPT(); break;
-    case "practice":  view = renderPractice(); break;
-    case "loading":   view = renderLoading(); break;
-    default:          view = renderLogin();
-  }
-  $app.appendChild(view);
-  window.scrollTo({top:0, behavior:"instant"});
-}
 
 function el(tag, attrs={}, ...children){
   const e = document.createElement(tag);
@@ -2013,7 +2519,6 @@ function renderDashboard(){
   head.appendChild(headL);
 
   const actions = el("div", {class:"row"});
-  actions.appendChild(el("button", {class:"btn btn-gold btn-mono", onClick:()=>openPT()}, "⛰ Daily PT"));
   actions.appendChild(el("button", {class:"btn btn-dark btn-mono", onClick:()=>openLeaderboard()}, "★ Merit List"));
   actions.appendChild(el("button", {class:"btn btn-ghost btn-mono", onClick:()=>{
     state.piqDraft = JSON.parse(JSON.stringify(state.profile));
@@ -2022,7 +2527,6 @@ function renderDashboard(){
   actions.appendChild(el("button", {class:"btn btn-gold btn-mono", onClick:()=>{
     if (confirm("Regenerate the full question set? Your practiced answers will be cleared.")) generateQuestions();
   }}, "Regenerate"));
-  actions.appendChild(el("button", {class:"btn btn-danger-ghost btn-mono btn-sm", onClick:logout}, "Sign Out"));
   head.appendChild(actions);
   wrap.appendChild(head);
 
@@ -3074,6 +3578,417 @@ function renderPtFull(rows){
     board.appendChild(row);
   });
   return board;
+}
+
+/* =========================================================
+   OIR — screens
+   ========================================================= */
+async function openOIR(){
+  state.screen = "oir";
+  state.oirView = "dashboard";
+  state.oirTest = null;
+  state.oirResult = null;
+  state.oirLoading = true;
+  state.oirSessions = null;
+  render();
+  try{
+    state.oirSessions = await loadOirSessions(state.uid);
+  } catch(e){
+    console.error(e);
+    toast("Could not load OIR history — " + (e.message || "check rules."));
+    state.oirSessions = [];
+  }
+  state.oirLoading = false;
+  render();
+}
+
+function stopOirTimer(){
+  if (state._oirTimer){ clearInterval(state._oirTimer); state._oirTimer = null; }
+}
+function startOirTimer(){
+  stopOirTimer();
+  const tick = () => {
+    state.oirElapsed = Math.floor((Date.now() - state.oirTest.startTs)/1000);
+    const remaining = Math.max(0, state.oirLimit - state.oirElapsed);
+    const t = document.querySelector(".oir-timer-val");
+    if (t){
+      t.textContent = fmtClock(remaining);
+      t.classList.toggle("danger", remaining <= 60);
+    }
+    if (remaining <= 0){
+      stopOirTimer();
+      submitOirTest(true); // auto-submit
+    }
+  };
+  state._oirTimer = setInterval(tick, 1000);
+}
+function fmtClock(s){
+  s = Math.max(0, Math.round(s));
+  const m = Math.floor(s/60); const ss = s%60;
+  return `${String(m).padStart(2,"0")}:${String(ss).padStart(2,"0")}`;
+}
+
+async function startOirTest(){
+  state.oirView = "test";
+  state.oirLoading = true;
+  state.oirTest = null;
+  state.oirSubmitted = false;
+  state.oirLimit = OIR_LIMITS[state.oirCount] || 480;
+  render();
+  let qs;
+  try{ qs = await generateOirTest(state.oirCount, state.oirType); }
+  catch(e){ qs = null; }
+  if (!qs || qs.length < 5){
+    state.oirLoading = false;
+    state.oirView = "dashboard";
+    toast("Could not generate the test. Try again in a moment.");
+    render();
+    return;
+  }
+  state.oirTest = { questions: qs, answers: {}, startTs: Date.now() };
+  state.oirElapsed = 0;
+  state.oirLoading = false;
+  render();
+  startOirTimer();
+}
+
+function selectOirAnswer(qid, letter){
+  if (!state.oirTest) return;
+  state.oirTest.answers[qid] = letter;
+  // patch just the affected card's option states without full re-render (keeps scroll)
+  render();
+}
+
+async function submitOirTest(auto){
+  if (state.oirSubmitted) return; // guard double submit (manual + timer)
+  const t = state.oirTest;
+  if (!t) return;
+  if (!auto){
+    const unanswered = t.questions.filter(q => !t.answers[q.id]).length;
+    if (unanswered > 0){
+      if (!confirm(`${unanswered} question(s) unanswered — they'll be marked wrong. Submit anyway?`)) return;
+    }
+  }
+  state.oirSubmitted = true;
+  stopOirTimer();
+  const timeTaken = Math.min(state.oirLimit, Math.floor((Date.now() - t.startTs)/1000));
+  let correct = 0;
+  const topics = new Set();
+  const questions = t.questions.map(q => {
+    const userAns = t.answers[q.id] || null;
+    const isCorrect = userAns === q.correct;
+    if (isCorrect) correct++;
+    topics.add(q.topic);
+    return { ...q, userAnswer: userAns, isCorrect };
+  });
+  const total = t.questions.length;
+  const score = Math.round(100*correct/total);
+  const grade = oirGrade(score);
+  const result = {
+    score, grade, totalQuestions: total, correctAnswers: correct,
+    timeTaken, timeLimit: state.oirLimit, autoSubmitted: !!auto,
+    topicsCovered: [...topics], questions,
+  };
+  if (auto) toast("Time up — test auto-submitted.");
+  state.oirResult = result;
+  state.oirView = "result";
+  render();
+  // persist
+  try{
+    await saveOirSession(state.uid, result);
+    state.oirSessions = await loadOirSessions(state.uid);
+  } catch(e){
+    console.error(e);
+    toast("Result shown but save failed — " + (e.message || ""));
+  }
+}
+
+function renderOIR(){
+  const wrap = el("div", {class:"page fade-in"});
+
+  // head
+  const head = el("div", {class:"dash-head"});
+  const headL = el("div", {});
+  headL.appendChild(el("div", {class:"eyebrow eyebrow-olive"}, "Officer Intelligence Rating"));
+  headL.appendChild(el("h1", {class:"h-page", style:{marginTop:"4px"}}, "OIR Practice"));
+  headL.appendChild(el("div", {class:"hint", style:{marginTop:"6px"}}, "Daily mixed test — Verbal + Non-Verbal Reasoning. Fresh questions every attempt."));
+  head.appendChild(headL);
+  if (state.oirView !== "test"){
+    const actions = el("div", {class:"row"});
+    if (state.oirView === "result"){
+      actions.appendChild(el("button", {class:"btn btn-ghost btn-mono", onClick:()=>openOIR()}, "← OIR Dashboard"));
+    }
+    head.appendChild(actions);
+  }
+  wrap.appendChild(head);
+
+  if (state.oirView === "dashboard") wrap.appendChild(renderOirDashboard());
+  else if (state.oirView === "test") wrap.appendChild(renderOirTest());
+  else if (state.oirView === "result") wrap.appendChild(renderOirResult());
+
+  return wrap;
+}
+
+function oirTypeSub(type){
+  if (type === "verbal") return "Linguistic, logical & arithmetic reasoning";
+  if (type === "non-verbal") return "Spatial, visual & pattern recognition";
+  return "Full spectrum — both booklets";
+}
+
+function renderOirDashboard(){
+  const root = el("div", {});
+
+  // question-count selector
+  const sel = el("div", {class:"oir-count-row"});
+  sel.appendChild(el("span", {class:"oir-count-lbl"}, "Test Length"));
+  const pills = el("div", {class:"oir-count-pills"});
+  [10,20,50].forEach(n => {
+    const mins = Math.round((OIR_LIMITS[n]||0)/60);
+    pills.appendChild(el("button", {
+      class:"oir-count-pill" + (state.oirCount === n ? " on" : ""),
+      onClick:()=>{ state.oirCount = n; render(); }
+    }, el("span",{}, n + " Qs"), el("span",{class:"oir-pill-sub"}, mins + " min")));
+  });
+  sel.appendChild(pills);
+  root.appendChild(sel);
+
+  // question-type selector
+  const typeRow = el("div", {class:"oir-count-row", style:{marginTop:"14px"}});
+  typeRow.appendChild(el("span", {class:"oir-count-lbl"}, "Question Type"));
+  const typePills = el("div", {class:"oir-count-pills"});
+  [["verbal","Verbal Only"],["non-verbal","Non-Verbal Only"],["mixed","Mixed"]].forEach(([val,label]) => {
+    typePills.appendChild(el("button", {
+      class:"oir-count-pill" + (state.oirType === val ? " on" : ""),
+      onClick:()=>{ state.oirType = val; render(); }
+    }, label));
+  });
+  typeRow.appendChild(typePills);
+  root.appendChild(typeRow);
+  root.appendChild(el("div", {class:"oir-type-sub"}, oirTypeSub(state.oirType)));
+
+  // start CTA card
+  const cta = el("div", {class:"oir-cta-card", style:{marginTop:"16px"}});
+  const ctaL = el("div", {});
+  ctaL.appendChild(el("div", {class:"oir-cta-eyebrow"}, `${state.oirCount} Questions · ${state.oirType==="mixed"?"Verbal + Non-Verbal":state.oirType==="verbal"?"Verbal":"Non-Verbal"} · ${Math.round((OIR_LIMITS[state.oirCount]||0)/60)} min`));
+  ctaL.appendChild(el("div", {class:"oir-cta-title"}, "Begin a fresh OIR test"));
+  ctaL.appendChild(el("div", {class:"oir-cta-sub"}, `Timer counts down from ${Math.round((OIR_LIMITS[state.oirCount]||0)/60)} minutes — it auto-submits when time runs out.`));
+  cta.appendChild(ctaL);
+  cta.appendChild(el("button", {class:"btn btn-gold btn-lg btn-mono", onClick:()=>startOirTest()}, "Start New Test →"));
+  root.appendChild(cta);
+
+  // past attempts
+  root.appendChild(el("div", {class:"section-title", style:{marginTop:"28px"}}, "Past Attempts"));
+
+  if (state.oirLoading){
+    root.appendChild(renderInlineLoading("Loading your OIR history…", ""));
+    return root;
+  }
+  const sessions = state.oirSessions || [];
+  if (sessions.length === 0){
+    root.appendChild(el("div", {class:"card card-pad"},
+      el("div", {class:"muted center"}, "No attempts yet. Start your first test above.")
+    ));
+    return root;
+  }
+
+  const tbl = el("div", {class:"card oir-tbl"});
+  const hd = el("div", {class:"oir-tr oir-th"});
+  ["Date","Score","Grade","Topics Covered","Time"].forEach((h,i)=>hd.appendChild(el("span",{class:"oir-c"+i},h)));
+  tbl.appendChild(hd);
+  for (const s of sessions){
+    const row = el("div", {class:"oir-tr"});
+    row.appendChild(el("span", {class:"oir-c0"}, fmtSessionDate(s.date)));
+    const sc = el("span", {class:"oir-c1"});
+    sc.appendChild(el("b", {}, (s.score ?? 0) + "%"));
+    sc.appendChild(el("span", {class:"oir-frac"}, ` ${s.correctAnswers}/${s.totalQuestions}`));
+    row.appendChild(sc);
+    row.appendChild(el("span", {class:"oir-c2"}, el("span", {class:"oir-grade-pill oir-g"+s.grade}, "Grade "+s.grade)));
+    row.appendChild(el("span", {class:"oir-c3"}, (s.topicsCovered||[]).slice(0,4).join(" · ") + ((s.topicsCovered||[]).length>4 ? " …" : "")));
+    row.appendChild(el("span", {class:"oir-c4"}, fmtClock(s.timeTaken||0)));
+    tbl.appendChild(row);
+  }
+  root.appendChild(tbl);
+  return root;
+}
+
+function fmtSessionDate(ts){
+  try{
+    const d = ts && ts.toDate ? ts.toDate() : (ts ? new Date(ts) : new Date());
+    return d.toLocaleDateString(undefined, { day:"numeric", month:"short", year:"numeric" });
+  }catch(e){ return "—"; }
+}
+
+function renderOirTest(){
+  const root = el("div", {});
+  if (state.oirLoading || !state.oirTest){
+    root.appendChild(renderInlineLoading("Generating your OIR test…", "Mixing verbal and non-verbal reasoning. This takes a few seconds."));
+    return root;
+  }
+  const t = state.oirTest;
+  const answered = Object.keys(t.answers).length;
+  const total = t.questions.length;
+
+  // sticky timer/progress bar
+  const bar = el("div", {class:"oir-testbar"});
+  const left = el("div", {class:"oir-timer"});
+  left.appendChild(el("span", {class:"oir-timer-lbl"}, "Time Left"));
+  const remaining = Math.max(0, state.oirLimit - state.oirElapsed);
+  const tv = el("span", {class:"oir-timer-val" + (remaining<=60?" danger":"")}, fmtClock(remaining));
+  left.appendChild(tv);
+  left.appendChild(el("span", {class:"oir-timer-of"}, "of " + fmtClock(state.oirLimit)));
+  bar.appendChild(left);
+  const mid = el("div", {class:"oir-testbar-prog"});
+  mid.appendChild(el("div", {class:"oir-testbar-count"}, `${answered}/${total} answered`));
+  mid.appendChild(el("div", {class:"oir-mini-bar"}, el("i", {style:{width:Math.round(100*answered/total)+"%"}})));
+  bar.appendChild(mid);
+  bar.appendChild(el("button", {class:"btn btn-primary btn-mono", onClick:()=>submitOirTest()}, "Submit Test"));
+  root.appendChild(bar);
+
+  // questions
+  const list = el("div", {class:"oir-qlist"});
+  t.questions.forEach((q, idx) => list.appendChild(renderOirQuestion(q, idx+1, false)));
+  root.appendChild(list);
+
+  // bottom submit
+  root.appendChild(el("div", {class:"center", style:{marginTop:"22px"}},
+    el("button", {class:"btn btn-primary btn-lg btn-mono", onClick:()=>submitOirTest()}, "Submit Test →")
+  ));
+  return root;
+}
+
+function renderOirQuestion(q, num, review){
+  const card = el("div", {class:"oir-q"});
+  const top = el("div", {class:"oir-q-top"});
+  top.appendChild(el("span", {class:"oir-q-num"}, "Q"+String(num).padStart(2,"0")));
+  top.appendChild(el("span", {class:"oir-q-type oir-q-"+(q.type==="non-verbal"?"nv":"v")}, q.type==="non-verbal"?"Non-Verbal":"Verbal"));
+  top.appendChild(el("span", {class:"oir-q-topic"}, q.topic));
+  if (review){
+    top.appendChild(el("span", {class:"oir-q-mark " + (q.isCorrect?"ok":(q.userAnswer?"bad":"skip"))},
+      q.isCorrect ? "✓ Correct" : (q.userAnswer ? "✗ Wrong" : "— Skipped")));
+  }
+  card.appendChild(top);
+  card.appendChild(el("p", {class:"oir-q-text"}, q.question));
+
+  const opts = el("div", {class:"oir-opts"});
+  q.options.forEach((opt, i) => {
+    const letter = optLetter(i);
+    const selected = review ? (q.userAnswer === letter) : (state.oirTest.answers[q.id] === letter);
+    let cls = "oir-opt";
+    if (review){
+      if (letter === q.correct) cls += " opt-correct";
+      else if (selected) cls += " opt-wrong";
+    } else if (selected){
+      cls += " opt-sel";
+    }
+    const o = el("button", {
+      class:cls,
+      onClick: review ? null : (()=>selectOirAnswer(q.id, letter))
+    });
+    o.appendChild(el("span", {class:"oir-opt-key"}, letter));
+    // strip leading "A) " from label if present
+    const label = opt.replace(/^\s*[A-D]\)\s*/,"");
+    o.appendChild(el("span", {class:"oir-opt-txt"}, label));
+    if (review && letter === q.correct) o.appendChild(el("span", {class:"oir-opt-tag"}, "Correct"));
+    if (review && selected && letter !== q.correct) o.appendChild(el("span", {class:"oir-opt-tag oir-opt-tag-bad"}, "Your answer"));
+    opts.appendChild(o);
+  });
+  card.appendChild(opts);
+
+  if (review && q.explanation){
+    card.appendChild(el("div", {class:"oir-expl"},
+      el("span", {class:"oir-expl-lbl"}, "Why"),
+      el("span", {}, q.explanation)
+    ));
+  }
+  return card;
+}
+
+function renderOirResult(){
+  const root = el("div", {});
+  const r = state.oirResult;
+
+  // scorecard
+  const card = el("div", {class:"oir-score oir-g"+r.grade+"-bg", style:{marginTop:"18px"}});
+  const ring = el("div", {class:"oir-score-ring"});
+  ring.appendChild(el("div", {class:"oir-score-pct"}, r.score + "%"));
+  ring.appendChild(el("div", {class:"oir-score-frac"}, `${r.correctAnswers}/${r.totalQuestions}`));
+  card.appendChild(ring);
+  const meta = el("div", {class:"oir-score-meta"});
+  meta.appendChild(el("div", {class:"oir-score-grade"}, "OIR Grade " + r.grade));
+  meta.appendChild(el("div", {class:"oir-score-label"}, OIR_GRADE_LABEL[r.grade]));
+  const stats = el("div", {class:"oir-score-stats"});
+  const timeStr = r.timeLimit ? `${fmtClock(r.timeTaken)} / ${fmtClock(r.timeLimit)}` : fmtClock(r.timeTaken);
+  stats.appendChild(el("span", {}, r.autoSubmitted ? "Auto-submitted: " : "Completed in: ", el("b",{}, timeStr)));
+  stats.appendChild(el("span", {}, "Correct: ", el("b",{}, `${r.correctAnswers}/${r.totalQuestions}`)));
+  stats.appendChild(el("span", {}, "Topics: ", el("b",{}, String((r.topicsCovered||[]).length))));
+  meta.appendChild(stats);
+  card.appendChild(meta);
+  const again = el("div", {class:"oir-score-cta"});
+  again.appendChild(el("button", {class:"btn btn-gold btn-mono", onClick:()=>startOirTest()}, "Take Another →"));
+  card.appendChild(again);
+  root.appendChild(card);
+
+  // Review Mistakes — wrong + skipped only
+  const mistakes = r.questions.filter(q => !q.isCorrect);
+  root.appendChild(el("div", {class:"section-title", style:{marginTop:"28px"}}, "Review Mistakes"));
+  if (mistakes.length === 0){
+    root.appendChild(el("div", {class:"oir-perfect"},
+      el("span", {class:"oir-perfect-star"}, "★"),
+      el("div", {},
+        el("div", {class:"oir-perfect-h"}, "No mistakes — OIR Grade 1 performance"),
+        el("div", {class:"oir-perfect-sub"}, "Every question correct. Keep this standard up under time pressure.")
+      )
+    ));
+  } else {
+    root.appendChild(el("div", {class:"oir-mistake-count"}, `${mistakes.length} to review — wrong or not attempted`));
+    const list = el("div", {class:"oir-qlist", style:{marginTop:"12px"}});
+    mistakes.forEach((q, idx) => list.appendChild(renderMistakeCard(q, idx+1)));
+    root.appendChild(list);
+  }
+  return root;
+}
+
+function renderMistakeCard(q, num){
+  const card = el("div", {class:"oir-q oir-mistake"});
+  const top = el("div", {class:"oir-q-top"});
+  top.appendChild(el("span", {class:"oir-q-num"}, "#"+num));
+  top.appendChild(el("span", {class:"oir-q-type oir-q-"+(q.type==="non-verbal"?"nv":"v")}, q.type==="non-verbal"?"Non-Verbal":"Verbal"));
+  top.appendChild(el("span", {class:"oir-q-topic"}, q.topic.toUpperCase()));
+  top.appendChild(el("span", {class:"oir-q-mark " + (q.userAnswer ? "bad" : "skip")}, q.userAnswer ? "✗ Wrong" : "— Not Attempted"));
+  card.appendChild(top);
+  card.appendChild(el("p", {class:"oir-q-text"}, q.question));
+
+  // answer rows
+  const ans = el("div", {class:"oir-ans-rows"});
+  // user's answer
+  const userRow = el("div", {class:"oir-ans-row oir-ans-user"});
+  userRow.appendChild(el("span", {class:"oir-ans-lbl"}, "Your answer"));
+  if (q.userAnswer){
+    const ui = ["A","B","C","D"].indexOf(q.userAnswer);
+    const label = (q.options[ui]||"").replace(/^\s*[A-D]\)\s*/,"");
+    userRow.appendChild(el("span", {class:"oir-ans-val"}, q.userAnswer + ". " + label));
+  } else {
+    userRow.appendChild(el("span", {class:"oir-ans-val oir-ans-skip"}, "Not Attempted"));
+  }
+  ans.appendChild(userRow);
+  // correct answer
+  const ci = ["A","B","C","D"].indexOf(q.correct);
+  const correctLabel = (q.options[ci]||"").replace(/^\s*[A-D]\)\s*/,"");
+  const corrRow = el("div", {class:"oir-ans-row oir-ans-correct"});
+  corrRow.appendChild(el("span", {class:"oir-ans-lbl"}, "Correct"));
+  corrRow.appendChild(el("span", {class:"oir-ans-val"}, q.correct + ". " + correctLabel));
+  ans.appendChild(corrRow);
+  card.appendChild(ans);
+
+  // how to approach
+  const method = q.approach || q.explanation;
+  if (method){
+    card.appendChild(el("div", {class:"oir-approach"},
+      el("div", {class:"oir-approach-lbl"}, "How to approach this"),
+      el("p", {class:"oir-approach-txt"}, method)
+    ));
+  }
+  return card;
 }
 
 /* =========================================================
