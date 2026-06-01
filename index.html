@@ -1300,7 +1300,7 @@ async function aiComplete(promptOrObj, opts = {}) {
   // 1) Cloud Function path (production hosting)
   if (auth.currentUser) {
     try {
-      const res = await _aiCompleteFn({ prompt, maxTokens: opts.maxTokens || 2000 });
+      const res = await _aiCompleteFn({ prompt, maxTokens: opts.maxTokens || 4000 });
       if (res && res.data && typeof res.data.text === "string") return res.data.text;
     } catch (e) {
       // If the function isn't deployed yet, fall through to the artifact helper.
