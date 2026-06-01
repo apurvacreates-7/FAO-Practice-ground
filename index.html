@@ -867,7 +867,6 @@ body.has-side #app{ padding-left:248px; }
 .oir-prog-fill{
   height:100%; width:0%; border-radius:999px;
   background:linear-gradient(90deg, #B8985A, var(--gold));
-  transition:width .25s ease-out;
 }
 .oir-prog-pct{
   font-family:var(--font-mono); font-size:14px; font-weight:700;
@@ -1300,7 +1299,7 @@ async function aiComplete(promptOrObj, opts = {}) {
   // 1) Cloud Function path (production hosting)
   if (auth.currentUser) {
     try {
-      const res = await _aiCompleteFn({ prompt, maxTokens: opts.maxTokens || 4000 });
+      const res = await _aiCompleteFn({ prompt, maxTokens: opts.maxTokens || 2000 });
       if (res && res.data && typeof res.data.text === "string") return res.data.text;
     } catch (e) {
       // If the function isn't deployed yet, fall through to the artifact helper.
@@ -3720,25 +3719,25 @@ function startOirTips(){
 }
 function stopOirTips(){ if (state._oirTipTimer){ clearInterval(state._oirTipTimer); state._oirTipTimer = null; } }
 
-// Progress bar: animate 0→90% over ~12s (ease-in-out), hold, then jump to 100%
+// Progress bar: asymptotic crawl toward 99% — always moving (fast early, slow late)
+// so it never looks frozen, however long the AI takes. Snaps to 100% on response.
 function paintOirProgress(){
   const fill = document.querySelector(".oir-prog-fill");
   const pct = document.querySelector(".oir-prog-pct");
   if (fill) fill.style.width = state.oirProgress + "%";
-  if (pct) pct.textContent = state.oirProgress + "%";
+  if (pct) pct.textContent = Math.round(state.oirProgress) + "%";
 }
 function startOirProgress(){
   stopOirProgress();
   state.oirProgress = 0;
-  state._oirProgStart = Date.now();
-  const dur = 12000;
   state._oirProgTimer = setInterval(()=>{
-    const t = Math.min(1, (Date.now() - state._oirProgStart)/dur);
-    const eased = t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t+2, 2)/2;
-    state.oirProgress = Math.round(eased * 90);
+    // approach 99% — increment shrinks as we climb, but never below a floor,
+    // so the bar keeps visibly moving the entire time.
+    const remaining = 99 - state.oirProgress;
+    const step = Math.max(0.12, remaining * 0.018);
+    state.oirProgress = Math.min(99, state.oirProgress + step);
     paintOirProgress();
-    if (t >= 1) stopOirProgress(); // hold at 90% until AI responds
-  }, 80);
+  }, 90);
 }
 function stopOirProgress(){ if (state._oirProgTimer){ clearInterval(state._oirProgTimer); state._oirProgTimer = null; } }
 async function finishOirProgress(){
@@ -3991,7 +3990,7 @@ function renderOirLoadingCard(){
   const track = el("div", {class:"oir-prog-track"});
   track.appendChild(el("div", {class:"oir-prog-fill", style:{width:(state.oirProgress||0)+"%"}}));
   c.appendChild(track);
-  c.appendChild(el("div", {class:"oir-prog-pct"}, (state.oirProgress||0) + "%"));
+  c.appendChild(el("div", {class:"oir-prog-pct"}, Math.round(state.oirProgress||0) + "%"));
   c.appendChild(el("div", {class:"oir-tip"}, OIR_TIPS[state._oirTipIdx || 0]));
   return c;
 }
