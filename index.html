@@ -132,6 +132,14 @@ body.has-side #app{ padding-left:248px; }
   font-family:var(--font-mono); font-size:10px; letter-spacing:0.16em;
   text-transform:uppercase; color:rgba(245,243,238,.65);
 }
+.side-close{
+  display:none; margin-left:auto; width:28px; height:28px; flex:none;
+  border:1px solid rgba(245,243,238,.2); border-radius:var(--radius);
+  color:var(--gold); font-size:13px; line-height:1; cursor:pointer;
+  align-items:center; justify-content:center;
+}
+.side-close:hover{ border-color:var(--gold); background:rgba(197,165,90,.12); }
+@media (max-width:900px){ .side-close{ display:flex; } }
 .side-link{
   display:flex; align-items:center; gap:12px; width:100%; text-align:left;
   padding:11px 12px; border-radius:var(--radius); color:rgba(245,243,238,.82);
@@ -174,13 +182,13 @@ body.has-side #app{ padding-left:248px; }
 .side-signout:hover{ border-color:var(--danger); color:#ff9a9a; }
 
 .side-scrim{
-  position:fixed; inset:0; z-index:39; background:rgba(10,10,8,.5);
+  position:fixed; inset:0; z-index:55; background:rgba(10,10,8,.5);
   opacity:0; pointer-events:none; transition:opacity .2s;
 }
 .side-scrim.show{ opacity:1; pointer-events:auto; }
 
 .ham{
-  position:fixed; top:9px; right:14px; z-index:45;
+  position:fixed; top:9px; right:14px; z-index:60;
   width:42px; height:42px; border-radius:var(--radius);
   background:var(--ink); border:1px solid var(--gold-line);
   display:none; flex-direction:column; align-items:center; justify-content:center; gap:4px;
@@ -189,7 +197,7 @@ body.has-side #app{ padding-left:248px; }
 
 @media (max-width:900px){
   .sidebar{
-    top:0; z-index:46;
+    top:0; z-index:65;
     transform:translateX(-100%); transition:transform .22s ease;
     box-shadow:0 0 40px rgba(0,0,0,.4);
   }
@@ -1846,7 +1854,7 @@ function renderSidebar(){
     return;
   }
   $sidebar.style.display = "flex";
-  $ham.style.display = "flex";
+  $ham.style.display = "";   // let the CSS media query decide (mobile only)
   document.body.classList.add("has-side");
   // keep sidebar offset in sync with the (sticky) banner height
   const bh = $banner.offsetHeight || 66;
@@ -1854,10 +1862,11 @@ function renderSidebar(){
 
   const active = sectionForScreen(state.screen);
   $sideNav.innerHTML = "";
-  $sideNav.appendChild(el("div", {class:"side-brand"},
-    el("span", {class:"side-brand-mark"}, "★"),
-    el("span", {class:"side-brand-txt"}, "Candidate Console")
-  ));
+  const brand = el("div", {class:"side-brand"});
+  brand.appendChild(el("span", {class:"side-brand-mark"}, "★"));
+  brand.appendChild(el("span", {class:"side-brand-txt"}, "Candidate Console"));
+  brand.appendChild(el("button", {class:"side-close", onClick:closeSidebar, "aria-label":"Close menu"}, "✕"));
+  $sideNav.appendChild(brand);
   for (const item of NAV_ITEMS){
     const btn = el("button", {
       class:"side-link" + (item.id === active ? " on" : ""),
