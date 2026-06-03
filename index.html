@@ -1296,7 +1296,7 @@ const FV   = firebase.firestore.FieldValue;
 
 // AI: prefer Cloud Function (works on any hosted domain),
 // fall back to window.claude.complete inside the Claude artifact viewer.
-const _aiCompleteFn = fns.httpsCallable("aiComplete");
+const _aiCompleteFn = fns.httpsCallable("aiComplete", { timeout: 300000 });
 async function aiComplete(promptOrObj, opts = {}) {
   let prompt;
   if (typeof promptOrObj === "string") prompt = promptOrObj;
