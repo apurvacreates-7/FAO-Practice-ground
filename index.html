@@ -3782,7 +3782,7 @@ async function startOirTest(){
   startOirTips();
   let qs;
   try{ qs = await generateOirTest(state.oirCount, state.oirType); }
-  catch(e){ qs = null; }
+  catch(e){ console.error("[OIR] generateOirTest failed:", e); qs = null; }
   stopOirTips();
   if (!qs || qs.length < 5){
     stopOirProgress();
