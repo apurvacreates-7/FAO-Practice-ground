@@ -1142,6 +1142,78 @@ body.has-side #app{ padding-left:248px; }
 }
 .oir-approach-txt{ margin:0; font-size:13.5px; line-height:1.55; color:var(--ink-2); white-space:pre-wrap; }
 
+/* test header exit + modal */
+.oir-testbar-actions{ display:flex; align-items:center; gap:8px; flex:none; }
+.oir-exit-btn{ color:var(--paper); border-color:rgba(245,243,238,.3); background:transparent; }
+.oir-exit-btn:hover:not(:disabled){ background:rgba(245,243,238,.1); border-color:rgba(245,243,238,.5); }
+.oir-modal-scrim{
+  position:fixed; inset:0; z-index:80; background:rgba(10,10,8,.62);
+  display:flex; align-items:center; justify-content:center; padding:20px;
+  animation:fadeIn .18s ease-out;
+}
+.oir-modal{
+  position:relative; width:100%; max-width:440px;
+  background:#fff; border:1px solid var(--olive-line); border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-pop); padding:26px 24px 22px;
+}
+.oir-modal-title{ font-size:19px; font-weight:700; letter-spacing:-0.01em; color:var(--ink); }
+.oir-modal-sub{ font-size:13px; color:var(--ink-3); margin-top:5px; }
+.oir-modal-opts{ display:flex; flex-direction:column; gap:10px; margin:18px 0 6px; }
+.oir-modal-opt{
+  display:flex; align-items:flex-start; gap:13px; text-align:left;
+  padding:14px 15px; border:1px solid var(--olive-line); border-radius:var(--radius);
+  background:#fff; cursor:pointer; transition:background .12s, border-color .12s;
+}
+.oir-modal-opt:hover{ background:var(--paper-soft); border-color:var(--olive); }
+.oir-modal-ico{ font-size:20px; line-height:1.2; flex:none; }
+.oir-modal-opt-txt{ display:flex; flex-direction:column; gap:3px; }
+.oir-modal-opt-h{ font-size:14.5px; font-weight:600; color:var(--ink); }
+.oir-modal-opt-s{ font-size:12.5px; line-height:1.45; color:var(--ink-3); }
+.oir-modal-discard{
+  display:block; width:100%; text-align:center; margin-top:12px; padding:6px;
+  font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.12em;
+  text-transform:uppercase; color:var(--danger); cursor:pointer; background:none; border:none;
+}
+.oir-modal-discard:hover{ text-decoration:underline; }
+.oir-modal-close{
+  position:absolute; top:12px; right:12px; width:28px; height:28px;
+  border-radius:var(--radius); border:1px solid var(--olive-line); background:#fff;
+  color:var(--ink-3); font-size:12px; cursor:pointer;
+}
+.oir-modal-close:hover{ border-color:var(--ink-3); }
+
+/* saved & paused drafts list */
+.oir-draft-list{ display:flex; flex-direction:column; gap:10px; }
+.oir-draft{
+  display:flex; align-items:center; gap:14px; padding:13px 16px;
+  background:#fff; border:1px solid var(--olive-line); border-radius:var(--radius);
+}
+.oir-draft-paused{ border-left:3px solid var(--gold); }
+.oir-draft-badge{
+  font-family:var(--font-mono); font-size:9px; letter-spacing:0.14em; text-transform:uppercase;
+  font-weight:700; padding:4px 9px; border-radius:2px; flex:none;
+}
+.dft-paused{ background:var(--gold-soft); color:var(--olive-darker); border:1px solid var(--gold-line); }
+.dft-saved{ background:var(--paper-deep); color:var(--ink-3); border:1px solid var(--olive-line); }
+.oir-draft-info{ flex:1; min-width:0; }
+.oir-draft-meta{ font-size:14px; color:var(--ink); }
+.oir-draft-meta b{ font-weight:600; }
+.oir-draft-date{ color:var(--ink-4); font-family:var(--font-mono); font-size:11px; }
+.oir-draft-status{
+  font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.06em;
+  color:var(--ink-3); margin-top:4px;
+}
+.oir-draft-acts{ display:flex; align-items:center; gap:8px; flex:none; }
+.oir-draft-del{
+  width:32px; height:30px; border:1px solid var(--olive-line); border-radius:var(--radius);
+  background:#fff; cursor:pointer; font-size:14px; opacity:.7; transition:all .12s;
+}
+.oir-draft-del:hover{ opacity:1; border-color:var(--danger); background:#FBE9E9; }
+@media (max-width:560px){
+  .oir-draft{ flex-wrap:wrap; }
+  .oir-draft-info{ order:3; flex-basis:100%; }
+}
+
 /* ============ Practice screen ============ */
 .practice-wrap{
   max-width:780px; margin:0 auto;
@@ -1575,6 +1647,23 @@ async function saveOirSession(uid, session){
   return ref.id;
 }
 
+// --- OIR drafts: paused or saved (fresh) tests ---
+async function loadOirDrafts(uid){
+  const snap = await db.collection('oirSessions').doc(uid).collection('drafts')
+    .orderBy('updatedAt','desc').limit(30).get();
+  const rows = [];
+  snap.forEach(d => rows.push({ _id:d.id, ...d.data() }));
+  return rows;
+}
+async function saveOirDraft(uid, draft){
+  const ref = await db.collection('oirSessions').doc(uid).collection('drafts')
+    .add(stripUndefined({ ...draft, updatedAt: FV.serverTimestamp(), savedISO: new Date().toISOString() }));
+  return ref.id;
+}
+async function deleteOirDraft(uid, draftId){
+  await db.collection('oirSessions').doc(uid).collection('drafts').doc(draftId).delete();
+}
+
 function oirGrade(pct){
   if (pct >= 85) return 1;
   if (pct >= 70) return 2;
@@ -1830,6 +1919,9 @@ const state = {
   oirTest: null,           // current { questions, answers, startTs }
   oirResult: null,         // computed result after submit
   oirReview: null,         // a saved session being viewed read-only
+  oirDrafts: null,         // paused/saved tests
+  oirExitModal: false,     // exit modal open?
+  oirResumeDraftId: null,  // draft id being resumed (delete on submit)
   oirElapsed: 0,
   oirCount: 20,             // 10 | 20 | 50 questions per test
   oirType: "mixed",         // 'verbal' | 'non-verbal' | 'mixed'
@@ -3694,13 +3786,21 @@ async function openOIR(){
   state.oirResult = null;
   state.oirLoading = true;
   state.oirSessions = null;
+  state.oirDrafts = null;
+  state.oirExitModal = false;
   render();
   try{
-    state.oirSessions = await loadOirSessions(state.uid);
+    const [sessions, drafts] = await Promise.all([
+      loadOirSessions(state.uid),
+      loadOirDrafts(state.uid).catch(()=>[]),
+    ]);
+    state.oirSessions = sessions;
+    state.oirDrafts = drafts;
   } catch(e){
     console.error(e);
     toast("Could not load OIR history — " + (e.message || "check rules."));
     state.oirSessions = [];
+    state.oirDrafts = [];
   }
   state.oirLoading = false;
   render();
@@ -3708,6 +3808,61 @@ async function openOIR(){
 
 function stopOirTimer(){
   if (state._oirTimer){ clearInterval(state._oirTimer); state._oirTimer = null; }
+}
+
+// Resume a PAUSED draft: restore answers + elapsed, continue timer.
+async function resumeOirDraft(draft){
+  stopOirTimer();
+  state.oirCount = draft.count || 20;
+  state.oirType = draft.type || "mixed";
+  state.oirLimit = draft.timeLimit || OIR_LIMITS[state.oirCount] || 480;
+  state.oirElapsed = draft.elapsedSeconds || 0;
+  state.oirSubmitted = false;
+  state.oirCountdown = null;
+  state.oirResumeDraftId = draft._id;
+  state.oirView = "test";
+  state.oirLoading = false;
+  // backdate startTs so elapsed continues from where it paused
+  state.oirTest = {
+    questions: draft.questions || [],
+    answers: { ...(draft.answers || {}) },
+    startTs: Date.now() - (state.oirElapsed * 1000),
+  };
+  state.screen = "oir";
+  render();
+  startOirTimer();
+}
+
+// Start a SAVED (fresh) draft: same questions, cleared answers, full timer.
+async function startOirDraftFresh(draft){
+  stopOirTimer();
+  state.oirCount = draft.count || 20;
+  state.oirType = draft.type || "mixed";
+  state.oirLimit = draft.timeLimit || OIR_LIMITS[state.oirCount] || 480;
+  state.oirElapsed = 0;
+  state.oirSubmitted = false;
+  state.oirCountdown = null;
+  state.oirResumeDraftId = draft._id;
+  state.oirView = "test";
+  state.oirLoading = false;
+  state.oirTest = {
+    questions: draft.questions || [],
+    answers: {},
+    startTs: Date.now(),
+  };
+  state.screen = "oir";
+  render();
+  startOirTimer();
+}
+
+async function deleteDraftRow(draft){
+  if (!confirm("Delete this saved test? This can't be undone.")) return;
+  try{
+    await deleteOirDraft(state.uid, draft._id);
+    state.oirDrafts = (state.oirDrafts || []).filter(d => d._id !== draft._id);
+    render();
+    toast("Deleted.");
+  } catch(e){ console.error(e); toast("Delete failed."); }
 }
 function startOirTimer(){
   stopOirTimer();
@@ -3811,6 +3966,7 @@ async function startOirTest(){
   state.oirTest = null;
   state.oirSubmitted = false;
   state.oirCountdown = null;
+  state.oirResumeDraftId = null;
   state.oirLimit = OIR_LIMITS[state.oirCount] || 480;
   render();
   startOirProgress();
@@ -3890,6 +4046,11 @@ async function submitOirTest(auto){
   // persist
   try{
     await saveOirSession(state.uid, result);
+    // if this test came from a draft, remove that draft now it's completed
+    if (state.oirResumeDraftId){
+      try{ await deleteOirDraft(state.uid, state.oirResumeDraftId); }catch(_){}
+      state.oirResumeDraftId = null;
+    }
     state.oirSessions = await loadOirSessions(state.uid);
   } catch(e){
     console.error(e);
@@ -3973,6 +4134,15 @@ function renderOirDashboard(){
   cta.appendChild(el("button", {class:"btn btn-gold btn-lg btn-mono", onClick:()=>startOirTest()}, "Start New Test →"));
   root.appendChild(cta);
 
+  // saved & paused tests
+  const drafts = state.oirDrafts || [];
+  if (drafts.length){
+    root.appendChild(el("div", {class:"section-title", style:{marginTop:"28px"}}, "Saved & Paused Tests"));
+    const dwrap = el("div", {class:"oir-draft-list"});
+    for (const d of drafts) dwrap.appendChild(renderDraftRow(d));
+    root.appendChild(dwrap);
+  }
+
   // past attempts
   root.appendChild(el("div", {class:"section-title", style:{marginTop:"28px"}}, "Past Attempts"));
 
@@ -4009,6 +4179,39 @@ function renderOirDashboard(){
   }
   root.appendChild(tbl);
   return root;
+}
+
+function renderDraftRow(d){
+  const paused = d.status === "paused";
+  const typeLabel = d.type === "mixed" ? "Mixed" : d.type === "verbal" ? "Verbal" : "Non-Verbal";
+  const answered = d.answers ? Object.keys(d.answers).length : 0;
+  const total = (d.questions || []).length;
+
+  const row = el("div", {class:"oir-draft" + (paused ? " oir-draft-paused" : "")});
+
+  const badge = el("span", {class:"oir-draft-badge " + (paused ? "dft-paused" : "dft-saved")}, paused ? "Paused" : "Saved");
+  row.appendChild(badge);
+
+  const info = el("div", {class:"oir-draft-info"});
+  info.appendChild(el("div", {class:"oir-draft-meta"},
+    el("b", {}, `${d.count || total} Qs · ${typeLabel}`),
+    el("span", {class:"oir-draft-date"}, " · " + fmtSessionDate(d.updatedAt, d.savedISO || d.pausedISO || d.savedFreshISO))
+  ));
+  info.appendChild(el("div", {class:"oir-draft-status"},
+    paused ? `${answered}/${total} answered · ${fmtClock(d.elapsedSeconds||0)} elapsed` : "Fresh attempt"
+  ));
+  row.appendChild(info);
+
+  const acts = el("div", {class:"oir-draft-acts"});
+  if (paused){
+    acts.appendChild(el("button", {class:"btn btn-gold btn-sm btn-mono", onClick:()=>resumeOirDraft(d)}, "Resume"));
+  } else {
+    acts.appendChild(el("button", {class:"btn btn-primary btn-sm btn-mono", onClick:()=>startOirDraftFresh(d)}, "Start"));
+  }
+  acts.appendChild(el("button", {class:"oir-draft-del", title:"Delete", onClick:()=>deleteDraftRow(d)}, "🗑"));
+  row.appendChild(acts);
+
+  return row;
 }
 
 function toJsDate(ts){
@@ -4074,7 +4277,10 @@ function renderOirTest(){
   mid.appendChild(el("div", {class:"oir-testbar-count"}, `${answered}/${total} answered`));
   mid.appendChild(el("div", {class:"oir-mini-bar"}, el("i", {style:{width:Math.round(100*answered/total)+"%"}})));
   bar.appendChild(mid);
-  bar.appendChild(el("button", {class:"btn btn-primary btn-mono", onClick:()=>submitOirTest()}, "Submit Test"));
+  const actions = el("div", {class:"oir-testbar-actions"});
+  actions.appendChild(el("button", {class:"btn btn-ghost btn-mono oir-exit-btn", onClick:()=>{ state.oirExitModal = true; render(); }}, "Exit"));
+  actions.appendChild(el("button", {class:"btn btn-primary btn-mono", onClick:()=>submitOirTest()}, "Submit Test"));
+  bar.appendChild(actions);
   root.appendChild(bar);
 
   // questions
@@ -4086,7 +4292,99 @@ function renderOirTest(){
   root.appendChild(el("div", {class:"center", style:{marginTop:"22px"}},
     el("button", {class:"btn btn-primary btn-lg btn-mono", onClick:()=>submitOirTest()}, "Submit Test →")
   ));
+
+  if (state.oirExitModal) root.appendChild(renderOirExitModal());
   return root;
+}
+
+function renderOirExitModal(){
+  const scrim = el("div", {class:"oir-modal-scrim", onClick:(e)=>{ if (e.target === e.currentTarget){ state.oirExitModal=false; render(); } }});
+  const modal = el("div", {class:"oir-modal"});
+  modal.appendChild(el("div", {class:"oir-modal-title"}, "What would you like to do?"));
+  modal.appendChild(el("div", {class:"oir-modal-sub"}, "Your test is still in progress. Choose how to leave."));
+
+  const opts = el("div", {class:"oir-modal-opts"});
+
+  // Option 1 — Pause
+  const o1 = el("button", {class:"oir-modal-opt", onClick:()=>exitPause()});
+  o1.appendChild(el("span", {class:"oir-modal-ico"}, "⏸"));
+  const o1b = el("span", {class:"oir-modal-opt-txt"});
+  o1b.appendChild(el("span", {class:"oir-modal-opt-h"}, "Pause Test"));
+  o1b.appendChild(el("span", {class:"oir-modal-opt-s"}, "Save your progress. Resume exactly where you left off."));
+  o1.appendChild(o1b);
+  opts.appendChild(o1);
+
+  // Option 2 — Save quiz, exit
+  const o2 = el("button", {class:"oir-modal-opt", onClick:()=>exitSaveQuiz()});
+  o2.appendChild(el("span", {class:"oir-modal-ico"}, "💾"));
+  const o2b = el("span", {class:"oir-modal-opt-txt"});
+  o2b.appendChild(el("span", {class:"oir-modal-opt-h"}, "Save Quiz, Exit"));
+  o2b.appendChild(el("span", {class:"oir-modal-opt-s"}, "Your answers won't be saved, but the questions stay available to attempt fresh later."));
+  o2.appendChild(o2b);
+  opts.appendChild(o2);
+
+  modal.appendChild(opts);
+
+  // Option 3 — discard link
+  modal.appendChild(el("button", {class:"oir-modal-discard", onClick:()=>exitDiscard()}, "Discard and exit"));
+  modal.appendChild(el("button", {class:"oir-modal-close", onClick:()=>{ state.oirExitModal=false; render(); }, "aria-label":"Close"}, "✕"));
+
+  scrim.appendChild(modal);
+  return scrim;
+}
+
+function currentDraftPayload(){
+  const t = state.oirTest;
+  return {
+    questions: t.questions,
+    count: state.oirCount,
+    type: state.oirType,
+    timeLimit: state.oirLimit,
+  };
+}
+
+async function exitPause(){
+  const t = state.oirTest;
+  if (!t) return;
+  stopOirTimer(); stopOirTips(); stopOirProgress();
+  const elapsed = Math.min(state.oirLimit, Math.floor((Date.now() - t.startTs)/1000));
+  state.oirExitModal = false;
+  try{
+    await saveOirDraft(state.uid, {
+      ...currentDraftPayload(),
+      status: "paused",
+      answers: { ...t.answers },
+      elapsedSeconds: elapsed,
+      pausedISO: new Date().toISOString(),
+    });
+    toast("Test paused. Resume from the OIR dashboard.");
+  } catch(e){ console.error(e); toast("Pause failed — " + (e.message||"")); }
+  openOIR();
+}
+
+async function exitSaveQuiz(){
+  const t = state.oirTest;
+  if (!t) return;
+  stopOirTimer(); stopOirTips(); stopOirProgress();
+  state.oirExitModal = false;
+  try{
+    await saveOirDraft(state.uid, {
+      ...currentDraftPayload(),
+      status: "saved",
+      answers: {},
+      elapsedSeconds: 0,
+      savedFreshISO: new Date().toISOString(),
+    });
+    toast("Quiz saved. Start it fresh from the dashboard.");
+  } catch(e){ console.error(e); toast("Save failed — " + (e.message||"")); }
+  openOIR();
+}
+
+function exitDiscard(){
+  stopOirTimer(); stopOirTips(); stopOirProgress();
+  state.oirExitModal = false;
+  state.oirTest = null;
+  openOIR();
 }
 
 function renderOirQuestion(q, num, review){
