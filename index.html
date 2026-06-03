@@ -1620,12 +1620,12 @@ Return ONLY a valid JSON array (no prose, no markdown fences). Each question obj
   "explanation": string,
   "approach": "2-3 line explanation of the METHOD or trick to solve this question TYPE (not just this answer) — how a candidate should reason through it"
 }`;
-  const maxTokens = N >= 50 ? 8000 : 4000;
+  const maxTokens = N >= 50 ? 8000 : N >= 20 ? 6000 : 4000;
   const raw = await aiComplete(sys, { maxTokens });
   return parseOir(raw);
 }
 function parseOir(raw){
-  if (!raw) return null;
+  if (!raw) return null; raw = raw.replace(/```json/g, "").replace(/```/g, "").trim();
   const i = raw.indexOf("["); const j = raw.lastIndexOf("]");
   if (i < 0 || j < 0 || j <= i){ console.error("[OIR] no JSON array found in raw:", (raw||"").slice(0,200)); return null; }
   try{
@@ -1677,7 +1677,7 @@ For running use: {"id": 6, "name": "Running", "sets": 1, "reps": 1, "type": "Car
   return parseWorkout(raw);
 }
 function parseWorkout(raw){
-  if (!raw) return null;
+  if (!raw) return null; raw = raw.replace(/```json/g, "").replace(/```/g, "").trim();
   const i = raw.indexOf("["); const j = raw.lastIndexOf("]");
   if (i < 0 || j < 0 || j <= i){ console.error("[OIR] no JSON array found in raw:", (raw||"").slice(0,200)); return null; }
   try{
@@ -2504,7 +2504,7 @@ function redactProfile(p){
 }
 
 function parseQuestions(raw){
-  if (!raw) return null;
+  if (!raw) return null; raw = raw.replace(/```json/g, "").replace(/```/g, "").trim();
   // Find first '[' and last ']'
   const i = raw.indexOf("["); const j = raw.lastIndexOf("]");
   if (i < 0 || j < 0 || j <= i){ console.error("[OIR] no JSON array found in raw:", (raw||"").slice(0,200)); return null; }
@@ -3078,7 +3078,7 @@ Return ONLY a JSON object (no prose, no markdown):
 }
 
 function parseFeedback(raw){
-  if (!raw) return null;
+  if (!raw) return null; raw = raw.replace(/```json/g, "").replace(/```/g, "").trim();
   const i = raw.indexOf("{"); const j = raw.lastIndexOf("}");
   if (i < 0 || j < 0 || j <= i){ console.error("[OIR] no JSON array found in raw:", (raw||"").slice(0,200)); return null; }
   try{
