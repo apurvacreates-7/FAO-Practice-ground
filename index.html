@@ -1296,7 +1296,7 @@ const FV   = firebase.firestore.FieldValue;
 
 // AI: prefer Cloud Function (works on any hosted domain),
 // fall back to window.claude.complete inside the Claude artifact viewer.
-const _aiCompleteFn = fns.httpsCallable("aiComplete", { timeout: 300000 });
+const _aiCompleteFn = fns.httpsCallable("aiComplete");
 async function aiComplete(promptOrObj, opts = {}) {
   let prompt;
   if (typeof promptOrObj === "string") prompt = promptOrObj;
@@ -1590,21 +1590,25 @@ const OIR_VERBAL_TOPICS = "Coding-Decoding, Blood Relations, Jumbled Words, Alph
 const OIR_NONVERBAL_TOPICS = "Number/Figure Series, Odd Figure Out, Mirror/Water Images, Paper Folding, Hidden Figures, Figure Matrix, Dice/Cube";
 const OIR_LIMITS = { 10: 240, 20: 480, 50: 1020 }; // seconds
 
-async function generateOirTest(n, type){
-  const N = [10,20,50].includes(n) ? n : 20;
-  const perTopic = N === 10 ? "1 question" : N === 20 ? "1-2 questions" : "3-4 questions";
+function buildOirPrompt(count, type, idStart){
+  const perTopic = count <= 10 ? "1 question" : count <= 25 ? "1-2 questions" : "3-4 questions";
   let topicsBlock, scope;
   if (type === "verbal"){
     topicsBlock = `- Verbal topics ONLY: ${OIR_VERBAL_TOPICS}`;
-    scope = `ALL ${N} questions must be Verbal Reasoning. Every question's "type" must be "verbal".`;
+    scope = `ALL ${count} questions must be Verbal Reasoning. Every question's "type" must be "verbal".`;
   } else if (type === "non-verbal"){
     topicsBlock = `- Non-Verbal topics ONLY: ${OIR_NONVERBAL_TOPICS}`;
-    scope = `ALL ${N} questions must be Non-Verbal Reasoning. Every question's "type" must be "non-verbal".`;
+    scope = `ALL ${count} questions must be Non-Verbal Reasoning. Every question's "type" must be "non-verbal".`;
   } else {
     topicsBlock = `- Verbal topics: ${OIR_VERBAL_TOPICS}\n- Non-Verbal topics: ${OIR_NONVERBAL_TOPICS}`;
     scope = `Mix verbal and non-verbal questions roughly evenly.`;
   }
-  const sys = `Generate a mixed OIR (Officer Intelligence Rating) practice test for SSB aspirants. Generate exactly ${N} questions. ${scope} Scale the per-topic question count proportionally — use ${perTopic} from each topic below so the total comes to exactly ${N}:
+  const idLine = idStart && idStart > 1
+    ? `Start question IDs from ${idStart} (i.e. ids ${idStart} to ${idStart + count - 1}).`
+    : `Number question IDs from 1 to ${count}.`;
+  return `Be concise. Keep all string fields under 120 characters.
+
+Generate a mixed OIR (Officer Intelligence Rating) practice test for SSB aspirants. Generate exactly ${count} questions. ${scope} ${idLine} Scale the per-topic question count proportionally — use ${perTopic} from each topic below so the total comes to exactly ${count}:
 ${topicsBlock}
 
 For non-verbal questions that require figures, describe the pattern clearly in text form so it can be rendered as a text/ASCII question. Vary the questions each time — do not repeat a fixed set.
@@ -1617,17 +1621,48 @@ Return ONLY a valid JSON array (no prose, no markdown fences). Each question obj
   "question": string,
   "options": ["A) ...", "B) ...", "C) ...", "D) ..."],
   "correct": "A" | "B" | "C" | "D",
-  "explanation": string,
-  "approach": "2-3 line explanation of the METHOD or trick to solve this question TYPE (not just this answer) — how a candidate should reason through it"
+  "explanation": "max 1 line — why the answer is correct",
+  "approach": "max 1 line — the trick/method to solve this question TYPE"
 }`;
-  const maxTokens = N >= 50 ? 8000 : N >= 20 ? 6000 : 4000;
-  const raw = await aiComplete(sys, { maxTokens });
-  return parseOir(raw);
+}
+
+// One generation call with a single retry if it returns too few questions.
+async function oirCall(count, type, idStart, minOk){
+  const prompt = buildOirPrompt(count, type, idStart);
+  const maxTokens = count > 25 ? 8000 : 4500;
+  for (let attempt = 0; attempt < 2; attempt++){
+    let parsed = null;
+    try{
+      const raw = await aiComplete(prompt, { maxTokens });
+      parsed = parseOir(raw);
+    } catch(e){ parsed = null; }
+    if (parsed && parsed.length >= minOk) return parsed;
+  }
+  return null;
+}
+
+async function generateOirTest(n, type){
+  const N = [10,20,50].includes(n) ? n : 20;
+
+  // 50Q: split into two 25Q calls (more reliable than one huge response), then merge.
+  if (N === 50){
+    const [qs1, qs2] = await Promise.all([
+      oirCall(25, type, 1, 10),
+      oirCall(25, type, 26, 10),
+    ]);
+    if (!qs1 || !qs2) return null;
+    const qs = [...qs1, ...qs2];
+    // normalize ids to a clean 1..50 sequence regardless of what the model returned
+    return qs.map((q, i) => ({ ...q, id: i + 1 }));
+  }
+
+  // 10Q / 20Q: single call (unchanged behaviour).
+  return await oirCall(N, type, 1, Math.min(5, N));
 }
 function parseOir(raw){
-  if (!raw) return null; raw = raw.replace(/```json/g, "").replace(/```/g, "").trim();
+  if (!raw) return null;
   const i = raw.indexOf("["); const j = raw.lastIndexOf("]");
-  if (i < 0 || j < 0 || j <= i){ console.error("[OIR] no JSON array found in raw:", (raw||"").slice(0,200)); return null; }
+  if (i < 0 || j < 0 || j <= i) return null;
   try{
     const arr = JSON.parse(raw.slice(i, j+1));
     if (!Array.isArray(arr) || !arr.length) return null;
@@ -1641,7 +1676,7 @@ function parseOir(raw){
       explanation: String(q.explanation || "").trim(),
       approach: String(q.approach || "").trim(),
     })).filter(q => q.question && q.options.length === 4);
-  } catch(e){ console.error("[OIR] parseOir JSON parse failed:", e, "raw:", raw.slice(0,200)); return null; }
+  } catch(e){ return null; }
 }
 function normalizeOpt(c){
   const s = (c||"").toString().trim().toUpperCase();
@@ -1677,9 +1712,9 @@ For running use: {"id": 6, "name": "Running", "sets": 1, "reps": 1, "type": "Car
   return parseWorkout(raw);
 }
 function parseWorkout(raw){
-  if (!raw) return null; raw = raw.replace(/```json/g, "").replace(/```/g, "").trim();
+  if (!raw) return null;
   const i = raw.indexOf("["); const j = raw.lastIndexOf("]");
-  if (i < 0 || j < 0 || j <= i){ console.error("[OIR] no JSON array found in raw:", (raw||"").slice(0,200)); return null; }
+  if (i < 0 || j < 0 || j <= i) return null;
   try{
     const arr = JSON.parse(raw.slice(i, j+1));
     if (!Array.isArray(arr) || !arr.length) return null;
@@ -1701,7 +1736,7 @@ function parseWorkout(raw){
       if (e.target_pace) ex.target_pace = String(e.target_pace).trim();
       return ex;
     });
-  } catch(e){ console.error("[OIR] parseOir JSON parse failed:", e, "raw:", raw.slice(0,200)); return null; }
+  } catch(e){ return null; }
 }
 
 // Firestore rejects `undefined`. Strip it recursively before any write.
@@ -2504,10 +2539,10 @@ function redactProfile(p){
 }
 
 function parseQuestions(raw){
-  if (!raw) return null; raw = raw.replace(/```json/g, "").replace(/```/g, "").trim();
+  if (!raw) return null;
   // Find first '[' and last ']'
   const i = raw.indexOf("["); const j = raw.lastIndexOf("]");
-  if (i < 0 || j < 0 || j <= i){ console.error("[OIR] no JSON array found in raw:", (raw||"").slice(0,200)); return null; }
+  if (i < 0 || j < 0 || j <= i) return null;
   const jsonStr = raw.slice(i, j+1);
   try{
     const arr = JSON.parse(jsonStr);
@@ -2518,7 +2553,7 @@ function parseQuestions(raw){
       category: normalizeCat(q.category),
       difficulty: normalizeDiff(q.difficulty),
     })).filter(q => q.question);
-  } catch(e){ console.error("[OIR] parseOir JSON parse failed:", e, "raw:", raw.slice(0,200)); return null; }
+  } catch(e){ return null; }
 }
 function normalizeCat(c){
   const s = (c||"").toString().trim();
@@ -3078,9 +3113,9 @@ Return ONLY a JSON object (no prose, no markdown):
 }
 
 function parseFeedback(raw){
-  if (!raw) return null; raw = raw.replace(/```json/g, "").replace(/```/g, "").trim();
+  if (!raw) return null;
   const i = raw.indexOf("{"); const j = raw.lastIndexOf("}");
-  if (i < 0 || j < 0 || j <= i){ console.error("[OIR] no JSON array found in raw:", (raw||"").slice(0,200)); return null; }
+  if (i < 0 || j < 0 || j <= i) return null;
   try{
     const obj = JSON.parse(raw.slice(i, j+1));
     return {
@@ -3089,7 +3124,7 @@ function parseFeedback(raw){
       whats_right: String(obj.whats_right || "").trim(),
       better_answer: String(obj.better_answer || "").trim(),
     };
-  } catch(e){ console.error("[OIR] parseOir JSON parse failed:", e, "raw:", raw.slice(0,200)); return null; }
+  } catch(e){ return null; }
 }
 function normalizeRating(r){
   const s = (r||"").toString().trim().toLowerCase();
@@ -3782,7 +3817,7 @@ async function startOirTest(){
   startOirTips();
   let qs;
   try{ qs = await generateOirTest(state.oirCount, state.oirType); }
-  catch(e){ console.error("[OIR] generateOirTest failed:", e); qs = null; }
+  catch(e){ qs = null; }
   stopOirTips();
   if (!qs || qs.length < 5){
     stopOirProgress();
