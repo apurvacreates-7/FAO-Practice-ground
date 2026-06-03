@@ -1627,7 +1627,7 @@ Return ONLY a valid JSON array (no prose, no markdown fences). Each question obj
 function parseOir(raw){
   if (!raw) return null;
   const i = raw.indexOf("["); const j = raw.lastIndexOf("]");
-  if (i < 0 || j < 0 || j <= i) return null;
+  if (i < 0 || j < 0 || j <= i){ console.error("[OIR] no JSON array found in raw:", (raw||"").slice(0,200)); return null; }
   try{
     const arr = JSON.parse(raw.slice(i, j+1));
     if (!Array.isArray(arr) || !arr.length) return null;
@@ -1641,7 +1641,7 @@ function parseOir(raw){
       explanation: String(q.explanation || "").trim(),
       approach: String(q.approach || "").trim(),
     })).filter(q => q.question && q.options.length === 4);
-  } catch(e){ return null; }
+  } catch(e){ console.error("[OIR] parseOir JSON parse failed:", e, "raw:", raw.slice(0,200)); return null; }
 }
 function normalizeOpt(c){
   const s = (c||"").toString().trim().toUpperCase();
@@ -1679,7 +1679,7 @@ For running use: {"id": 6, "name": "Running", "sets": 1, "reps": 1, "type": "Car
 function parseWorkout(raw){
   if (!raw) return null;
   const i = raw.indexOf("["); const j = raw.lastIndexOf("]");
-  if (i < 0 || j < 0 || j <= i) return null;
+  if (i < 0 || j < 0 || j <= i){ console.error("[OIR] no JSON array found in raw:", (raw||"").slice(0,200)); return null; }
   try{
     const arr = JSON.parse(raw.slice(i, j+1));
     if (!Array.isArray(arr) || !arr.length) return null;
@@ -1701,7 +1701,7 @@ function parseWorkout(raw){
       if (e.target_pace) ex.target_pace = String(e.target_pace).trim();
       return ex;
     });
-  } catch(e){ return null; }
+  } catch(e){ console.error("[OIR] parseOir JSON parse failed:", e, "raw:", raw.slice(0,200)); return null; }
 }
 
 // Firestore rejects `undefined`. Strip it recursively before any write.
@@ -2507,7 +2507,7 @@ function parseQuestions(raw){
   if (!raw) return null;
   // Find first '[' and last ']'
   const i = raw.indexOf("["); const j = raw.lastIndexOf("]");
-  if (i < 0 || j < 0 || j <= i) return null;
+  if (i < 0 || j < 0 || j <= i){ console.error("[OIR] no JSON array found in raw:", (raw||"").slice(0,200)); return null; }
   const jsonStr = raw.slice(i, j+1);
   try{
     const arr = JSON.parse(jsonStr);
@@ -2518,7 +2518,7 @@ function parseQuestions(raw){
       category: normalizeCat(q.category),
       difficulty: normalizeDiff(q.difficulty),
     })).filter(q => q.question);
-  } catch(e){ return null; }
+  } catch(e){ console.error("[OIR] parseOir JSON parse failed:", e, "raw:", raw.slice(0,200)); return null; }
 }
 function normalizeCat(c){
   const s = (c||"").toString().trim();
@@ -3080,7 +3080,7 @@ Return ONLY a JSON object (no prose, no markdown):
 function parseFeedback(raw){
   if (!raw) return null;
   const i = raw.indexOf("{"); const j = raw.lastIndexOf("}");
-  if (i < 0 || j < 0 || j <= i) return null;
+  if (i < 0 || j < 0 || j <= i){ console.error("[OIR] no JSON array found in raw:", (raw||"").slice(0,200)); return null; }
   try{
     const obj = JSON.parse(raw.slice(i, j+1));
     return {
@@ -3089,7 +3089,7 @@ function parseFeedback(raw){
       whats_right: String(obj.whats_right || "").trim(),
       better_answer: String(obj.better_answer || "").trim(),
     };
-  } catch(e){ return null; }
+  } catch(e){ console.error("[OIR] parseOir JSON parse failed:", e, "raw:", raw.slice(0,200)); return null; }
 }
 function normalizeRating(r){
   const s = (r||"").toString().trim().toLowerCase();
