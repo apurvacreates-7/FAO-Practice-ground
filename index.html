@@ -589,6 +589,25 @@ body.has-side #app{ padding-left:248px; }
   border-bottom:1px solid var(--olive-line);
 }
 .lb-row:last-child{border-bottom:none;}
+/* merit-list (interview + OIR) layout */
+.lb-merit-row{ grid-template-columns:64px minmax(150px,1.5fr) 92px minmax(180px,1.4fr) !important; }
+.lb-score{ display:flex; align-items:baseline; gap:1px; }
+.lb-score b{ font-size:20px; font-weight:700; color:var(--ink); }
+.lb-header .lb-score, .lb-header .lb-break{
+  font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.16em;
+  text-transform:uppercase; color:var(--gold); font-weight:500;
+}
+.lb-header .lb-score b{ font-size:9.5px; color:var(--gold); font-weight:500; }
+.lb-score-of{ font-family:var(--font-mono); font-size:10px; color:var(--ink-4); }
+.lb-break{
+  font-family:var(--font-mono); font-size:11px; letter-spacing:0.02em;
+  color:var(--ink-3); line-height:1.4;
+}
+.pod-merit-sub{ font-style:normal; }
+@media (max-width:640px){
+  .lb-merit-row{ grid-template-columns:44px 1fr 70px !important; }
+  .lb-merit-row .lb-break{ grid-column:2 / -1; font-size:10px; margin-top:2px; }
+}
 .lb-header{
   background:var(--ink); color:var(--paper);
   border-bottom:2px solid var(--gold);
@@ -1471,16 +1490,51 @@ async function syncMyStanding(){
     totalQuestions: state.questions.length,
   });
 }
+
+// OIR stats for one user: tests completed + average grade.
+async function loadUserOirStats(uid){
+  try{
+    const snap = await db.collection('oirSessions').doc(uid).collection('sessions').get();
+    let count = 0, gradeSum = 0;
+    snap.forEach(d => {
+      const g = d.data().grade;
+      if (typeof g === "number"){ count++; gradeSum += g; }
+    });
+    const avgGrade = count ? gradeSum / count : 0;
+    return { oirTests: count, avgGrade };
+  } catch(e){
+    return { oirTests: 0, avgGrade: 0 };
+  }
+}
+
+// Combined merit score.
+//   Total = (interview Qs × 10) + (OIR tests × 50) + (OIR avg-grade score × 20)
+//   OIR avg-grade score = (6 − avgGrade) × 20  → Grade 1 = 100, Grade 5 = 20.
+// No OIR tests ⇒ grade component is 0 (so non-attempters don't get free points).
+function computeMeritScore(r){
+  const qs = r.questionsPracticed || 0;
+  const tests = r.oirTests || 0;
+  const gradeScore = tests > 0 ? (6 - r.avgGrade) * 20 : 0;
+  r.oirGradeScore = gradeScore;
+  r.totalScore = Math.round(qs * 10 + tests * 50 + gradeScore * 20);
+  return r.totalScore;
+}
+
 async function loadLeaderboard(){
   const snap = await db.collection('leaderboard').get();
   const rows = [];
   snap.forEach(d => rows.push(d.data()));
-  // rank: most practiced first, then completion %, then name
+  // pull OIR stats per user in parallel, merge in
+  await Promise.all(rows.map(async (r) => {
+    const stats = await loadUserOirStats(r.uid);
+    r.oirTests = stats.oirTests;
+    r.avgGrade = stats.avgGrade;
+    computeMeritScore(r);
+  }));
+  // rank by total merit score, then interview Qs, then name
   rows.sort((a,b) => {
+    if ((b.totalScore||0) !== (a.totalScore||0)) return (b.totalScore||0) - (a.totalScore||0);
     if ((b.questionsPracticed||0) !== (a.questionsPracticed||0)) return (b.questionsPracticed||0) - (a.questionsPracticed||0);
-    const ap = a.totalQuestions ? a.questionsPracticed/a.totalQuestions : 0;
-    const bp = b.totalQuestions ? b.questionsPracticed/b.totalQuestions : 0;
-    if (bp !== ap) return bp - ap;
     return (a.name||"").localeCompare(b.name||"");
   });
   return rows;
@@ -2856,6 +2910,12 @@ function pctOf(r){
   const t = r.totalQuestions || 0;
   return t ? Math.round(100*(r.questionsPracticed||0)/t) : 0;
 }
+function fmtAvgGrade(r){
+  return (r.oirTests > 0) ? r.avgGrade.toFixed(1) : "—";
+}
+function meritSubStats(r){
+  return `${r.questionsPracticed||0} interview Qs · ${r.oirTests||0} OIR tests · Avg Grade ${fmtAvgGrade(r)}`;
+}
 
 function renderPodium(rows){
   const stage = el("div", {});
@@ -2880,10 +2940,12 @@ function renderPodium(rows){
     if (isMe) who.appendChild(el("span", {class:"lb-you"}, "You"));
     who.appendChild(el("div", {class:"pod-entry"}, (r.entryType||"—") + (r.service && r.service!=="—" ? " · "+r.service : "")));
     who.appendChild(el("div", {class:"pod-stat"},
-      el("b", {}, String(r.questionsPracticed||0)),
-      el("span", {class:"pod-of"}, (r.totalQuestions? " / "+r.totalQuestions : "") + " practiced")
+      el("b", {}, String(r.totalScore||0)),
+      el("span", {class:"pod-of"}, " pts")
     ));
-    who.appendChild(el("div", {class:"pod-pct"}, pctOf(r) + "% complete"));
+    who.appendChild(el("div", {class:"pod-pct pod-merit-sub"},
+      `${r.questionsPracticed||0} Qs · ${r.oirTests||0} OIR · Grade ${fmtAvgGrade(r)}`
+    ));
     col.appendChild(who);
 
     // pedestal
@@ -2902,7 +2964,7 @@ function renderPodium(rows){
     stage.appendChild(el("div", {class:"pod-yours"},
       el("span", {class:"pod-yours-rank"}, "#" + (myIdx+1)),
       el("span", {class:"pod-yours-txt"}, "Your standing — ", el("b",{}, me.name||"You")),
-      el("span", {class:"pod-yours-stat"}, `${me.questionsPracticed||0} practiced · ${pctOf(me)}%`)
+      el("span", {class:"pod-yours-stat"}, `${me.totalScore||0} pts · ${me.questionsPracticed||0} Qs · ${me.oirTests||0} OIR`)
     ));
   }
 
@@ -2925,19 +2987,18 @@ function renderFullStandings(rows){
   strip.appendChild(el("span", {class:"lb-toolbar-count"}, `${rows.length} candidate${rows.length===1?"":"s"}`));
   board.appendChild(strip);
 
-  const header = el("div", {class:"lb-row lb-header"});
+  const header = el("div", {class:"lb-row lb-merit-row lb-header"});
   header.appendChild(el("span", {class:"lb-rank"}, "Rank"));
   header.appendChild(el("span", {class:"lb-name"}, "Candidate"));
-  header.appendChild(el("span", {class:"lb-entry"}, "Entry"));
-  header.appendChild(el("span", {class:"lb-prac"}, "Practiced"));
-  header.appendChild(el("span", {class:"lb-pct"}, "Completion"));
+  header.appendChild(el("span", {class:"lb-score"}, "Score"));
+  header.appendChild(el("span", {class:"lb-break"}, "Breakdown"));
   board.appendChild(header);
 
   rows.forEach((r, i) => {
     const rank = i + 1;
     const isMe = r.uid === state.uid;
     const medal = rank === 1 ? "gold" : rank === 2 ? "silver" : rank === 3 ? "bronze" : "";
-    const row = el("div", {class:"lb-row" + (medal ? " lb-"+medal : "") + (isMe ? " lb-me" : "")});
+    const row = el("div", {class:"lb-row lb-merit-row" + (medal ? " lb-"+medal : "") + (isMe ? " lb-me" : "")});
 
     // rank
     const rankCell = el("span", {class:"lb-rank"});
@@ -2948,32 +3009,21 @@ function renderFullStandings(rows){
     }
     row.appendChild(rankCell);
 
-    // name
+    // name + entry
     const nameCell = el("span", {class:"lb-name"});
     nameCell.appendChild(el("span", {class:"lb-name-txt"}, r.name || "Candidate"));
     if (isMe) nameCell.appendChild(el("span", {class:"lb-you"}, "You"));
-    if (r.service && r.service !== "—") nameCell.appendChild(el("span", {class:"lb-service"}, r.service));
+    if (r.entryType && r.entryType !== "—") nameCell.appendChild(el("span", {class:"lb-service"}, r.entryType));
     row.appendChild(nameCell);
 
-    // entry badge
-    const entryCell = el("span", {class:"lb-entry"});
-    entryCell.appendChild(el("span", {class:"lb-entry-badge"}, r.entryType || "—"));
-    row.appendChild(entryCell);
+    // total score (primary)
+    const scoreCell = el("span", {class:"lb-score"});
+    scoreCell.appendChild(el("b", {}, String(r.totalScore||0)));
+    scoreCell.appendChild(el("span", {class:"lb-score-of"}, " pts"));
+    row.appendChild(scoreCell);
 
-    // practiced
-    const total = r.totalQuestions || 0;
-    const prac = r.questionsPracticed || 0;
-    const pracCell = el("span", {class:"lb-prac"});
-    pracCell.appendChild(el("b", {}, String(prac)));
-    pracCell.appendChild(el("span", {class:"lb-of"}, total ? ` / ${total}` : ""));
-    row.appendChild(pracCell);
-
-    // completion
-    const pct = total ? Math.round(100*prac/total) : 0;
-    const pctCell = el("span", {class:"lb-pct"});
-    pctCell.appendChild(el("div", {class:"lb-bar"}, el("i", {style:{width:pct+"%"}})));
-    pctCell.appendChild(el("span", {class:"lb-pct-num"}, pct + "%"));
-    row.appendChild(pctCell);
+    // breakdown sub-stats
+    row.appendChild(el("span", {class:"lb-break"}, meritSubStats(r)));
 
     board.appendChild(row);
   });
