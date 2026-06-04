@@ -1080,6 +1080,24 @@ body.has-side #app{ padding-left:248px; }
   text-transform:uppercase; color:var(--ink-4); padding:6px 2px 0;
 }
 
+/* non-verbal figures */
+.oir-fig{
+  margin:14px 0 4px; padding:14px; background:var(--paper-soft);
+  border:1px solid var(--olive-line); border-radius:var(--radius);
+  display:flex; justify-content:center; overflow-x:auto;
+}
+.oir-fig-svg{ max-width:100%; height:auto; color:var(--ink); }
+.oir-fig svg{ max-height:170px; }
+.oir-fig-desc{ font-size:13px; color:var(--ink-3); font-style:italic; margin:10px 0; }
+.oir-opts-fig{ display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+.oir-opt-hasfig{ flex-direction:column; align-items:center; gap:8px; padding:12px; }
+.oir-opt-hasfig .oir-opt-key{ align-self:flex-start; }
+.oir-opt-fig{ width:100%; display:flex; justify-content:center; }
+.oir-opt-fig svg{ width:80px; height:80px; color:var(--ink); }
+.oir-opt-hasfig .oir-opt-tag, .oir-opt-hasfig .oir-opt-tag-bad{ margin-left:0; }
+.oir-ans-fig{ display:inline-flex; vertical-align:middle; }
+.oir-ans-fig svg{ width:44px; height:44px; color:var(--ink); }
+
 .oir-expl{
   display:flex; gap:9px; margin-top:13px; padding-top:13px;
   border-top:1px dashed var(--olive-line); font-size:13px; line-height:1.5; color:var(--ink-2);
@@ -2006,8 +2024,6 @@ function buildOirPrompt(count, type, idStart){
 Generate a mixed OIR (Officer Intelligence Rating) practice test for SSB aspirants. Generate exactly ${count} questions. ${scope} ${idLine} Scale the per-topic question count proportionally — use ${perTopic} from each topic below so the total comes to exactly ${count}:
 ${topicsBlock}
 
-For non-verbal questions that require figures, describe the pattern clearly in text form so it can be rendered as a text/ASCII question. Vary the questions each time — do not repeat a fixed set.
-
 Return ONLY a valid JSON array (no prose, no markdown fences). Each question object must have:
 {
   "id": number,
@@ -2017,14 +2033,39 @@ Return ONLY a valid JSON array (no prose, no markdown fences). Each question obj
   "options": ["A) ...", "B) ...", "C) ...", "D) ..."],
   "correct": "A" | "B" | "C" | "D",
   "explanation": "max 1 line — why the answer is correct",
-  "approach": "max 1 line — the trick/method to solve this question TYPE"
-}`;
+  "approach": "max 1 line — the trick/method to solve this question TYPE",
+  "figure": null,
+  "optionFigures": null
+}
+
+FOR NON-VERBAL QUESTIONS (figure-based reasoning) you MUST also return rich figure data so the app can DRAW the figures as SVG (do not rely on text):
+- "figure": the question stimulus, shaped as { "type": "series"|"matrix"|"odd_one_out"|"mirror"|"paper_fold"|"dice", "description": "text fallback", "data": <see below> }
+- "optionFigures": an array of EXACTLY 4 cells — the drawable A/B/C/D answer choices (same order as "options").
+- Keep the plain "options" array too as short labels like ["A","B","C","D"] for fallback.
+
+A CELL is an array of shape descriptors (or a single descriptor, or the string "?" for an unknown/missing cell).
+A SHAPE DESCRIPTOR is:
+{ "shape":"circle"|"square"|"triangle"|"arrow"|"star"|"cross"|"hexagon"|"diamond",
+  "size":"small"|"medium"|"large", "fill":"filled"|"empty"|"half",
+  "rotation":0|90|180|270, "position":"center"|"top-left"|"top-right"|"bottom-left"|"bottom-right",
+  "count":number, "extra":"optional e.g. dotted, double-border, striped" }
+
+"data" shape by figure type:
+- series: { "cells": [ cell, cell, cell, "?" ] }   (a left-to-right sequence; use "?" for the missing cell)
+- matrix: { "grid": [ [cell,cell,cell],[cell,cell,cell],[cell,cell,"?"] ]  }  (3x3, last is "?")
+- odd_one_out / mirror / paper_fold / dice: { "cells": [ cell, cell, ... ] }
+
+The answer (correct option) must be one of the 4 optionFigures and must logically complete the pattern. Keep shape data minimal but accurate. For VERBAL questions, set "figure" and "optionFigures" to null.`;
 }
 
 // One generation call with a single retry if it returns too few questions.
 async function oirCall(count, type, idStart, minOk){
   const prompt = buildOirPrompt(count, type, idStart);
-  const maxTokens = count >= 30 ? 5000 : count >= 20 ? 4500 : 3000;
+  // Figures (non-verbal / mixed) produce much larger JSON — give them more room.
+  const heavy = type !== "verbal";
+  const maxTokens = heavy
+    ? (count >= 30 ? 8000 : count >= 20 ? 6000 : 4000)
+    : (count >= 30 ? 5000 : count >= 20 ? 4500 : 3000);
   for (let attempt = 0; attempt < 2; attempt++){
     let parsed = null;
     try{
@@ -2057,6 +2098,8 @@ function parseOir(raw){
       correct: normalizeOpt(q.correct),
       explanation: String(q.explanation || "").trim(),
       approach: String(q.approach || "").trim(),
+      figure: (q.figure && typeof q.figure === "object") ? q.figure : null,
+      optionFigures: Array.isArray(q.optionFigures) && q.optionFigures.length ? q.optionFigures : null,
     })).filter(q => q.question && q.options.length === 4);
   } catch(e){ return null; }
 }
@@ -2067,6 +2110,169 @@ function normalizeOpt(c){
 }
 // letter for an option index
 function optLetter(i){ return ["A","B","C","D"][i] || "A"; }
+
+/* =========================================================
+   OIR — non-verbal SVG figure engine
+   ========================================================= */
+let _oirFigSeq = 0;
+const OIR_SIZE_F = { small:0.6, medium:1, large:1.32 };
+const OIR_POS = {
+  "center":[50,50], "top-left":[34,34], "top-right":[66,34],
+  "bottom-left":[34,66], "bottom-right":[66,66],
+  "top":[50,32], "bottom":[50,68], "left":[32,50], "right":[68,50],
+};
+function oirEsc(s){ return String(s).replace(/[&<>"]/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[m])); }
+
+function oirShapePoints(shape, r){
+  const P=[]; const pt=(a,rad)=>[Math.cos(a)*rad, Math.sin(a)*rad];
+  switch(shape){
+    case "square":   return [[-r,-r],[r,-r],[r,r],[-r,r]];
+    case "diamond":  return [[0,-r],[r,0],[0,r],[-r,0]];
+    case "triangle": return [[0,-r],[r*0.87,r*0.62],[-r*0.87,r*0.62]];
+    case "hexagon":  for(let i=0;i<6;i++){ P.push(pt(-Math.PI/2+i*Math.PI/3, r)); } return P;
+    case "star":     for(let i=0;i<10;i++){ P.push(pt(-Math.PI/2+i*Math.PI/5, i%2?r*0.45:r)); } return P;
+    case "cross":    { const w=r*0.38; return [[-w,-r],[w,-r],[w,-w],[r,-w],[r,w],[w,w],[w,r],[-w,r],[-w,w],[-r,w],[-r,-w],[-w,-w]]; }
+    case "arrow":    { const w=r*0.36; return [[-r,-w],[r*0.2,-w],[r*0.2,-r*0.6],[r,0],[r*0.2,r*0.6],[r*0.2,w],[-r,w]]; }
+    default: return null; // circle
+  }
+}
+function oirShapeMarkup(d, cx, cy, baseR){
+  d = d || {};
+  const shape = String(d.shape||"circle").toLowerCase();
+  const sf = OIR_SIZE_F[String(d.size||"medium").toLowerCase()] || 1;
+  const r = baseR * sf;
+  const rot = Number(d.rotation)||0;
+  const fill = String(d.fill||"filled").toLowerCase();
+  const extra = String(d.extra||"").toLowerCase();
+  const sw = Math.max(1.6, baseR*0.075);
+  const dash = extra.includes("dot") ? ' stroke-dasharray="4 3"' : "";
+  const pts = oirShapePoints(shape, r);
+  const ptsStr = pts ? pts.map(p=>p[0].toFixed(1)+","+p[1].toFixed(1)).join(" ") : null;
+  const mk = (fillVal, clip)=>{
+    const common = `fill="${fillVal}" stroke="currentColor" stroke-width="${sw.toFixed(1)}" stroke-linejoin="round"${dash}${clip?` clip-path="url(#${clip})"`:""}`;
+    return ptsStr ? `<polygon points="${ptsStr}" ${common}/>` : `<circle cx="0" cy="0" r="${r.toFixed(1)}" ${common}/>`;
+  };
+  let body;
+  if (fill==="empty") body = mk("none");
+  else if (fill==="half"){
+    const id = "hf"+(_oirFigSeq++);
+    body = `<clipPath id="${id}"><rect x="${(-r).toFixed(1)}" y="${(-r).toFixed(1)}" width="${r.toFixed(1)}" height="${(2*r).toFixed(1)}"/></clipPath>` + mk("currentColor", id) + mk("none");
+  } else body = mk("currentColor");
+  if (extra.includes("double")){
+    body += ptsStr
+      ? `<polygon points="${pts.map(p=>(p[0]*1.2).toFixed(1)+","+(p[1]*1.2).toFixed(1)).join(" ")}" fill="none" stroke="currentColor" stroke-width="${(sw*0.8).toFixed(1)}"/>`
+      : `<circle r="${(r*1.2).toFixed(1)}" fill="none" stroke="currentColor" stroke-width="${(sw*0.8).toFixed(1)}"/>`;
+  }
+  return `<g transform="translate(${cx.toFixed(1)},${cy.toFixed(1)})${rot?` rotate(${rot})`:""}">${body}</g>`;
+}
+function oirNormCell(cell){
+  if (cell==null) return {q:true};
+  if (typeof cell==="string"){ const t=cell.trim(); return (t==="?"||t==="")?{q:true}:{label:t}; }
+  if (Array.isArray(cell)) return {shapes:cell.filter(Boolean)};
+  if (typeof cell==="object"){
+    if (cell.q===true||cell.unknown===true||cell.missing===true) return {q:true};
+    if (Array.isArray(cell.shapes)) return {shapes:cell.shapes.filter(Boolean)};
+    if (cell.shape) return {shapes:[cell]};
+  }
+  return {shapes:[]};
+}
+function oirCellMarkup(cell, size){
+  size = size || 100;
+  const c = oirNormCell(cell);
+  const cx=size/2, cy=size/2;
+  if (c.q) return `<text x="${cx}" y="${cy}" font-size="${(size*0.5).toFixed(0)}" font-weight="700" text-anchor="middle" dominant-baseline="central" fill="currentColor" opacity="0.45">?</text>`;
+  if (c.label) return `<text x="${cx}" y="${cy}" font-size="${(size*0.26).toFixed(0)}" font-weight="600" text-anchor="middle" dominant-baseline="central" fill="currentColor">${oirEsc(c.label)}</text>`;
+  const shapes = c.shapes || [];
+  if (!shapes.length) return "";
+  const inst = [];
+  shapes.forEach(s => { const n=Math.max(1, Math.min(9, Number(s.count)||1)); for(let k=0;k<n;k++) inst.push(s); });
+  const n = inst.length;
+  if (n===1){
+    const s = inst[0];
+    const pos = OIR_POS[String(s.position||"center").toLowerCase()] || [50,50];
+    const centered = pos[0]===50 && pos[1]===50;
+    const baseR = centered ? size*0.34 : size*0.2;
+    return oirShapeMarkup(s, (pos[0]/100)*size, (pos[1]/100)*size, baseR);
+  }
+  const cols = Math.ceil(Math.sqrt(n)), rows = Math.ceil(n/cols);
+  const cw = size/cols, ch = size/rows, baseR = Math.min(cw,ch)*0.34;
+  let out="";
+  inst.forEach((s,idx)=>{ const col=idx%cols, row=Math.floor(idx/cols); out += oirShapeMarkup(s, col*cw+cw/2, row*ch+ch/2, baseR); });
+  return out;
+}
+function oirCellBox(cell, size){
+  const border = `<rect x="1.5" y="1.5" width="${size-3}" height="${size-3}" rx="6" fill="#fff" stroke="#C7C5B0" stroke-width="1.5"/>`;
+  return border + oirCellMarkup(cell, size);
+}
+function oirCellsFrom(d){
+  if (Array.isArray(d)) return d;
+  if (d && typeof d==="object") return d.cells || d.sequence || d.frames || d.figures || d.items || (d.grid ? [].concat(...d.grid) : null);
+  return null;
+}
+function oirRowSVG(cells, isSeries){
+  const cs=100, gap=14, n=cells.length;
+  const W=n*cs+(n-1)*gap, H=cs;
+  let inner="";
+  cells.forEach((c,i)=>{
+    inner += `<g transform="translate(${i*(cs+gap)},0)">${oirCellBox(c,cs)}</g>`;
+    if (isSeries && i<n-1) inner += `<text x="${i*(cs+gap)+cs+gap/2}" y="${cs/2}" font-size="18" text-anchor="middle" dominant-baseline="central" fill="#8A8A82">›</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" class="oir-fig-svg" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
+}
+function oirGridSVG(grid){
+  const cs=92, gap=10, rows=grid.length, cols=Math.max(...grid.map(r=>(r||[]).length||1));
+  const W=cols*cs+(cols-1)*gap, H=rows*cs+(rows-1)*gap;
+  let inner="";
+  grid.forEach((row,r)=> (row||[]).forEach((c,cI)=>{ inner += `<g transform="translate(${cI*(cs+gap)},${r*(cs+gap)})">${oirCellBox(c,cs)}</g>`; }));
+  return `<svg viewBox="0 0 ${W} ${H}" class="oir-fig-svg" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
+}
+function oirFigureSVG(figure){
+  const ftype = String(figure.type||"").toLowerCase();
+  const data = figure.data || {};
+  if (ftype==="matrix"){
+    let grid = data.grid || (Array.isArray(data)&&Array.isArray(data[0]) ? data : null);
+    if (!grid){ const flat = oirCellsFrom(data)||[]; grid=[]; for(let i=0;i<flat.length;i+=3) grid.push(flat.slice(i,i+3)); }
+    if (!grid || !grid.length) return null;
+    return oirGridSVG(grid);
+  }
+  let cells = oirCellsFrom(data);
+  if (!cells || !cells.length){
+    if (data.shape || Array.isArray(data.shapes) || data.cell) cells = [data.cell || data];
+    else return null;
+  }
+  return oirRowSVG(cells, ftype==="series");
+}
+// DOM wrappers — return el or null (null → caller falls back to text)
+function renderFigure(figure){
+  if (!figure || typeof figure!=="object") return null;
+  try{
+    const svg = oirFigureSVG(figure);
+    if (!svg) return null;
+    return el("div", {class:"oir-fig", html: svg});
+  }catch(e){ console.warn("renderFigure failed", e); return null; }
+}
+function renderOptionFigure(cell){
+  try{
+    return el("div", {class:"oir-opt-fig", html: `<svg viewBox="0 0 100 100" class="oir-fig-svg" xmlns="http://www.w3.org/2000/svg">${oirCellMarkup(cell,100)}</svg>`});
+  }catch(e){ return null; }
+}
+// shared: append the question stimulus figure to a card (non-verbal only)
+function oirAppendQuestionFigure(card, q){
+  if (q.type!=="non-verbal" || !q.figure) return;
+  const fig = renderFigure(q.figure);
+  if (fig) card.appendChild(fig);
+  else if (q.figure.description) card.appendChild(el("p", {class:"oir-fig-desc"}, q.figure.description));
+}
+// shared: append option content (figure for non-verbal, else text)
+function oirAppendOption(o, q, i){
+  if (q.type==="non-verbal" && Array.isArray(q.optionFigures) && q.optionFigures[i]!=null){
+    const fig = renderOptionFigure(q.optionFigures[i]);
+    if (fig){ o.classList.add("oir-opt-hasfig"); o.appendChild(fig); return; }
+  }
+  const label = ((q.options && q.options[i]) || "").replace(/^\s*[A-D]\)\s*/,"");
+  o.appendChild(el("span", {class:"oir-opt-txt"}, label));
+}
+function oirOptsHasFig(q){ return q.type==="non-verbal" && Array.isArray(q.optionFigures); }
 
 /* =========================================================
    Daily PT — AI workout generation
@@ -4710,8 +4916,9 @@ function renderOirQuestion(q, num, review){
   }
   card.appendChild(top);
   card.appendChild(el("p", {class:"oir-q-text"}, q.question));
+  oirAppendQuestionFigure(card, q);
 
-  const opts = el("div", {class:"oir-opts"});
+  const opts = el("div", {class:"oir-opts" + (oirOptsHasFig(q) ? " oir-opts-fig" : "")});
   q.options.forEach((opt, i) => {
     const letter = optLetter(i);
     const selected = review ? (q.userAnswer === letter) : (state.oirTest.answers[q.id] === letter);
@@ -4730,9 +4937,7 @@ function renderOirQuestion(q, num, review){
       onClick: review ? null : ((ev)=>{ ev.preventDefault(); selectOirAnswer(q.id, letter); })
     });
     o.appendChild(el("span", {class:"oir-opt-key"}, letter));
-    // strip leading "A) " from label if present
-    const label = opt.replace(/^\s*[A-D]\)\s*/,"");
-    o.appendChild(el("span", {class:"oir-opt-txt"}, label));
+    oirAppendOption(o, q, i);
     if (review && letter === q.correct) o.appendChild(el("span", {class:"oir-opt-tag"}, "Correct"));
     if (review && selected && letter !== q.correct) o.appendChild(el("span", {class:"oir-opt-tag oir-opt-tag-bad"}, "Your answer"));
     opts.appendChild(o);
@@ -4802,26 +5007,36 @@ function renderMistakeCard(q, num){
   top.appendChild(el("span", {class:"oir-q-mark " + (q.userAnswer ? "bad" : "skip")}, q.userAnswer ? "✗ Wrong" : "— Not Attempted"));
   card.appendChild(top);
   card.appendChild(el("p", {class:"oir-q-text"}, q.question));
+  oirAppendQuestionFigure(card, q);
 
   // answer rows
   const ans = el("div", {class:"oir-ans-rows"});
+  const hasFig = oirOptsHasFig(q);
   // user's answer
   const userRow = el("div", {class:"oir-ans-row oir-ans-user"});
   userRow.appendChild(el("span", {class:"oir-ans-lbl"}, "Your answer"));
   if (q.userAnswer){
     const ui = ["A","B","C","D"].indexOf(q.userAnswer);
-    const label = (q.options[ui]||"").replace(/^\s*[A-D]\)\s*/,"");
-    userRow.appendChild(el("span", {class:"oir-ans-val"}, q.userAnswer + ". " + label));
+    const val = el("span", {class:"oir-ans-val"});
+    val.appendChild(el("span", {}, q.userAnswer + ". "));
+    const uf = hasFig && q.optionFigures[ui]!=null ? renderOptionFigure(q.optionFigures[ui]) : null;
+    if (uf){ uf.classList.add("oir-ans-fig"); val.appendChild(uf); }
+    else val.appendChild(el("span", {}, (q.options[ui]||"").replace(/^\s*[A-D]\)\s*/,"")));
+    userRow.appendChild(val);
   } else {
     userRow.appendChild(el("span", {class:"oir-ans-val oir-ans-skip"}, "Not Attempted"));
   }
   ans.appendChild(userRow);
   // correct answer
   const ci = ["A","B","C","D"].indexOf(q.correct);
-  const correctLabel = (q.options[ci]||"").replace(/^\s*[A-D]\)\s*/,"");
   const corrRow = el("div", {class:"oir-ans-row oir-ans-correct"});
   corrRow.appendChild(el("span", {class:"oir-ans-lbl"}, "Correct"));
-  corrRow.appendChild(el("span", {class:"oir-ans-val"}, q.correct + ". " + correctLabel));
+  const cval = el("span", {class:"oir-ans-val"});
+  cval.appendChild(el("span", {}, q.correct + ". "));
+  const cf = hasFig && q.optionFigures[ci]!=null ? renderOptionFigure(q.optionFigures[ci]) : null;
+  if (cf){ cf.classList.add("oir-ans-fig"); cval.appendChild(cf); }
+  else cval.appendChild(el("span", {}, (q.options[ci]||"").replace(/^\s*[A-D]\)\s*/,"")));
+  corrRow.appendChild(cval);
   ans.appendChild(corrRow);
   card.appendChild(ans);
 
@@ -4893,8 +5108,9 @@ function renderReviewQuestion(q, num){
     correct ? "✓ Correct" : (attempted ? "✗ Wrong" : "— Not Attempted")));
   card.appendChild(top);
   card.appendChild(el("p", {class:"oir-q-text"}, q.question));
+  oirAppendQuestionFigure(card, q);
 
-  const opts = el("div", {class:"oir-opts"});
+  const opts = el("div", {class:"oir-opts" + (oirOptsHasFig(q) ? " oir-opts-fig" : "")});
   (q.options||[]).forEach((opt, i) => {
     const letter = optLetter(i);
     const isCorrectOpt = letter === q.correct;
@@ -4904,7 +5120,7 @@ function renderReviewQuestion(q, num){
     else if (isUserOpt) cls += " opt-wrong";
     const o = el("div", {class:cls});
     o.appendChild(el("span", {class:"oir-opt-key"}, letter));
-    o.appendChild(el("span", {class:"oir-opt-txt"}, opt.replace(/^\s*[A-D]\)\s*/,"")));
+    oirAppendOption(o, q, i);
     if (isCorrectOpt) o.appendChild(el("span", {class:"oir-opt-tag"}, "Correct"));
     else if (isUserOpt) o.appendChild(el("span", {class:"oir-opt-tag oir-opt-tag-bad"}, "Your answer"));
     opts.appendChild(o);
