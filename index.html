@@ -12,6 +12,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-functions-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-storage-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 /* ============ Tokens (FAOSSB brand) ============ */
 :root{
@@ -1233,6 +1234,120 @@ body.has-side #app{ padding-left:248px; }
   .oir-draft-info{ order:3; flex-basis:100%; }
 }
 
+/* ============ PIQ Analysis ============ */
+.piqa-warn{
+  display:flex; gap:10px; align-items:flex-start;
+  padding:12px 14px; margin-bottom:16px;
+  background:var(--gold-soft); border:1px solid var(--gold-line);
+  border-left:3px solid var(--gold); border-radius:var(--radius);
+  font-size:12.5px; line-height:1.5; color:var(--olive-darker);
+}
+.piqa-warn-ico{ font-size:14px; flex:none; }
+.piqa-drop{
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  padding:28px 20px; border:2px dashed var(--olive-line); border-radius:var(--radius);
+  background:var(--paper-soft); cursor:pointer; text-align:center; transition:border-color .14s, background .14s;
+}
+.piqa-drop:hover{ border-color:var(--olive); background:#fff; }
+.piqa-drop.has-file{ border-style:solid; border-color:var(--olive); background:var(--olive-soft); }
+.piqa-drop-ico{
+  width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  background:var(--ink); color:var(--gold); font-size:18px;
+}
+.piqa-drop.has-file .piqa-drop-ico{ background:var(--olive); color:#fff; }
+.piqa-drop-name{ font-size:14px; font-weight:600; color:var(--ink); word-break:break-all; }
+.piqa-drop-hint{ font-family:var(--font-mono); font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-4); }
+
+.piqa-past-list{ display:flex; flex-direction:column; gap:10px; }
+.piqa-past{ display:flex; align-items:center; gap:14px; padding:12px 14px; background:#fff; border:1px solid var(--olive-line); border-radius:var(--radius); }
+.piqa-thumb{ width:48px; height:60px; flex:none; border:1px solid var(--olive-line); border-radius:3px; overflow:hidden; background:var(--paper-deep); display:flex; align-items:center; justify-content:center; }
+.piqa-thumb img{ width:100%; height:100%; object-fit:cover; }
+.piqa-thumb-ph{ font-family:var(--font-mono); font-size:9px; letter-spacing:0.1em; color:var(--ink-4); }
+.piqa-past-info{ flex:1; min-width:0; }
+.piqa-past-top{ display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
+.piqa-ver{ font-family:var(--font-mono); font-size:11px; font-weight:700; color:var(--olive); border:1px solid var(--olive-line); padding:2px 7px; border-radius:2px; }
+.piqa-past-date{ font-family:var(--font-mono); font-size:11px; color:var(--ink-4); }
+.piqa-vs{ font-family:var(--font-mono); font-size:9px; letter-spacing:0.1em; text-transform:uppercase; font-weight:700; padding:3px 7px; border-radius:2px; }
+.piqa-vs-up{ background:#EFF6E6; color:#2A5018; border:1px solid #B8C99A; }
+.piqa-vs-down{ background:#FBE6E6; color:#8B1A1A; border:1px solid #D9A8A8; }
+.piqa-vs-same{ background:var(--paper-deep); color:var(--ink-3); border:1px solid var(--olive-line); }
+.piqa-past-score{ font-size:13px; color:var(--ink-3); margin-top:4px; }
+
+/* result */
+.piqa-top{ display:flex; align-items:center; gap:22px; flex-wrap:wrap; padding:22px; background:#fff; border:1px solid var(--olive-line); border-radius:var(--radius); }
+.piqa-ring{ width:104px; height:104px; flex:none; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; border:5px solid var(--olive); background:#fff; }
+.piqa-ring.sc-green{ border-color:var(--success); }
+.piqa-ring.sc-amber{ border-color:var(--gold-line); }
+.piqa-ring.sc-red{ border-color:var(--danger); }
+.piqa-ring-num{ font-family:var(--font-mono); font-size:34px; font-weight:700; color:var(--ink); line-height:1; }
+.piqa-ring-of{ font-family:var(--font-mono); font-size:11px; color:var(--ink-4); margin-top:2px; }
+.piqa-top-meta{ flex:1; min-width:220px; }
+.piqa-ver-tag{ font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.12em; text-transform:uppercase; color:var(--olive); font-weight:600; }
+.piqa-summary{ font-size:14.5px; line-height:1.55; color:var(--ink-2); margin:8px 0 0; }
+.piqa-verdict{ display:flex; flex-direction:column; gap:5px; margin-top:14px; padding:16px 18px; background:var(--ink); color:var(--paper); border-radius:var(--radius); box-shadow:inset 0 -3px 0 var(--gold); }
+.piqa-verdict-lbl{ font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.16em; text-transform:uppercase; color:var(--gold); }
+.piqa-verdict-txt{ font-size:16px; font-weight:600; line-height:1.4; letter-spacing:-0.01em; }
+
+.piqa-dims{ display:flex; flex-direction:column; gap:8px; }
+.piqa-dim{ background:#fff; border:1px solid var(--olive-line); border-radius:var(--radius); overflow:hidden; }
+.piqa-dim-head{ display:flex; align-items:center; gap:12px; width:100%; padding:13px 16px; background:none; cursor:pointer; text-align:left; }
+.piqa-dim-head:hover{ background:var(--paper-soft); }
+.piqa-dim-hl{ flex:1; display:flex; align-items:center; gap:14px; flex-wrap:wrap; min-width:0; }
+.piqa-dim-name{ font-size:14.5px; font-weight:600; color:var(--ink); min-width:160px; }
+.piqa-dim-barwrap{ display:flex; align-items:center; gap:9px; flex:1; min-width:120px; }
+.piqa-dim-bar{ flex:1; height:7px; background:var(--paper-deep); border:1px solid var(--olive-line); border-radius:2px; overflow:hidden; min-width:60px; }
+.piqa-dim-bar > i{ display:block; height:100%; }
+.piqa-dim-score{ font-family:var(--font-mono); font-size:12px; font-weight:700; width:42px; text-align:right; }
+.piqa-dim-bar > i.sc-green{ background:var(--success); }
+.piqa-dim-bar > i.sc-amber{ background:var(--gold-line); }
+.piqa-dim-bar > i.sc-red{ background:var(--danger); }
+.piqa-dim-score.sc-green{ background:none; color:var(--success); }
+.piqa-dim-score.sc-amber{ background:none; color:#8A6A1A; }
+.piqa-dim-score.sc-red{ background:none; color:var(--danger); }
+.piqa-dim-chev{ color:var(--ink-4); font-size:12px; flex:none; }
+.piqa-dim-body{ padding:4px 16px 16px; border-top:1px solid var(--olive-line); }
+.piqa-kv{ display:flex; gap:10px; padding:7px 0; border-bottom:1px dashed var(--olive-line); font-size:13px; }
+.piqa-kv:last-of-type{ border-bottom:none; }
+.piqa-kv-k{ font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-3); flex:none; width:130px; padding-top:2px; }
+.piqa-kv-flag{ color:var(--danger); }
+.piqa-kv-v{ color:var(--ink-2); flex:1; line-height:1.5; }
+.piqa-dim-fb{ font-size:13.5px; line-height:1.55; color:var(--ink); margin:12px 0 0; padding:12px 14px; background:var(--paper-soft); border-radius:var(--radius); border-left:3px solid var(--olive); }
+.piqa-tags{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:12px; }
+.piqa-tags-lbl{ font-family:var(--font-mono); font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-4); margin-right:4px; }
+.piqa-tag{ font-family:var(--font-mono); font-size:10px; letter-spacing:0.04em; padding:3px 8px; border-radius:2px; border:1px solid; }
+.tag-green{ background:#EFF6E6; color:#2A5018; border-color:#B8C99A; }
+.tag-amber{ background:#FBF6E8; color:#8A6A1A; border-color:var(--gold-line); }
+.tag-red{ background:#FBE6E6; color:#8B1A1A; border-color:#D9A8A8; }
+
+.piqa-olq-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.piqa-olq-col{ background:#fff; border:1px solid var(--olive-line); border-radius:var(--radius); padding:14px; }
+.piqa-olq-green{ border-top:3px solid var(--success); }
+.piqa-olq-amber{ border-top:3px solid var(--gold-line); }
+.piqa-olq-red{ border-top:3px solid var(--danger); }
+.piqa-olq-h{ font-family:var(--font-mono); font-size:10px; letter-spacing:0.12em; text-transform:uppercase; font-weight:700; color:var(--ink); margin-bottom:10px; }
+.piqa-olq-items{ display:flex; flex-direction:column; gap:9px; }
+.piqa-olq-item{ display:flex; flex-direction:column; gap:3px; }
+.piqa-olq-name{ font-family:var(--font-mono); font-size:10px; padding:3px 7px; border-radius:2px; border:1px solid; align-self:flex-start; }
+.piqa-olq-why{ font-size:12px; line-height:1.45; color:var(--ink-3); }
+@media (max-width:760px){ .piqa-olq-grid{ grid-template-columns:1fr; } }
+
+.piqa-io{ background:var(--ink); color:var(--paper); border-radius:var(--radius); padding:20px 22px; box-shadow:inset 0 -3px 0 var(--gold); }
+.piqa-io-head{ font-family:var(--font-mono); font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:var(--gold); font-weight:600; margin-bottom:14px; }
+.piqa-io-list{ margin:0; padding-left:22px; display:flex; flex-direction:column; gap:11px; }
+.piqa-io-list li{ font-size:14.5px; line-height:1.5; color:var(--paper); padding-left:4px; }
+.piqa-prio{ margin:0; padding-left:24px; display:flex; flex-direction:column; gap:10px; }
+.piqa-prio li{ font-size:14.5px; line-height:1.5; color:var(--ink); font-weight:500; }
+
+.piqa-cmp{ margin-top:16px; padding:18px 20px; background:var(--paper-soft); border:1px solid var(--olive-line); border-radius:var(--radius); }
+.piqa-cmp-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px; }
+.piqa-cmp-title{ font-size:13px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink); font-family:var(--font-mono); }
+.piqa-cmp-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.piqa-cmp-col-h{ font-family:var(--font-mono); font-size:10px; letter-spacing:0.1em; text-transform:uppercase; font-weight:700; padding:3px 8px; border-radius:2px; border:1px solid; display:inline-block; margin-bottom:8px; }
+.piqa-cmp-ul{ margin:0; padding-left:18px; display:flex; flex-direction:column; gap:6px; }
+.piqa-cmp-ul li{ font-size:12.5px; line-height:1.45; color:var(--ink-2); }
+.piqa-cmp-enc{ margin-top:14px; padding-top:12px; border-top:1px dashed var(--olive-line); font-size:13.5px; font-style:italic; color:var(--olive-darker); font-weight:500; }
+@media (max-width:680px){ .piqa-cmp-grid{ grid-template-columns:1fr; } }
+
 /* ============ Practice screen ============ */
 .practice-wrap{
   max-width:780px; margin:0 auto;
@@ -1395,10 +1510,14 @@ async function aiComplete(promptOrObj, opts = {}) {
     prompt = promptOrObj.messages.map(m => m.content).join("\n\n");
   else throw new Error("aiComplete: bad prompt");
 
+  const image = opts.image || null; // { data: <base64 no prefix>, mediaType }
+
   // 1) Cloud Function path (production hosting)
   if (auth.currentUser) {
     try {
-      const res = await _aiCompleteFn({ prompt, maxTokens: opts.maxTokens || 2000 });
+      const payload = { prompt, maxTokens: opts.maxTokens || 2000 };
+      if (image) payload.image = image;
+      const res = await _aiCompleteFn(payload);
       if (res && res.data && typeof res.data.text === "string") return res.data.text;
     } catch (e) {
       // If the function isn't deployed yet, fall through to the artifact helper.
@@ -1409,8 +1528,9 @@ async function aiComplete(promptOrObj, opts = {}) {
     }
   }
 
-  // 2) In-Claude fallback
+  // 2) In-Claude fallback (text only — no vision support in the artifact helper)
   if (typeof window.claude?.complete === "function") {
+    if (image) throw new Error("Image analysis needs the deployed Cloud Function (vision isn't available in the in-app preview).");
     return await window.claude.complete(prompt);
   }
   throw new Error("No AI backend available. Deploy the aiComplete Cloud Function.");
@@ -1718,6 +1838,134 @@ async function deleteOirDraft(uid, draftId){
   await db.collection('oirSessions').doc(uid).collection('drafts').doc(draftId).delete();
 }
 
+/* =========================================================
+   PIQ Analysis — Firestore / Storage / image helpers
+   ========================================================= */
+async function loadPiqAnalyses(uid){
+  const snap = await db.collection('piqAnalyses').doc(uid).collection('analyses')
+    .orderBy('version','desc').limit(30).get();
+  const rows = [];
+  snap.forEach(d => rows.push({ _id:d.id, ...d.data() }));
+  return rows;
+}
+async function savePiqAnalysis(uid, record){
+  const ref = await db.collection('piqAnalyses').doc(uid).collection('analyses')
+    .add(stripUndefined({ ...record, date: FV.serverTimestamp(), dateISO: new Date().toISOString() }));
+  return ref.id;
+}
+async function uploadPiqFile(uid, blob, ext, onProgress){
+  const stamp = Date.now();
+  const ref = storage.ref().child(`piqUploads/${uid}/${stamp}.${ext}`);
+  const task = ref.put(blob, { contentType: blob.type || "image/jpeg" });
+  await new Promise((resolve, reject)=>{
+    const to = setTimeout(()=> reject(new Error("Upload timed out. Check Storage CORS / rules.")), 30000);
+    task.on('state_changed',
+      (snap)=>{ if (onProgress && snap.totalBytes) onProgress(Math.round(100*snap.bytesTransferred/snap.totalBytes)); },
+      (err)=>{ clearTimeout(to); reject(err); },
+      ()=>{ clearTimeout(to); resolve(); }
+    );
+  });
+  return await ref.getDownloadURL();
+}
+
+// File → { data: base64 (no prefix), mediaType, blob } for the vision call + storage.
+// JPG/PNG are downscaled via canvas; PDF first page is rendered via pdf.js.
+// We always produce a small JPEG so both the AI call and the upload stay light.
+async function fileToVisionImage(file){
+  if (file.type === "application/pdf" || /\.pdf$/i.test(file.name)){
+    return await pdfFirstPageToImage(file);
+  }
+  const blob = await resizeImage(file, 1600, 0.85);
+  const dataUrl = await blobToDataUrl(blob);
+  return { data: dataUrl.split(",")[1], mediaType: "image/jpeg", blob };
+}
+function blobToDataUrl(blob){
+  return new Promise((resolve, reject)=>{
+    const fr = new FileReader();
+    fr.onload = ()=> resolve(fr.result);
+    fr.onerror = ()=> reject(new Error("Could not read file."));
+    fr.readAsDataURL(blob);
+  });
+}
+async function pdfFirstPageToImage(file){
+  if (!window.pdfjsLib) throw new Error("PDF support failed to load. Please upload a JPG or PNG instead.");
+  try{ pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"; }catch(e){}
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  const page = await pdf.getPage(1);
+  const baseVp = page.getViewport({ scale: 1 });
+  const scale = Math.min(2, 1600 / Math.max(baseVp.width, baseVp.height));
+  const vp = page.getViewport({ scale });
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(vp.width); canvas.height = Math.round(vp.height);
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#fff"; ctx.fillRect(0,0,canvas.width,canvas.height);
+  await page.render({ canvasContext: ctx, viewport: vp }).promise;
+  const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+  const blob = await new Promise(res => canvas.toBlob(b => res(b), "image/jpeg", 0.85));
+  return { data: dataUrl.split(",")[1], mediaType: "image/jpeg", blob };
+}
+
+const OLQ_LIST = "Effective Intelligence, Reasoning Ability, Organising Ability, Power of Expression, Social Adaptability, Cooperation, Sense of Responsibility, Initiative, Self Confidence, Speed of Decision, Ability to Influence a Group, Liveliness, Determination, Courage, Stamina";
+
+async function analysePiqImage(image, profileData){
+  const sys = `You are Col. Rajvir Sharma (Retd.), a retired Indian Army Colonel and SSB expert at Future Army Officers Academy. You are analysing a candidate's filled PIQ (Personal Information Questionnaire) form — DIPR Questionnaire No. 107-A — exactly as an SSB Interviewing Officer and Psychologist would.
+
+Analyse the uploaded PIQ form image carefully and provide structured feedback across ALL of the following dimensions. Be direct, specific, and honest — do not be generic. Reference actual content from the form in your feedback.
+
+Also cross-reference with this candidate's profile data if available: ${profileData || "none provided"}
+
+Return ONLY a valid JSON object with this exact structure:
+
+{
+  "overallImpression": { "score": 1-10, "summary": "2-3 line honest overall impression an assessor would form", "firstLookVerdict": "one line — what the form says about the candidate at first glance" },
+  "handwriting": { "score": 1-10, "neatness": "specific observation", "legibility": "specific observation", "cuttings": "any cuttings/overwriting observed — yes/no + details", "capitalisation": "correct use of CAPITALS where required", "feedback": "overall handwriting feedback + what to improve" },
+  "personalDetails": { "score": 1-10, "completeness": "any blank fields observed", "populationFigures": "filled correctly or missing", "familyDetails": "assessment of family background section", "feedback": "specific feedback" },
+  "educationalRecord": { "score": 1-10, "graph": "upward/downward/inconsistent — explain", "outstandingAchievements": "used effectively or wasted", "feedback": "specific feedback + red flags" },
+  "nccTraining": { "score": 1-10, "present": true/false, "feedback": "assessment of NCC section" },
+  "gamesAndSports": { "score": 1-10, "level": "school/district/state/national — what is mentioned", "confusedWithHobbies": true/false, "olqsReflected": ["list of OLQs evidenced"], "feedback": "specific feedback" },
+  "hobbiesAndInterests": { "score": 1-10, "quality": "genuine/generic — explain", "olqsReflected": ["list of OLQs evidenced"], "redFlags": "any generic or suspicious hobbies", "feedback": "specific feedback" },
+  "extraCurricular": { "score": 1-10, "olqsReflected": ["list of OLQs evidenced"], "feedback": "specific feedback" },
+  "positionsOfResponsibility": { "score": 1-10, "leadershipRoles": "list what is mentioned", "olqsReflected": ["Ability to influence a group", "Sense of responsibility"], "feedback": "specific feedback — this is heavily weighted by assessors" },
+  "previousAttempts": { "attempts": number or null, "feedback": "assessment + what assessor will probe" },
+  "olqMapping": { "stronglyEvidenced": ["OLQ name — why"], "weaklyEvidenced": ["OLQ name — why"], "absent": ["OLQ name — what to add to evidence this"] },
+  "likelyInterviewQuestions": ["Q1 the IO will definitely ask","Q2","Q3","Q4","Q5"],
+  "topPriorities": ["Most critical thing to fix before next attempt","Second priority","Third priority"],
+  "comparisonWithPrevious": null
+}
+
+The 15 OLQs to map against are: ${OLQ_LIST}.
+
+Be brutally honest. A candidate with a weak PIQ needs to know exactly what to fix. Do not pad feedback with encouragement — be direct like an officer.`;
+  const raw = await aiComplete(sys, { maxTokens: 4000, image });
+  return parsePiq(raw);
+}
+
+function parsePiq(raw){
+  if (!raw) return null;
+  const i = raw.indexOf("{"); const j = raw.lastIndexOf("}");
+  if (i < 0 || j < 0 || j <= i) return null;
+  try{ return JSON.parse(raw.slice(i, j+1)); }
+  catch(e){ return null; }
+}
+
+async function comparePiq(prevAnalysis, currAnalysis){
+  const sys = `Compare these two PIQ analyses and identify: what improved, what got worse, what stayed the same. Be specific. Return ONLY JSON with fields: improved (array of strings), worsened (array of strings), unchanged (array of strings), overallTrend ("improving"|"declining"|"mixed"), encouragement (1 line direct military-style).
+
+PREVIOUS ANALYSIS:
+${JSON.stringify(prevAnalysis).slice(0, 8000)}
+
+CURRENT ANALYSIS:
+${JSON.stringify(currAnalysis).slice(0, 8000)}`;
+  try{
+    const raw = await aiComplete(sys, { maxTokens: 1200 });
+    const i = raw.indexOf("{"); const j = raw.lastIndexOf("}");
+    if (i < 0 || j < 0) return null;
+    return JSON.parse(raw.slice(i, j+1));
+  }catch(e){ return null; }
+}
+
+
 function oirGrade(pct){
   if (pct >= 85) return 1;
   if (pct >= 70) return 2;
@@ -1731,10 +1979,10 @@ const OIR_GRADE_LABEL = {
 
 const OIR_VERBAL_TOPICS = "Coding-Decoding, Blood Relations, Jumbled Words, Alphabet/Common Sense, Arithmetic (age/percentage/speed/profit), Analogies, Odd One Out, Synonyms/Antonyms, Direction Sense, One-Word Substitution";
 const OIR_NONVERBAL_TOPICS = "Number/Figure Series, Odd Figure Out, Mirror/Water Images, Paper Folding, Hidden Figures, Figure Matrix, Dice/Cube";
-const OIR_LIMITS = { 10: 240, 20: 480, 50: 1020 }; // seconds
+const OIR_LIMITS = { 10: 240, 20: 480, 30: 720 }; // seconds
 
 function buildOirPrompt(count, type, idStart){
-  const perTopic = count <= 10 ? "1 question" : count <= 25 ? "1-2 questions" : "3-4 questions";
+  const perTopic = count <= 10 ? "1 question" : count <= 20 ? "1-2 questions" : "2-3 questions";
   let topicsBlock, scope;
   if (type === "verbal"){
     topicsBlock = `- Verbal topics ONLY: ${OIR_VERBAL_TOPICS}`;
@@ -1772,7 +2020,7 @@ Return ONLY a valid JSON array (no prose, no markdown fences). Each question obj
 // One generation call with a single retry if it returns too few questions.
 async function oirCall(count, type, idStart, minOk){
   const prompt = buildOirPrompt(count, type, idStart);
-  const maxTokens = count > 25 ? 8000 : 4500;
+  const maxTokens = count >= 30 ? 5000 : count >= 20 ? 4500 : 3000;
   for (let attempt = 0; attempt < 2; attempt++){
     let parsed = null;
     try{
@@ -1785,21 +2033,8 @@ async function oirCall(count, type, idStart, minOk){
 }
 
 async function generateOirTest(n, type){
-  const N = [10,20,50].includes(n) ? n : 20;
-
-  // 50Q: split into two 25Q calls (more reliable than one huge response), then merge.
-  if (N === 50){
-    const [qs1, qs2] = await Promise.all([
-      oirCall(25, type, 1, 10),
-      oirCall(25, type, 26, 10),
-    ]);
-    if (!qs1 || !qs2) return null;
-    const qs = [...qs1, ...qs2];
-    // normalize ids to a clean 1..50 sequence regardless of what the model returned
-    return qs.map((q, i) => ({ ...q, id: i + 1 }));
-  }
-
-  // 10Q / 20Q: single call (unchanged behaviour).
+  const N = [10,20,30].includes(n) ? n : 20;
+  // Single call for all sizes (10/20/30).
   return await oirCall(N, type, 1, Math.min(5, N));
 }
 function parseOir(raw){
@@ -1966,6 +2201,15 @@ const state = {
   ptLbView: "podium",
   fitDraft: null,          // fitness profile being edited
   runUploading: false,
+  // PIQ Analysis
+  piqaView: "dashboard",   // 'dashboard' | 'loading' | 'result'
+  piqaAnalyses: null,      // past analyses
+  piqaLoading: false,
+  piqaProgress: 0,
+  piqaFile: null,          // selected File
+  piqaResult: null,        // analysis doc being viewed
+  piqaError: "",
+  piqaExpanded: {},        // collapsible section state
   // OIR
   oirView: "dashboard",    // 'dashboard' | 'test' | 'result' | 'review'
   oirLoading: false,
@@ -2000,13 +2244,15 @@ const $sideScrim = document.getElementById("sideScrim");
 const $ham = document.getElementById("ham");
 
 const NAV_ITEMS = [
-  { id:"home", label:"Home",         sub:"PIQ + Interview",  icon:"⌂" },
-  { id:"oir",  label:"OIR Practice", sub:"Reasoning test",   icon:"◉" },
-  { id:"pt",   label:"Daily PT",     sub:"GTO fitness",      icon:"▲" },
+  { id:"home",        label:"Home",         sub:"PIQ + Interview",  icon:"⌂" },
+  { id:"piqanalysis", label:"PIQ Analysis", sub:"Form Review",      icon:"▣" },
+  { id:"oir",         label:"OIR Practice", sub:"Reasoning test",   icon:"◉" },
+  { id:"pt",          label:"Daily PT",     sub:"GTO fitness",       icon:"▲" },
 ];
 function sectionForScreen(s){
   if (s === "oir") return "oir";
   if (s === "pt") return "pt";
+  if (s === "piqanalysis") return "piqanalysis";
   return "home"; // piq, dashboard, practice, leaderboard, loading
 }
 function navTo(sectionId){
@@ -2014,6 +2260,8 @@ function navTo(sectionId){
   if (sectionId === "home"){
     if (state.profile && state.profile._complete){ state.screen = "dashboard"; render(); }
     else { state.piqDraft = state.profile || blankProfile(); state.piqStep = 1; state.screen = "piq"; render(); }
+  } else if (sectionId === "piqanalysis"){
+    openPIQAnalysis();
   } else if (sectionId === "oir"){
     openOIR();
   } else if (sectionId === "pt"){
@@ -2088,6 +2336,7 @@ function render(){
     case "dashboard": view = renderDashboard(); break;
     case "leaderboard": view = renderLeaderboard(); break;
     case "pt":        view = renderPT(); break;
+    case "piqanalysis": view = renderPIQAnalysis(); break;
     case "oir":       view = renderOIR(); break;
     case "practice":  view = renderPractice(); break;
     case "loading":   view = renderLoading(); break;
@@ -4150,7 +4399,7 @@ function renderOirDashboard(){
   const sel = el("div", {class:"oir-count-row"});
   sel.appendChild(el("span", {class:"oir-count-lbl"}, "Test Length"));
   const pills = el("div", {class:"oir-count-pills"});
-  [10,20,50].forEach(n => {
+  [10,20,30].forEach(n => {
     const mins = Math.round((OIR_LIMITS[n]||0)/60);
     pills.appendChild(el("button", {
       class:"oir-count-pill" + (state.oirCount === n ? " on" : ""),
@@ -4670,6 +4919,437 @@ function renderReviewQuestion(q, num){
     ));
   }
   return card;
+}
+
+/* =========================================================
+   PIQ Analysis — screens + flow
+   ========================================================= */
+const PIQ_TIPS = [
+  "Reading your form like an assessor would…",
+  "Checking for OLQ signals in your entries…",
+  "Analysing handwriting presentation…",
+  "Mapping your activities to Officer-Like Qualities…",
+  "Preparing your Board-style feedback…",
+];
+function startPiqTips(){
+  stopPiqTips();
+  state._piqTipIdx = 0;
+  state._piqTipTimer = setInterval(()=>{
+    state._piqTipIdx = (state._piqTipIdx + 1) % PIQ_TIPS.length;
+    const t = document.querySelector(".piqa-tip");
+    if (t){ t.classList.add("fade-out"); setTimeout(()=>{ t.textContent = PIQ_TIPS[state._piqTipIdx]; t.classList.remove("fade-out"); }, 320); }
+  }, 3000);
+}
+function stopPiqTips(){ if (state._piqTipTimer){ clearInterval(state._piqTipTimer); state._piqTipTimer=null; } }
+function paintPiqProgress(){
+  const fill = document.querySelector(".piqa-prog-fill");
+  const pct = document.querySelector(".piqa-prog-pct");
+  if (fill) fill.style.width = state.piqaProgress + "%";
+  if (pct) pct.textContent = Math.round(state.piqaProgress) + "%";
+}
+function startPiqProgress(){
+  stopPiqProgress();
+  // climb to ~90% over ~20s then creep
+  state._piqProgStart = Date.now();
+  state._piqProgTimer = setInterval(()=>{
+    const t = (Date.now() - state._piqProgStart)/20000;
+    if (t < 1){
+      const eased = 1 - Math.pow(1 - t, 2);
+      state.piqaProgress = Math.min(90, Math.round(eased * 90));
+    } else {
+      const remaining = 99 - state.piqaProgress;
+      state.piqaProgress = Math.min(99, state.piqaProgress + Math.max(0.1, remaining*0.02));
+    }
+    paintPiqProgress();
+  }, 120);
+}
+function stopPiqProgress(){ if (state._piqProgTimer){ clearInterval(state._piqProgTimer); state._piqProgTimer=null; } }
+
+async function openPIQAnalysis(){
+  state.screen = "piqanalysis";
+  state.piqaView = "dashboard";
+  state.piqaResult = null;
+  state.piqaFile = null;
+  state.piqaError = "";
+  state.piqaAnalyses = null;
+  state.piqaLoading = true;
+  render();
+  try{ state.piqaAnalyses = await loadPiqAnalyses(state.uid); }
+  catch(e){ console.error(e); toast("Could not load past analyses — " + (e.message||"check rules.")); state.piqaAnalyses = []; }
+  state.piqaLoading = false;
+  render();
+}
+
+function piqaSelectFile(file){
+  state.piqaError = "";
+  if (!file){ state.piqaFile = null; render(); return; }
+  const okType = /^image\/(jpe?g|png)$/.test(file.type) || file.type === "application/pdf"
+    || /\.(jpe?g|png|pdf)$/i.test(file.name);
+  if (!okType){ state.piqaError = "Only JPG, PNG or PDF files are accepted."; state.piqaFile = null; render(); return; }
+  if (file.size > 10 * 1024 * 1024){ state.piqaError = "File too large — maximum 10 MB."; state.piqaFile = null; render(); return; }
+  state.piqaFile = file;
+  render();
+}
+
+async function runPiqAnalysis(){
+  const file = state.piqaFile;
+  if (!file) return;
+  const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+  const version = (state.piqaAnalyses ? state.piqaAnalyses.length : 0) + 1;
+
+  state.piqaView = "loading";
+  state.piqaProgress = 0;
+  state.piqaError = "";
+  render();
+  startPiqProgress();
+  startPiqTips();
+
+  try{
+    // 1) process the file into a small JPEG (also what we send to the AI)
+    const image = await fileToVisionImage(file);
+
+    // 2) upload the processed image — NON-FATAL: a storage/CORS hiccup
+    //    must not block the actual feedback, which is the whole point.
+    let storageUrl = "";
+    try{
+      storageUrl = await uploadPiqFile(state.uid, image.blob, "jpg");
+    } catch(upErr){
+      console.warn("PIQ upload failed (continuing without stored image):", upErr);
+      toast("Couldn't save the image copy — continuing with analysis.");
+    }
+
+    // 3) AI analysis
+    const profileData = state.profile ? JSON.stringify(redactProfile(state.profile)).slice(0, 4000) : "";
+    const analysis = await analysePiqImage(image, profileData);
+    if (!analysis){ throw new Error("The analysis came back unreadable. Please try a clearer image."); }
+
+    // 4) comparison if version >= 2
+    if (version >= 2 && state.piqaAnalyses && state.piqaAnalyses[0]){
+      const prev = state.piqaAnalyses[0].analysis;
+      const cmp = await comparePiq(prev, analysis);
+      if (cmp) analysis.comparisonWithPrevious = cmp;
+    }
+
+    // 5) save
+    const record = {
+      version,
+      storageUrl,
+      fileName: file.name,
+      analysis,
+      profileSnapshot: state.profile ? redactProfile(state.profile) : null,
+    };
+    let id = null;
+    try{ id = await savePiqAnalysis(state.uid, record); }
+    catch(e){ console.error(e); toast("Analysis done but save failed: " + (e.message||"")); }
+
+    stopPiqProgress(); stopPiqTips();
+    state.piqaProgress = 100; paintPiqProgress();
+    state.piqaResult = { _id:id, dateISO:new Date().toISOString(), ...record };
+    state.piqaExpanded = {};
+    state.piqaView = "result";
+    state.piqaFile = null;
+    // refresh list
+    try{ state.piqaAnalyses = await loadPiqAnalyses(state.uid); }catch(_){}
+    render();
+  } catch(e){
+    console.error(e);
+    stopPiqProgress(); stopPiqTips();
+    state.piqaError = e.message || "Analysis failed.";
+    state.piqaView = "dashboard";
+    render();
+    toast(state.piqaError);
+  }
+}
+
+function renderPIQAnalysis(){
+  const wrap = el("div", {class:"page fade-in"});
+  const head = el("div", {class:"dash-head"});
+  const headL = el("div", {});
+  headL.appendChild(el("div", {class:"eyebrow eyebrow-olive"}, "DIPR Questionnaire 107-A"));
+  headL.appendChild(el("h1", {class:"h-page", style:{marginTop:"4px"}}, "PIQ Form Analysis"));
+  headL.appendChild(el("div", {class:"hint", style:{marginTop:"6px"}}, "Upload your filled PIQ form. Get feedback like a Board assessor would give."));
+  head.appendChild(headL);
+  if (state.piqaView === "result"){
+    const a = el("div", {class:"row"});
+    a.appendChild(el("button", {class:"btn btn-primary btn-mono", onClick:()=>openPIQAnalysis()}, "← PIQ Dashboard"));
+    head.appendChild(a);
+  }
+  wrap.appendChild(head);
+
+  if (state.piqaView === "loading") wrap.appendChild(renderPiqLoading());
+  else if (state.piqaView === "result") wrap.appendChild(renderPiqResult());
+  else wrap.appendChild(renderPiqDashboard());
+  return wrap;
+}
+
+function renderPiqDashboard(){
+  const root = el("div", {});
+
+  // upload card
+  const card = el("div", {class:"card card-pad", style:{marginTop:"20px"}});
+  card.appendChild(el("div", {class:"section-title"}, "Upload Your PIQ"));
+  card.appendChild(el("p", {class:"hint", style:{margin:"0 0 12px"}}, "Upload a clear, well-lit photo or scanned PDF of your filled PIQ form."));
+
+  // warning box
+  card.appendChild(el("div", {class:"piqa-warn"},
+    el("span", {class:"piqa-warn-ico"}, "⚠"),
+    el("span", {}, "For accurate handwriting analysis, ensure the image is well-lit, in focus, and all text is clearly readable. Blurry or dark images will reduce feedback quality.")
+  ));
+
+  // file input
+  const drop = el("label", {class:"piqa-drop" + (state.piqaFile ? " has-file" : "")});
+  const inp = el("input", {type:"file", accept:".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf", style:{display:"none"}});
+  inp.addEventListener("change", e => piqaSelectFile(e.target.files && e.target.files[0]));
+  drop.appendChild(inp);
+  if (state.piqaFile){
+    drop.appendChild(el("span", {class:"piqa-drop-ico"}, "✓"));
+    drop.appendChild(el("span", {class:"piqa-drop-name"}, state.piqaFile.name));
+    drop.appendChild(el("span", {class:"piqa-drop-hint"}, "Click to choose a different file"));
+  } else {
+    drop.appendChild(el("span", {class:"piqa-drop-ico"}, "⬆"));
+    drop.appendChild(el("span", {class:"piqa-drop-name"}, "Choose file — JPG, PNG or PDF"));
+    drop.appendChild(el("span", {class:"piqa-drop-hint"}, "Maximum 10 MB"));
+  }
+  card.appendChild(drop);
+
+  if (state.piqaError) card.appendChild(el("div", {class:"err", style:{marginTop:"10px"}}, state.piqaError));
+
+  const cta = el("button", {
+    class:"btn btn-gold btn-lg btn-mono", style:{marginTop:"16px"},
+    onClick:()=>runPiqAnalysis()
+  }, "Analyse My PIQ");
+  if (!state.piqaFile) cta.disabled = true;
+  card.appendChild(cta);
+  root.appendChild(card);
+
+  // past analyses
+  root.appendChild(el("div", {class:"section-title", style:{marginTop:"28px"}}, "Past Analyses"));
+  if (state.piqaLoading){
+    root.appendChild(renderInlineLoading("Loading your analyses…", ""));
+    return root;
+  }
+  const list = state.piqaAnalyses || [];
+  if (list.length === 0){
+    root.appendChild(el("div", {class:"card card-pad"}, el("div", {class:"muted center"}, "No analyses yet. Upload your PIQ form above to get started.")));
+    return root;
+  }
+  const wrap = el("div", {class:"piqa-past-list"});
+  list.forEach((a, idx) => {
+    const row = el("div", {class:"piqa-past"});
+    const thumb = el("div", {class:"piqa-thumb"});
+    if (a.storageUrl) thumb.appendChild(el("img", {src:a.storageUrl, alt:"PIQ v"+a.version}));
+    else thumb.appendChild(el("span", {class:"piqa-thumb-ph"}, "PIQ"));
+    row.appendChild(thumb);
+
+    const info = el("div", {class:"piqa-past-info"});
+    const top = el("div", {class:"piqa-past-top"});
+    top.appendChild(el("span", {class:"piqa-ver"}, "v"+a.version));
+    top.appendChild(el("span", {class:"piqa-past-date"}, fmtSessionDate(a.date, a.dateISO)));
+    // improvement badge: latest row, has comparison trend
+    if (idx === 0 && a.analysis && a.analysis.comparisonWithPrevious){
+      const tr = a.analysis.comparisonWithPrevious.overallTrend || "";
+      const cls = tr === "improving" ? "up" : tr === "declining" ? "down" : "same";
+      const label = tr === "improving" ? "▲ Improved" : tr === "declining" ? "▼ Declined" : "→ Mixed";
+      top.appendChild(el("span", {class:"piqa-vs piqa-vs-"+cls}, label + " vs previous"));
+    }
+    info.appendChild(top);
+    const sc = a.analysis?.overallImpression?.score;
+    info.appendChild(el("div", {class:"piqa-past-score"}, sc != null ? `Overall ${sc}/10` : "Analysis ready"));
+    row.appendChild(info);
+
+    row.appendChild(el("button", {class:"btn btn-ghost btn-sm btn-mono", onClick:()=>openPiqResult(a)}, "View Feedback"));
+    wrap.appendChild(row);
+  });
+  root.appendChild(wrap);
+  return root;
+}
+
+function openPiqResult(a){
+  state.piqaResult = a;
+  state.piqaExpanded = {};
+  state.piqaView = "result";
+  state.screen = "piqanalysis";
+  render();
+}
+
+function renderPiqLoading(){
+  const c = el("div", {class:"oir-load-card fade-in"});
+  c.appendChild(el("div", {class:"oir-load-title"}, "Analysing your PIQ"));
+  const track = el("div", {class:"oir-prog-track"});
+  track.appendChild(el("div", {class:"oir-prog-fill piqa-prog-fill", style:{width:(state.piqaProgress||0)+"%"}}));
+  c.appendChild(track);
+  c.appendChild(el("div", {class:"oir-prog-pct piqa-prog-pct"}, Math.round(state.piqaProgress||0) + "%"));
+  c.appendChild(el("div", {class:"oir-tip piqa-tip"}, PIQ_TIPS[state._piqTipIdx || 0]));
+  return c;
+}
+
+function piqScoreClass(s){ return s >= 7 ? "sc-green" : s >= 4 ? "sc-amber" : "sc-red"; }
+
+function renderPiqResult(){
+  const root = el("div", {});
+  const rec = state.piqaResult;
+  const A = rec && rec.analysis;
+  if (!A){ root.appendChild(el("div", {class:"muted center", style:{marginTop:"20px"}}, "Analysis not found.")); return root; }
+
+  // top: overall score + verdict
+  const oi = A.overallImpression || {};
+  const top = el("div", {class:"piqa-top", style:{marginTop:"18px"}});
+  const ring = el("div", {class:"piqa-ring " + piqScoreClass(oi.score||0)});
+  ring.appendChild(el("div", {class:"piqa-ring-num"}, (oi.score!=null?oi.score:"—")));
+  ring.appendChild(el("div", {class:"piqa-ring-of"}, "/ 10"));
+  top.appendChild(ring);
+  const tmeta = el("div", {class:"piqa-top-meta"});
+  tmeta.appendChild(el("div", {class:"piqa-ver-tag"}, "Version " + (rec.version||1) + " · " + fmtSessionDate(rec.date, rec.dateISO)));
+  if (oi.summary) tmeta.appendChild(el("p", {class:"piqa-summary"}, oi.summary));
+  top.appendChild(tmeta);
+  root.appendChild(top);
+
+  if (oi.firstLookVerdict){
+    root.appendChild(el("div", {class:"piqa-verdict"},
+      el("span", {class:"piqa-verdict-lbl"}, "First-Look Verdict"),
+      el("span", {class:"piqa-verdict-txt"}, oi.firstLookVerdict)
+    ));
+  }
+
+  // comparison (if present)
+  if (A.comparisonWithPrevious) root.appendChild(renderPiqComparison(A.comparisonWithPrevious));
+
+  // dimension cards
+  const dims = [
+    ["handwriting","Handwriting & Presentation"],
+    ["personalDetails","Personal Details"],
+    ["educationalRecord","Educational Record"],
+    ["nccTraining","NCC Training"],
+    ["gamesAndSports","Games & Sports"],
+    ["hobbiesAndInterests","Hobbies & Interests"],
+    ["extraCurricular","Extra-Curricular Activities"],
+    ["positionsOfResponsibility","Positions of Responsibility"],
+    ["previousAttempts","Previous Attempts"],
+  ];
+  root.appendChild(el("div", {class:"section-title", style:{marginTop:"26px"}}, "Section-by-Section"));
+  const cards = el("div", {class:"piqa-dims"});
+  dims.forEach(([key,label]) => { if (A[key]) cards.appendChild(renderPiqDimCard(key, label, A[key])); });
+  root.appendChild(cards);
+
+  // OLQ mapping
+  if (A.olqMapping) root.appendChild(renderPiqOlqMap(A.olqMapping));
+
+  // IO questions
+  if (Array.isArray(A.likelyInterviewQuestions) && A.likelyInterviewQuestions.length){
+    const io = el("div", {class:"piqa-io", style:{marginTop:"26px"}});
+    io.appendChild(el("div", {class:"piqa-io-head"}, "Your IO Will Likely Ask…"));
+    const ol = el("ol", {class:"piqa-io-list"});
+    A.likelyInterviewQuestions.forEach(q => ol.appendChild(el("li", {}, q)));
+    io.appendChild(ol);
+    root.appendChild(io);
+  }
+
+  // top priorities
+  if (Array.isArray(A.topPriorities) && A.topPriorities.length){
+    root.appendChild(el("div", {class:"section-title", style:{marginTop:"26px"}}, "Top Priorities Before Next Attempt"));
+    const pl = el("ol", {class:"piqa-prio"});
+    A.topPriorities.forEach(p => pl.appendChild(el("li", {}, p)));
+    root.appendChild(pl);
+  }
+
+  return root;
+}
+
+function renderPiqDimCard(key, label, d){
+  const open = !!state.piqaExpanded[key];
+  const card = el("div", {class:"piqa-dim" + (open ? " open" : "")});
+  const header = el("button", {class:"piqa-dim-head", onClick:()=>{ state.piqaExpanded[key] = !open; render(); }});
+  const hl = el("div", {class:"piqa-dim-hl"});
+  hl.appendChild(el("span", {class:"piqa-dim-name"}, label));
+  // score bar
+  const score = d.score != null ? d.score : 0;
+  const barWrap = el("div", {class:"piqa-dim-barwrap"});
+  barWrap.appendChild(el("div", {class:"piqa-dim-bar"}, el("i", {class:piqScoreClass(score), style:{width:(score*10)+"%"}})));
+  barWrap.appendChild(el("span", {class:"piqa-dim-score " + piqScoreClass(score)}, score + "/10"));
+  hl.appendChild(barWrap);
+  header.appendChild(hl);
+  header.appendChild(el("span", {class:"piqa-dim-chev"}, open ? "▾" : "▸"));
+  card.appendChild(header);
+
+  if (open){
+    const body = el("div", {class:"piqa-dim-body"});
+    // structured sub-fields (skip score/feedback/olqs which are handled specially)
+    const skip = new Set(["score","feedback","olqsReflected","present","confusedWithHobbies","redFlags","attempts","leadershipRoles"]);
+    for (const [k,v] of Object.entries(d)){
+      if (skip.has(k) || v == null || v === "") continue;
+      body.appendChild(el("div", {class:"piqa-kv"},
+        el("span", {class:"piqa-kv-k"}, labelize(k)),
+        el("span", {class:"piqa-kv-v"}, String(v))
+      ));
+    }
+    if (d.leadershipRoles) body.appendChild(el("div", {class:"piqa-kv"}, el("span",{class:"piqa-kv-k"},"Leadership Roles"), el("span",{class:"piqa-kv-v"}, String(d.leadershipRoles))));
+    if (d.redFlags) body.appendChild(el("div", {class:"piqa-kv"}, el("span",{class:"piqa-kv-k piqa-kv-flag"},"Red Flags"), el("span",{class:"piqa-kv-v"}, String(d.redFlags))));
+    if (d.feedback) body.appendChild(el("p", {class:"piqa-dim-fb"}, d.feedback));
+    // OLQ tags evidenced
+    if (Array.isArray(d.olqsReflected) && d.olqsReflected.length){
+      const tags = el("div", {class:"piqa-tags"});
+      tags.appendChild(el("span", {class:"piqa-tags-lbl"}, "OLQs evidenced"));
+      d.olqsReflected.forEach(o => tags.appendChild(el("span", {class:"piqa-tag tag-green"}, o)));
+      body.appendChild(tags);
+    }
+    card.appendChild(body);
+  }
+  return card;
+}
+
+function renderPiqOlqMap(m){
+  const root = el("div", {});
+  root.appendChild(el("div", {class:"section-title", style:{marginTop:"26px"}}, "OLQ Mapping · 15 Officer-Like Qualities"));
+  const grid = el("div", {class:"piqa-olq-grid"});
+  const cols = [
+    ["Strongly Evidenced", m.stronglyEvidenced, "green"],
+    ["Weakly Evidenced", m.weaklyEvidenced, "amber"],
+    ["Absent", m.absent, "red"],
+  ];
+  cols.forEach(([title, arr, tone]) => {
+    const col = el("div", {class:"piqa-olq-col piqa-olq-"+tone});
+    col.appendChild(el("div", {class:"piqa-olq-h"}, title));
+    const items = el("div", {class:"piqa-olq-items"});
+    (arr || []).forEach(x => {
+      const parts = String(x).split(/ — | - /);
+      const item = el("div", {class:"piqa-olq-item"});
+      item.appendChild(el("span", {class:"piqa-olq-name tag-"+tone}, parts[0]));
+      if (parts[1]) item.appendChild(el("span", {class:"piqa-olq-why"}, parts.slice(1).join(" — ")));
+      items.appendChild(item);
+    });
+    if (!(arr||[]).length) items.appendChild(el("span", {class:"muted", style:{fontSize:"12px"}}, "—"));
+    col.appendChild(items);
+    grid.appendChild(col);
+  });
+  root.appendChild(grid);
+  return root;
+}
+
+function renderPiqComparison(c){
+  const root = el("div", {class:"piqa-cmp"});
+  const trend = c.overallTrend || "mixed";
+  const trendCls = trend === "improving" ? "up" : trend === "declining" ? "down" : "same";
+  const head = el("div", {class:"piqa-cmp-head"});
+  head.appendChild(el("span", {class:"piqa-cmp-title"}, "Versus Your Previous Attempt"));
+  head.appendChild(el("span", {class:"piqa-vs piqa-vs-"+trendCls}, trend.toUpperCase()));
+  root.appendChild(head);
+  const grid = el("div", {class:"piqa-cmp-grid"});
+  [["Improved", c.improved, "green","▲"],["Worsened", c.worsened, "red","▼"],["Unchanged", c.unchanged, "amber","→"]].forEach(([t,arr,tone,ic])=>{
+    const col = el("div", {class:"piqa-cmp-col"});
+    col.appendChild(el("div", {class:"piqa-cmp-col-h tag-"+tone}, ic + " " + t));
+    const ul = el("ul", {class:"piqa-cmp-ul"});
+    (arr||[]).forEach(x => ul.appendChild(el("li", {}, x)));
+    if (!(arr||[]).length) ul.appendChild(el("li", {class:"muted"}, "—"));
+    col.appendChild(ul);
+    grid.appendChild(col);
+  });
+  root.appendChild(grid);
+  if (c.encouragement) root.appendChild(el("div", {class:"piqa-cmp-enc"}, c.encouragement));
+  return root;
+}
+
+function labelize(k){
+  return k.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase()).trim();
 }
 
 /* =========================================================
