@@ -1645,6 +1645,113 @@ body.has-side #app{ padding-left:248px; }
 .adm-piq-thumb img{ width:100%; height:100%; object-fit:cover; }
 .adm-piq-thumb-ph{ font-family:var(--font-mono); font-size:9px; color:var(--ink-4); letter-spacing:0.1em; }
 
+/* ============ WAT Practice ============ */
+.wat-rules{ margin-top:16px; }
+.wat-rules-list{ list-style:none; margin:12px 0 0; padding:0; display:flex; flex-direction:column; gap:9px; }
+.wat-rules-list li{ display:flex; gap:10px; align-items:flex-start; font-size:13.5px; color:var(--ink-2); line-height:1.45; }
+.wat-rules-list li::before{ content:"▸"; color:var(--olive); flex:none; margin-top:1px; }
+.wat-rules-list li b{ color:var(--ink); font-weight:600; }
+
+.wat-custom-row{ display:flex; align-items:center; gap:12px; margin-top:12px; }
+.wat-step{ width:34px; height:34px; border:1px solid var(--olive-line); border-radius:var(--radius); background:#fff; font-size:18px; line-height:1; display:inline-flex; align-items:center; justify-content:center; color:var(--ink); }
+.wat-step:hover:not(:disabled){ background:var(--paper-soft); border-color:var(--olive); }
+.wat-step:disabled{ opacity:.4; cursor:not-allowed; }
+.wat-step-val{ font-family:var(--font-mono); font-size:20px; font-weight:700; min-width:42px; text-align:center; color:var(--ink); }
+.wat-step-cap{ font-family:var(--font-mono); font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-4); }
+
+/* practice stage */
+.wat-prog-head{ display:flex; align-items:center; justify-content:space-between; gap:14px; margin:4px 0 8px; }
+.wat-prog-count{ font-family:var(--font-mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-3); }
+.wat-prog-count b{ color:var(--ink); font-weight:700; font-size:13px; }
+.wat-prog-mode{ font-family:var(--font-mono); font-size:10px; letter-spacing:0.16em; text-transform:uppercase; color:var(--gold-line); }
+.wat-prog-track{ height:6px; background:var(--paper-deep); border:1px solid var(--olive-line); border-radius:2px; overflow:hidden; }
+.wat-prog-track > i{ display:block; height:100%; background:var(--olive); transition:width .35s ease; }
+
+.wat-arena{
+  margin-top:22px; background:#fff; border:1px solid var(--olive-line);
+  border-radius:var(--radius-lg); box-shadow:inset 0 -3px 0 var(--gold), var(--shadow-card);
+  padding:38px 28px 30px; display:flex; flex-direction:column; align-items:center; gap:22px; position:relative;
+}
+.wat-ring-wrap{ position:relative; width:120px; height:120px; flex:none; }
+.wat-ring{ transform:rotate(-90deg); display:block; }
+.wat-ring-bg{ fill:none; stroke:var(--paper-deep); stroke-width:7; }
+.wat-ring-fg{ fill:none; stroke:var(--gold); stroke-width:7; stroke-linecap:round; transition:stroke .2s, stroke-dashoffset .1s linear; }
+.wat-ring-fg.danger{ stroke:var(--danger); transition:stroke .2s, stroke-dashoffset .1s linear; }
+.wat-ring-num{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:34px; font-weight:700; color:var(--ink); }
+.wat-ring-num.danger{ color:var(--danger); animation:oirPulse 1s ease-in-out infinite; }
+
+.wat-word{ font-size:74px; font-weight:800; letter-spacing:-0.01em; line-height:1; text-transform:uppercase; color:var(--ink); text-align:center; word-break:break-word; }
+.wat-phase-label{ font-family:var(--font-mono); font-size:11px; letter-spacing:0.2em; text-transform:uppercase; font-weight:600; color:var(--ink-4); display:flex; align-items:center; gap:8px; }
+.wat-phase-label::before{ content:""; width:7px; height:7px; border-radius:50%; background:currentColor; }
+.wat-phase-label.write{ color:var(--gold-line); }
+.wat-input-wrap{ width:100%; max-width:560px; }
+.wat-input{ width:100%; background:#fff; border:1px solid var(--olive-line); border-radius:var(--radius); padding:13px 15px; font-size:16px; color:var(--ink); resize:none; line-height:1.4; height:50px; min-height:50px; overflow:hidden; transition:border-color .12s, box-shadow .12s, background .12s; }
+.wat-input:focus{ outline:none; border-color:var(--olive); box-shadow:0 0 0 3px rgba(74,93,35,.12); }
+.wat-input:disabled{ background:var(--paper-soft); color:var(--ink-4); cursor:not-allowed; }
+.wat-arena-actions{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:center; }
+.wat-hint{ font-size:11.5px; color:var(--ink-4); font-family:var(--font-mono); letter-spacing:0.08em; }
+@media (max-width:640px){ .wat-word{ font-size:48px; } .wat-arena{ padding:26px 16px 22px; gap:18px; } }
+
+/* result scorecard */
+.wat-score{ display:flex; align-items:center; gap:24px; flex-wrap:wrap; padding:24px; border-radius:var(--radius); border:1px solid var(--olive-line); background:#fff; margin-top:18px; box-shadow:inset 0 -3px 0 var(--gold); }
+.wat-score-ring{ width:120px; height:120px; flex:none; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; border:5px solid var(--olive); background:#fff; }
+.wat-score-ring.r-exc{ border-color:var(--success); }
+.wat-score-ring.r-good{ border-color:#6E8A2E; }
+.wat-score-ring.r-avg{ border-color:var(--gold-line); }
+.wat-score-ring.r-low{ border-color:var(--warning); }
+.wat-score-num{ font-family:var(--font-mono); font-size:32px; font-weight:700; color:var(--ink); line-height:1; }
+.wat-score-of{ font-family:var(--font-mono); font-size:11px; color:var(--ink-4); margin-top:3px; }
+.wat-score-meta{ flex:1; min-width:220px; }
+.wat-score-rating{ font-size:22px; font-weight:700; letter-spacing:-0.01em; color:var(--ink); }
+.wat-score-sum{ font-size:13.5px; color:var(--ink-2); line-height:1.5; margin-top:6px; }
+.wat-score-stats{ display:flex; gap:18px; flex-wrap:wrap; margin-top:12px; font-family:var(--font-mono); font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-3); }
+.wat-score-stats b{ color:var(--ink); font-weight:700; font-size:13px; }
+.wat-score-cta{ display:flex; gap:10px; flex-wrap:wrap; }
+@media (max-width:640px){ .wat-score-ring{ width:92px; height:92px; } .wat-score-num{ font-size:24px; } .wat-score{ gap:16px; } }
+
+.wat-tally{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:14px; }
+@media (max-width:560px){ .wat-tally{ grid-template-columns:repeat(2,1fr); } }
+.wat-tally-cell{ background:#fff; border:1px solid var(--olive-line); border-radius:var(--radius); padding:12px 14px; text-align:center; }
+.wat-tally-num{ font-family:var(--font-mono); font-size:22px; font-weight:700; line-height:1; }
+.wat-tally-lbl{ font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-4); margin-top:5px; }
+.wat-tally-cell.t-pass .wat-tally-num{ color:var(--success); }
+.wat-tally-cell.t-partial .wat-tally-num{ color:var(--gold-line); }
+.wat-tally-cell.t-fail .wat-tally-num{ color:var(--danger); }
+.wat-tally-cell.t-blank .wat-tally-num{ color:var(--ink-4); }
+
+/* result cards */
+.wat-rlist{ display:flex; flex-direction:column; gap:8px; margin-top:12px; }
+.wat-rcard{ background:#fff; border:1px solid var(--olive-line); border-radius:var(--radius); overflow:hidden; }
+.wat-rcard-head{ display:flex; align-items:center; gap:12px; padding:13px 16px; cursor:pointer; width:100%; text-align:left; }
+.wat-rcard-head:hover{ background:var(--paper-soft); }
+.wat-rcard-word{ font-family:var(--font-mono); font-size:12px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink); min-width:104px; flex:none; }
+.wat-rcard-resp{ flex:1; font-size:13.5px; color:var(--ink-2); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.wat-rcard-resp.blank{ color:var(--ink-4); font-style:italic; }
+.wat-badge{ font-family:var(--font-mono); font-size:9px; letter-spacing:0.14em; text-transform:uppercase; padding:3px 8px; border-radius:2px; font-weight:600; border:1px solid; flex:none; }
+.wat-badge.pass{ background:#EFF4E6; color:#3B5A1C; border-color:#B8C99A; }
+.wat-badge.partial{ background:#FFF6E0; color:#8A6A1A; border-color:var(--gold-line); }
+.wat-badge.fail{ background:#FBE6E6; color:#8B1A1A; border-color:#D9A8A8; }
+.wat-badge.blank{ background:var(--paper-soft); color:var(--ink-4); border-color:var(--olive-line); }
+.wat-rcard-chev{ color:var(--ink-4); font-size:11px; transition:transform .15s; flex:none; }
+.wat-rcard.open .wat-rcard-chev{ transform:rotate(90deg); }
+.wat-rcard-body{ display:none; padding:13px 16px 15px; border-top:1px dashed var(--olive-line); flex-direction:column; gap:10px; }
+.wat-rcard.open .wat-rcard-body{ display:flex; }
+.wat-rcard.open .wat-rcard-resp{ white-space:normal; }
+.wat-fb{ display:flex; gap:10px; font-size:13px; line-height:1.45; }
+.wat-fb-lbl{ font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.12em; text-transform:uppercase; flex:none; width:74px; padding-top:2px; }
+.wat-fb.good .wat-fb-lbl{ color:var(--success); }
+.wat-fb.issue .wat-fb-lbl{ color:var(--danger); }
+.wat-fb-txt{ color:var(--ink-2); }
+
+/* past sessions */
+.wat-sess{ display:flex; flex-direction:column; gap:8px; margin-top:12px; }
+.wat-sess-row{ display:flex; align-items:center; gap:14px; padding:12px 16px; background:#fff; border:1px solid var(--olive-line); border-radius:var(--radius); }
+.wat-sess-date{ font-family:var(--font-mono); font-size:11px; letter-spacing:0.1em; color:var(--ink-3); min-width:92px; flex:none; }
+.wat-sess-mode{ font-family:var(--font-mono); font-size:9px; letter-spacing:0.14em; text-transform:uppercase; padding:3px 8px; border:1px solid var(--gold-line); border-radius:2px; color:var(--olive-darker); background:var(--paper); flex:none; }
+.wat-sess-meta{ flex:1; font-size:13px; color:var(--ink-2); min-width:0; }
+.wat-sess-meta b{ color:var(--ink); font-weight:700; }
+@media (max-width:560px){ .wat-sess-date{ display:none; } }
+
 </style>
 </head>
 <body>
@@ -2037,6 +2144,22 @@ async function saveOirDraft(uid, draft){
 }
 async function deleteOirDraft(uid, draftId){
   await db.collection('oirSessions').doc(uid).collection('drafts').doc(draftId).delete();
+}
+
+/* =========================================================
+   WAT — Firestore (subcollection): watSessions/{uid}/sessions/{id}
+   ========================================================= */
+async function loadWatSessions(uid, lim=5){
+  const snap = await db.collection('watSessions').doc(uid).collection('sessions')
+    .orderBy('createdAt','desc').limit(lim).get();
+  const rows = [];
+  snap.forEach(d => rows.push({ _id:d.id, ...d.data() }));
+  return rows;
+}
+async function saveWatSession(uid, session){
+  const ref = await db.collection('watSessions').doc(uid).collection('sessions')
+    .add(stripUndefined({ ...session, createdAt: FV.serverTimestamp(), createdISO: new Date().toISOString() }));
+  return ref.id;
 }
 
 /* =========================================================
@@ -2614,6 +2737,22 @@ const state = {
   oirType: "mixed",         // 'verbal' | 'non-verbal' | 'mixed'
   oirLimit: 480,            // seconds, set per count
   oirSubmitted: false,      // guard against double submit
+  // WAT (Word Association Test)
+  watView: "setup",         // 'setup' | 'practice' | 'evaluating' | 'result' | 'review'
+  watLoading: false,
+  watSessions: null,        // last 5 sessions
+  watMode: "timed",         // 'timed' | 'speed' | 'relaxed'
+  watSet: "full",           // 'full' | 'quick' | 'custom'
+  watCustomCount: 30,
+  watWords: [],             // selected words for this session
+  watResponses: [],         // [{ word, response }]
+  watIdx: 0,
+  watPhase: "observe",      // 'observe' | 'write'
+  watPhaseTotal: 5,
+  watPhaseStart: 0,
+  watResult: null,          // computed result after AI eval
+  watReview: null,          // a saved session being viewed
+  _watTimer: null,
   // practice screen
   activeQ: null,
   answerDraft: "",
@@ -2636,16 +2775,19 @@ const NAV_ITEMS = [
   { id:"home",        label:"Home",         sub:"PIQ + Interview",  icon:"⌂" },
   { id:"piqanalysis", label:"PIQ Analysis", sub:"Form Review",      icon:"▣", locked:true },
   { id:"oir",         label:"OIR Practice", sub:"Reasoning test",   icon:"◉" },
+  { id:"wat",         label:"WAT Practice", sub:"Word Association",  icon:"W" },
   { id:"pt",          label:"Daily PT",     sub:"GTO fitness",       icon:"▲" },
 ];
 function sectionForScreen(s){
   if (s === "oir") return "oir";
+  if (s === "wat") return "wat";
   if (s === "pt") return "pt";
   if (s === "piqanalysis") return "piqanalysis";
   if (s === "admin") return "admin";
   return "home"; // piq, dashboard, practice, leaderboard, loading
 }
 function navTo(sectionId){
+  stopWatTimer();
   const item = NAV_ITEMS.find(i => i.id === sectionId);
   if (item && item.locked){
     closeSidebar();
@@ -2660,6 +2802,8 @@ function navTo(sectionId){
     openPIQAnalysis();
   } else if (sectionId === "oir"){
     openOIR();
+  } else if (sectionId === "wat"){
+    openWAT();
   } else if (sectionId === "pt"){
     openPT();
   } else if (sectionId === "admin"){
@@ -2755,6 +2899,7 @@ function render(){
     case "pt":        view = renderPT(); break;
     case "piqanalysis": view = renderPIQAnalysis(); break;
     case "oir":       view = renderOIR(); break;
+    case "wat":       view = renderWAT(); break;
     case "practice":  view = renderPractice(); break;
     case "admin":     view = renderAdmin(); break;
     case "loading":   view = renderLoading(); break;
@@ -6332,6 +6477,528 @@ function renderAdminPiqView(){
   wrap.appendChild(head);
   wrap.appendChild(renderPiqResult());
   return wrap;
+}
+
+/* =========================================================
+   WAT — Word Association Test (Col. Sharma method)
+   ========================================================= */
+const WAT_WORDS = ["NORMAL","FRIEND","ATTEMPT","PERSON","BLUNDER","EDUCATION","SYSTEM","ATTACK","JUSTICE","REASONABLE","SERIOUS","AWARD","ADDRESS","CASTE","TRUST","RELATION","DETECTION","LOYAL","INTEREST","DEVELOPMENT","DEATH","IDENTITY","STRUGGLE","LAUGHTER","ENTRANCE","PUZZLE","ADVENTURE","OPERATION","OCCUPATION","MOTHER","COURAGE","DISCOVER","ROMANCE","LITERACY","BREAK","JUNIOR","LAUGH","SLEEP","GOVERNOR","SINGLE","LEADER","CHEERFUL","VICTORY","MURDER","HOBBY","BROTHER","TABLE","HIJACK","BEAUTIFUL","LAWYER","NATURE","ANTISOCIAL","DULL","BLOOD","BROTHERHOOD","RECOGNITION","CHOICE","DOUBT","RECOMMEND","LEARN","GREED","DOCTOR","BITTER","ROCKET","REMOTE","UNITY","ENEMY","PAST"];
+
+const WAT_MODES = {
+  timed:   { label:"Timed",       write:15,   sub:"15s per word" },
+  speed:   { label:"Speed Drill", write:10,   sub:"10s per word" },
+  relaxed: { label:"Relaxed",     write:null, sub:"No timer" },
+};
+const WAT_OBSERVE = 5;                       // seconds locked to read the word
+const WAT_RING_R = 54;
+const WAT_RING_C = 2 * Math.PI * WAT_RING_R; // ring circumference
+
+function watShuffle(arr){
+  const a = arr.slice();
+  for (let i=a.length-1; i>0; i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+function watWordCount(){
+  if (state.watSet === "full")  return Math.min(60, WAT_WORDS.length);
+  if (state.watSet === "quick") return Math.min(20, WAT_WORDS.length);
+  return Math.max(5, Math.min(WAT_WORDS.length, state.watCustomCount || 30));
+}
+function watEstMinutes(){
+  const w = WAT_MODES[state.watMode].write != null ? WAT_MODES[state.watMode].write : 12;
+  return Math.max(1, Math.round(watWordCount() * (WAT_OBSERVE + w) / 60));
+}
+function watRating(score, total){
+  const pct = total ? score/total : 0;
+  if (pct >= 0.8) return "Excellent";
+  if (pct >= 0.6) return "Good";
+  if (pct >= 0.4) return "Average";
+  return "Needs Work";
+}
+function watRatingClass(r){
+  return r === "Excellent" ? "r-exc" : r === "Good" ? "r-good" : r === "Average" ? "r-avg" : "r-low";
+}
+function watBadgeLabel(s){ return s==="pass"?"Pass" : s==="partial"?"Partial" : s==="fail"?"Fail" : "Blank"; }
+function watScoreOf(s){ return (s.score != null) ? s.score : ((s.passed||0) + 0.5*(s.partials||0)); }
+function watScoreStr(n){ return Number.isInteger(n) ? String(n) : n.toFixed(1); }
+
+function stopWatTimer(){ if (state._watTimer){ clearInterval(state._watTimer); state._watTimer = null; } }
+
+async function openWAT(){
+  stopWatTimer();
+  state.screen = "wat";
+  state.watView = "setup";
+  state.watResult = null;
+  state.watReview = null;
+  state.watWords = [];
+  state.watResponses = [];
+  state.watIdx = 0;
+  state.watSessions = null;
+  state.watLoading = true;
+  render();
+  try{
+    state.watSessions = await loadWatSessions(state.uid, 5);
+  } catch(e){
+    console.error(e);
+    toast("Could not load WAT history — " + (e.message || "check rules."));
+    state.watSessions = [];
+  }
+  state.watLoading = false;
+  render();
+}
+
+function renderWAT(){
+  const wrap = el("div", {class:"page fade-in"});
+  const head = el("div", {class:"dash-head"});
+  const headL = el("div", {});
+  headL.appendChild(el("div", {class:"eyebrow eyebrow-olive"}, "Candidate Console · WAT Practice"));
+  const titles = { setup:"Word Association Test", practice:"Word Association Test", evaluating:"Evaluating Responses", result:"WAT Session Report", review:"WAT Session Review" };
+  headL.appendChild(el("h1", {class:"h-page", style:{marginTop:"4px"}}, titles[state.watView] || "Word Association Test"));
+  const subs = {
+    setup:"60 words, seconds each. Stay observational — show the quality, never name it.",
+    practice:"Read · then write. Quick, positive, third-person sentences.",
+    evaluating:"Col. Sharma's AI is scoring every sentence against OLQ criteria.",
+    result:"Your scored sheet, word by word.",
+    review:"A past attempt, read-only.",
+  };
+  headL.appendChild(el("div", {class:"hint", style:{marginTop:"6px"}}, subs[state.watView] || ""));
+  head.appendChild(headL);
+  if (state.watView === "result" || state.watView === "review"){
+    head.appendChild(el("button", {class:"btn btn-ghost btn-mono", onClick:()=>openWAT()}, "← WAT Setup"));
+  }
+  wrap.appendChild(head);
+
+  if (state.watView === "setup") wrap.appendChild(renderWatSetup());
+  else if (state.watView === "practice") wrap.appendChild(renderWatPractice());
+  else if (state.watView === "evaluating") wrap.appendChild(renderInlineLoading("Evaluating your responses…", "Scoring each sentence pass / partial / fail / blank."));
+  else if (state.watView === "result") wrap.appendChild(renderWatReport(state.watResult));
+  else if (state.watView === "review") wrap.appendChild(renderWatReview());
+  return wrap;
+}
+
+function renderWatSetup(){
+  const grid = el("div", {class:"dash-grid"});
+  const main = el("div", {});
+
+  // mode selector
+  const modeRow = el("div", {class:"oir-count-row"});
+  modeRow.appendChild(el("span", {class:"oir-count-lbl"}, "Mode"));
+  const modePills = el("div", {class:"oir-count-pills"});
+  Object.entries(WAT_MODES).forEach(([id, m]) => {
+    modePills.appendChild(el("button", {
+      class:"oir-count-pill" + (state.watMode === id ? " on" : ""),
+      onClick:()=>{ state.watMode = id; render(); }
+    }, el("span", {}, m.label), el("span", {class:"oir-pill-sub"}, m.sub)));
+  });
+  modeRow.appendChild(modePills);
+  main.appendChild(modeRow);
+
+  // word-set selector
+  const setRow = el("div", {class:"oir-count-row", style:{marginTop:"14px"}});
+  setRow.appendChild(el("span", {class:"oir-count-lbl"}, "Word Set"));
+  const setPills = el("div", {class:"oir-count-pills"});
+  [["full","Full 60","standard"],["quick","Quick 20","warm-up"],["custom","Custom","you pick"]].forEach(([id,label,sub]) => {
+    setPills.appendChild(el("button", {
+      class:"oir-count-pill" + (state.watSet === id ? " on" : ""),
+      onClick:()=>{ state.watSet = id; render(); }
+    }, el("span", {}, label), el("span", {class:"oir-pill-sub"}, sub)));
+  });
+  setRow.appendChild(setPills);
+  main.appendChild(setRow);
+
+  if (state.watSet === "custom"){
+    const cr = el("div", {class:"wat-custom-row"});
+    cr.appendChild(el("button", {class:"wat-step", disabled: state.watCustomCount<=5, onClick:()=>{ state.watCustomCount = Math.max(5, state.watCustomCount-5); render(); }}, "−"));
+    cr.appendChild(el("span", {class:"wat-step-val"}, String(state.watCustomCount)));
+    cr.appendChild(el("button", {class:"wat-step", disabled: state.watCustomCount>=WAT_WORDS.length, onClick:()=>{ state.watCustomCount = Math.min(WAT_WORDS.length, state.watCustomCount+5); render(); }}, "+"));
+    cr.appendChild(el("span", {class:"wat-step-cap"}, `words · max ${WAT_WORDS.length}`));
+    main.appendChild(cr);
+  }
+
+  // rules box
+  const rules = el("div", {class:"card-paper card-pad wat-rules"});
+  rules.appendChild(el("div", {class:"eyebrow eyebrow-gold"}, "Col. Sharma's WAT Rules"));
+  const ul = el("ul", {class:"wat-rules-list"});
+  [
+    [ "Don't name the OLQ", " — show the quality through action, never label it." ],
+    [ "Drop I, my, me", " — keep every sentence impersonal and observational." ],
+    [ "No must / should / never / always", " — these read as preachy or injunctional." ],
+    [ "Short observations", " — 5–12 words, present tense, one clean idea." ],
+    [ "Stay positive & constructive", " — assessors reward forward-looking thinking." ],
+    [ "Target 45+ responses", " — speed and consistency count as much as quality." ],
+  ].forEach(([b, t]) => ul.appendChild(el("li", {}, el("b", {}, b), t)));
+  rules.appendChild(ul);
+  main.appendChild(rules);
+
+  // CTA card
+  const cta = el("div", {class:"oir-cta-card", style:{marginTop:"16px"}});
+  const ctaL = el("div", {});
+  ctaL.appendChild(el("div", {class:"oir-cta-eyebrow"}, `${watWordCount()} words · ${WAT_MODES[state.watMode].label} · ~${watEstMinutes()} min`));
+  ctaL.appendChild(el("div", {class:"oir-cta-title"}, "Begin a fresh WAT"));
+  ctaL.appendChild(el("div", {class:"oir-cta-sub"}, WAT_MODES[state.watMode].write != null
+    ? `${WAT_OBSERVE}s to read each word, then ${WAT_MODES[state.watMode].write}s to write — auto-advances when time runs out.`
+    : `${WAT_OBSERVE}s to read each word, then write at your own pace — press Enter for the next word.`));
+  cta.appendChild(ctaL);
+  cta.appendChild(el("button", {class:"btn btn-gold btn-lg btn-mono", onClick:()=>startWatSession()}, "Start Session →"));
+  main.appendChild(cta);
+
+  // past attempts
+  main.appendChild(el("div", {class:"section-title", style:{marginTop:"28px"}}, "Recent Sessions"));
+  if (state.watLoading){
+    main.appendChild(renderInlineLoading("Loading your WAT history…", ""));
+  } else {
+    const sessions = state.watSessions || [];
+    if (sessions.length === 0){
+      main.appendChild(el("div", {class:"card card-pad"}, el("div", {class:"muted center"}, "No sessions yet. Start your first WAT above.")));
+    } else {
+      const list = el("div", {class:"wat-sess"});
+      for (const s of sessions) list.appendChild(renderWatSessRow(s));
+      main.appendChild(list);
+    }
+  }
+  grid.appendChild(main);
+
+  // right rail — Preparation Status
+  const side = el("div", {});
+  side.appendChild(renderWatStatsCard());
+  grid.appendChild(side);
+  return grid;
+}
+
+function renderWatSessRow(s){
+  const row = el("div", {class:"wat-sess-row"});
+  row.appendChild(el("span", {class:"wat-sess-date"}, fmtSessionDate(s.createdAt, s.createdISO)));
+  row.appendChild(el("span", {class:"wat-sess-mode"}, (WAT_MODES[s.mode]?.label || s.mode || "—")));
+  const meta = el("div", {class:"wat-sess-meta"});
+  meta.appendChild(el("span", {}, "Score ", el("b", {}, watScoreStr(watScoreOf(s)) + "/" + (s.wordCount||0))));
+  meta.appendChild(el("span", {}, "  ·  Attempted ", el("b", {}, `${s.attempted||0}/${s.wordCount||0}`)));
+  row.appendChild(meta);
+  row.appendChild(el("button", {class:"btn btn-ghost btn-sm btn-mono", onClick:()=>openWatReview(s)}, "View"));
+  return row;
+}
+
+function renderWatStatsCard(){
+  const c = el("div", {class:"card stat-card"});
+  c.appendChild(el("div", {class:"eyebrow eyebrow-olive"}, "Preparation Status"));
+  c.appendChild(el("h3", {class:"h-card", style:{marginTop:"4px"}}, "WAT Progress"));
+  c.appendChild(el("div", {class:"divider"}));
+  const sess = state.watSessions || [];
+  const total = sess.length;
+  const best = total ? Math.max(...sess.map(watScoreOf)) : 0;
+  const avgAtt = total ? Math.round(sess.reduce((a,s)=>a+(s.attempted||0),0)/total) : 0;
+  const lastRating = total ? (sess[0].rating || watRating(watScoreOf(sess[0]), sess[0].wordCount||0)) : "—";
+  c.appendChild(rowKV("Sessions logged", total));
+  c.appendChild(rowKV("Best score", total ? watScoreStr(best) : "—"));
+  c.appendChild(rowKV("Avg attempted", total ? avgAtt : "—"));
+  c.appendChild(rowKV("Last rating", lastRating));
+
+  const note = el("div", {class:"card-paper card-pad", style:{marginTop:"16px"}});
+  note.appendChild(el("div", {class:"eyebrow eyebrow-gold"}, "Coach's Note"));
+  note.appendChild(el("p", {style:{margin:"8px 0 0", fontSize:"13px", lineHeight:"1.5", color:"var(--ink-2)"}},
+    "A strong sheet attempts 45+ of 60. Don't freeze on a hard word — write a plain observation and move on."));
+  c.appendChild(note);
+  return c;
+}
+
+/* ---- practice engine ---- */
+function startWatSession(){
+  stopWatTimer();
+  state.watWords = watShuffle(WAT_WORDS).slice(0, watWordCount());
+  state.watResponses = [];
+  state.watIdx = 0;
+  state.watView = "practice";
+  state.screen = "wat";
+  render();
+  startWatWord();
+}
+
+function startWatWord(){
+  stopWatTimer();
+  state.watPhase = "observe";
+  state.watPhaseTotal = WAT_OBSERVE;
+  state.watPhaseStart = Date.now();
+  render();
+  runWatTicker();          // observe always timed (locks input for WAT_OBSERVE s)
+}
+
+function enterWatWrite(){
+  stopWatTimer();
+  state.watPhase = "write";
+  const mode = WAT_MODES[state.watMode];
+  state.watPhaseTotal = mode.write;   // null in relaxed
+  state.watPhaseStart = Date.now();
+  render();
+  const inp = document.querySelector(".wat-input");
+  if (inp){ inp.disabled = false; inp.focus(); }
+  if (mode.write != null) runWatTicker();
+}
+
+function runWatTicker(){
+  stopWatTimer();
+  state._watTimer = setInterval(()=>{
+    const total = state.watPhaseTotal;
+    const elapsed = (Date.now() - state.watPhaseStart)/1000;
+    const remaining = Math.max(0, total - elapsed);
+    paintWatRing(remaining, total);
+    if (remaining <= 0){
+      stopWatTimer();
+      if (state.watPhase === "observe") enterWatWrite();
+      else advanceWatWord(false);
+    }
+  }, 90);
+}
+
+function paintWatRing(remaining, total){
+  const fg = document.querySelector(".wat-ring-fg");
+  const num = document.querySelector(".wat-ring-num");
+  if (num) num.textContent = String(Math.ceil(remaining - 0.0001 < 0 ? 0 : remaining));
+  const frac = total ? Math.max(0, Math.min(1, remaining/total)) : 0;
+  if (fg) fg.style.strokeDashoffset = String(WAT_RING_C * (1 - frac));
+  const danger = remaining <= 3.0001;
+  if (fg) fg.classList.toggle("danger", danger);
+  if (num) num.classList.toggle("danger", danger);
+}
+
+function advanceWatWord(skip){
+  stopWatTimer();
+  if (state.watView !== "practice") return;
+  const inp = document.querySelector(".wat-input");
+  const val = skip ? "" : (inp ? inp.value.trim() : "");
+  state.watResponses.push({ word: state.watWords[state.watIdx], response: val });
+  state.watIdx++;
+  if (state.watIdx >= state.watWords.length) finishWatSession();
+  else startWatWord();
+}
+
+function watExit(){
+  if (!confirm("Exit this WAT session? Your progress will be lost.")) return;
+  stopWatTimer();
+  openWAT();
+}
+
+function renderWatRing(){
+  const total = state.watPhaseTotal || WAT_OBSERVE;
+  const wrap = el("div", {class:"wat-ring-wrap", html:
+    `<svg class="wat-ring" width="120" height="120" viewBox="0 0 120 120" aria-hidden="true">
+       <circle class="wat-ring-bg" cx="60" cy="60" r="${WAT_RING_R}"></circle>
+       <circle class="wat-ring-fg" cx="60" cy="60" r="${WAT_RING_R}" style="stroke-dasharray:${WAT_RING_C}; stroke-dashoffset:0;"></circle>
+     </svg>`});
+  wrap.appendChild(el("div", {class:"wat-ring-num"}, String(Math.ceil(total))));
+  return wrap;
+}
+
+function renderWatPractice(){
+  const root = el("div", {});
+  const total = state.watWords.length;
+  const idx = state.watIdx;
+  const writing = state.watPhase === "write";
+
+  // progress
+  const ph = el("div", {class:"wat-prog-head"});
+  ph.appendChild(el("div", {class:"wat-prog-count"}, "Word ", el("b", {}, String(idx+1)), " / " + total));
+  ph.appendChild(el("div", {class:"wat-prog-mode"}, WAT_MODES[state.watMode].label + " · " + (WAT_MODES[state.watMode].write != null ? WAT_MODES[state.watMode].write + "s" : "No timer")));
+  root.appendChild(ph);
+  const track = el("div", {class:"wat-prog-track"});
+  track.appendChild(el("i", {style:{width: Math.round(100*idx/total) + "%"}}));
+  root.appendChild(track);
+
+  // arena
+  const arena = el("div", {class:"wat-arena"});
+  if (state.watMode !== "relaxed") arena.appendChild(renderWatRing());
+  arena.appendChild(el("div", {class:"wat-word"}, state.watWords[idx]));
+  arena.appendChild(el("div", {class:"wat-phase-label" + (writing ? " write" : "")}, writing ? "Write your response" : "Read the word"));
+
+  const iwrap = el("div", {class:"wat-input-wrap"});
+  const ta = el("textarea", {
+    class:"wat-input", rows:"1",
+    placeholder: writing ? "One short observational sentence…" : "Reading…",
+    disabled: !writing,
+    onKeydown:(e)=>{ if (e.key === "Enter"){ e.preventDefault(); advanceWatWord(false); } }
+  });
+  iwrap.appendChild(ta);
+  arena.appendChild(iwrap);
+
+  const acts = el("div", {class:"wat-arena-actions"});
+  acts.appendChild(el("button", {class:"btn btn-ghost btn-mono btn-sm", onClick:()=>advanceWatWord(true)}, "Skip"));
+  acts.appendChild(el("button", {class:"btn btn-gold btn-mono", disabled: !writing, onClick:()=>advanceWatWord(false)}, (idx+1 >= total) ? "Finish →" : "Next Word →"));
+  arena.appendChild(acts);
+  arena.appendChild(el("div", {class:"wat-hint"}, writing ? "Press Enter for the next word" : "Input unlocks when the read timer ends"));
+  root.appendChild(arena);
+
+  root.appendChild(el("div", {class:"center", style:{marginTop:"16px"}},
+    el("button", {class:"btn btn-ghost btn-mono btn-sm", onClick:()=>watExit()}, "Exit Session")));
+
+  if (writing) setTimeout(()=>{ const t = document.querySelector(".wat-input"); if (t && document.activeElement !== t) t.focus(); }, 0);
+  return root;
+}
+
+/* ---- evaluation ---- */
+async function finishWatSession(){
+  stopWatTimer();
+  state.watView = "evaluating";
+  render();
+  const responses = state.watResponses;
+
+  const sys = "You are an SSB psychologist evaluating WAT responses. Score each as pass/partial/fail/blank. Return only valid JSON: { items: [{word, response, score, good, issue}], attempted, passed, partials, blanks, summary }. Criteria — GOOD: observational, short 5-12 words, no I/my/me, no must/should/never/always, no blunt OLQ adjectives, positive. FAIL: blank, negative, preachy, injunctional, incomplete.";
+  const user = "Evaluate these WAT word + response pairs:\n\n" +
+    responses.map((r,i)=> `${i+1}. ${r.word} — ${r.response ? r.response : "(blank)"}`).join("\n");
+
+  let parsed = null;
+  try{
+    const raw = await aiComplete(sys + "\n\n" + user, { maxTokens: 3500 });
+    parsed = parseWatEval(raw);
+  } catch(e){ console.error(e); parsed = null; }
+  if (!parsed) parsed = fallbackWatEval(responses);
+  parsed = normalizeWatEval(parsed, responses);
+
+  const score = parsed.passed + 0.5*parsed.partials;
+  const rating = watRating(score, responses.length);
+  const result = {
+    mode: state.watMode,
+    wordCount: responses.length,
+    attempted: parsed.attempted,
+    passed: parsed.passed,
+    partials: parsed.partials,
+    blanks: parsed.blanks,
+    summary: parsed.summary || "",
+    words: parsed.items,
+    score, rating,
+  };
+  state.watResult = result;
+  state.watView = "result";
+  render();
+  try{
+    await saveWatSession(state.uid, result);
+    state.watSessions = await loadWatSessions(state.uid, 5);
+  } catch(e){ console.error(e); toast("Result shown but save failed — " + (e.message || "")); }
+}
+
+function parseWatEval(raw){
+  if (!raw) return null;
+  const s = String(raw);
+  const i = s.indexOf("{"); const j = s.lastIndexOf("}");
+  if (i < 0 || j < 0) return null;
+  try{ const o = JSON.parse(s.slice(i, j+1)); if (!o || !Array.isArray(o.items)) return null; return o; }
+  catch(e){ return null; }
+}
+
+// Re-build items aligned to the actual responses; recompute tallies so the
+// displayed numbers always match the per-word badges.
+function normalizeWatEval(parsed, responses){
+  const aiItems = (parsed && Array.isArray(parsed.items)) ? parsed.items : [];
+  const items = responses.map((r, k) => {
+    const blank = !r.response || !r.response.length;
+    let it = aiItems[k];
+    if (!it || (it.word && String(it.word).toUpperCase() !== r.word.toUpperCase())){
+      it = aiItems.find(x => x && x.word && String(x.word).toUpperCase() === r.word.toUpperCase()) || it;
+    }
+    let score = it && it.score ? String(it.score).toLowerCase() : (blank ? "blank" : "partial");
+    if (blank) score = "blank";
+    if (!["pass","partial","fail","blank"].includes(score)) score = blank ? "blank" : "partial";
+    return { word: r.word, response: r.response || "", score, good: (it && it.good) ? it.good : "", issue: (it && it.issue) ? it.issue : "" };
+  });
+  const passed   = items.filter(i=>i.score==="pass").length;
+  const partials = items.filter(i=>i.score==="partial").length;
+  const blanks   = items.filter(i=>i.score==="blank").length;
+  const attempted = items.filter(i=>i.score!=="blank").length;
+  return { items, passed, partials, blanks, attempted, summary: (parsed && parsed.summary) ? parsed.summary : "" };
+}
+
+// Offline heuristic if the AI call fails — basic OLQ rule checks.
+function fallbackWatEval(responses){
+  const items = responses.map(r => {
+    const txt = (r.response || "").trim();
+    if (!txt) return { word:r.word, response:"", score:"blank", good:"", issue:"No response recorded in time." };
+    const n = txt.split(/\s+/).length;
+    const hasI = /\b(i|i'm|i've|my|me|mine|myself)\b/i.test(txt);
+    const hasInj = /\b(must|should|never|always)\b/i.test(txt);
+    let score = "pass", issue = "", good = "";
+    if (hasI){ score = "fail"; issue = "Avoid I / my / me — keep it third-person and observational."; }
+    else if (hasInj){ score = "partial"; issue = "Avoid must / should / never / always — reads as preachy."; }
+    else if (n < 3){ score = "partial"; issue = "Too short — build a complete 5–12 word observation."; }
+    else { good = "Observational and within length."; }
+    return { word:r.word, response:txt, score, good, issue };
+  });
+  const passed   = items.filter(i=>i.score==="pass").length;
+  const partials = items.filter(i=>i.score==="partial").length;
+  const blanks   = items.filter(i=>i.score==="blank").length;
+  const attempted = items.filter(i=>i.score!=="blank").length;
+  return { items, passed, partials, blanks, attempted, summary:"Offline scoring (AI unavailable): basic OLQ checks applied. Reconnect for the full evaluation." };
+}
+
+/* ---- results / review ---- */
+function renderWatReport(r){
+  const root = el("div", {});
+  const score = watScoreOf(r);
+  const rating = r.rating || watRating(score, r.wordCount || 0);
+
+  const card = el("div", {class:"wat-score"});
+  const ring = el("div", {class:"wat-score-ring " + watRatingClass(rating)});
+  ring.appendChild(el("div", {class:"wat-score-num"}, watScoreStr(score)));
+  ring.appendChild(el("div", {class:"wat-score-of"}, "/ " + (r.wordCount || 0)));
+  card.appendChild(ring);
+  const meta = el("div", {class:"wat-score-meta"});
+  meta.appendChild(el("div", {class:"wat-score-rating"}, rating));
+  if (r.summary) meta.appendChild(el("div", {class:"wat-score-sum"}, r.summary));
+  const stats = el("div", {class:"wat-score-stats"});
+  stats.appendChild(el("span", {}, "Attempted ", el("b", {}, `${r.attempted||0}/${r.wordCount||0}`)));
+  stats.appendChild(el("span", {}, "Mode ", el("b", {}, WAT_MODES[r.mode]?.label || r.mode || "—")));
+  meta.appendChild(stats);
+  card.appendChild(meta);
+  const cta = el("div", {class:"wat-score-cta"});
+  cta.appendChild(el("button", {class:"btn btn-gold btn-mono", onClick:()=>openWAT()}, "New Session →"));
+  cta.appendChild(el("button", {class:"btn btn-ghost btn-mono", onClick:()=>watScrollReview()}, "Review"));
+  card.appendChild(cta);
+  root.appendChild(card);
+
+  // tally
+  const fails = (r.words||[]).filter(w=>w.score==="fail").length;
+  const tally = el("div", {class:"wat-tally"});
+  [["t-pass","Pass",r.passed||0],["t-partial","Partial",r.partials||0],["t-fail","Fail",fails],["t-blank","Blank",r.blanks||0]].forEach(([cls,lbl,n])=>{
+    tally.appendChild(el("div", {class:"wat-tally-cell " + cls}, el("div", {class:"wat-tally-num"}, String(n)), el("div", {class:"wat-tally-lbl"}, lbl)));
+  });
+  root.appendChild(tally);
+
+  // per-word review
+  const st = el("div", {class:"section-title", style:{marginTop:"28px"}}, "Response Review");
+  st.id = "watReviewAnchor";
+  root.appendChild(st);
+  const list = el("div", {class:"wat-rlist"});
+  (r.words||[]).forEach((it, i)=> list.appendChild(renderWatRCard(it, i)));
+  root.appendChild(list);
+  return root;
+}
+
+function renderWatRCard(it){
+  const card = el("div", {class:"wat-rcard"});
+  const head = el("button", {class:"wat-rcard-head", onClick:()=>card.classList.toggle("open")});
+  head.appendChild(el("span", {class:"wat-rcard-word"}, it.word));
+  head.appendChild(el("span", {class:"wat-rcard-resp" + (it.response ? "" : " blank")}, it.response || "No response"));
+  head.appendChild(el("span", {class:"wat-badge " + it.score}, watBadgeLabel(it.score)));
+  head.appendChild(el("span", {class:"wat-rcard-chev"}, "▸"));
+  card.appendChild(head);
+  const body = el("div", {class:"wat-rcard-body"});
+  if (it.good) body.appendChild(el("div", {class:"wat-fb good"}, el("span", {class:"wat-fb-lbl"}, "Strength"), el("span", {class:"wat-fb-txt"}, it.good)));
+  if (it.issue) body.appendChild(el("div", {class:"wat-fb issue"}, el("span", {class:"wat-fb-lbl"}, "To Improve"), el("span", {class:"wat-fb-txt"}, it.issue)));
+  if (!it.good && !it.issue) body.appendChild(el("div", {class:"wat-fb"}, el("span", {class:"wat-fb-txt muted"}, "No additional notes for this word.")));
+  card.appendChild(body);
+  return card;
+}
+
+function watScrollReview(){
+  const a = document.getElementById("watReviewAnchor");
+  if (a){ const y = a.getBoundingClientRect().top + window.scrollY - 80; window.scrollTo({ top:y, behavior:"smooth" }); }
+}
+
+function openWatReview(session){
+  state.watReview = session;
+  state.watView = "review";
+  state.screen = "wat";
+  render();
+}
+function renderWatReview(){
+  const s = state.watReview;
+  if (!s) return el("div", {class:"muted center", style:{marginTop:"20px"}}, "Session not found.");
+  return renderWatReport(s);
 }
 
 /* =========================================================
