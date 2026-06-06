@@ -1475,6 +1475,176 @@ body.has-side #app{ padding-left:248px; }
 .divider{height:1px; background:var(--olive-line); margin:18px 0;}
 .muted{color:var(--ink-3);}
 .center{text-align:center;}
+
+/* ============ Admin Console ============ */
+.side-divider{
+  height:1px; background:rgba(245,243,238,.12); margin:10px 6px;
+}
+.side-admin-tag{
+  font-family:var(--font-mono); font-size:8px; letter-spacing:0.14em;
+  background:var(--gold); color:var(--olive-darker); font-weight:700;
+  padding:2px 5px; border-radius:2px; line-height:1;
+}
+.side-link-admin .side-ico{ background:rgba(197,165,90,.16); color:var(--gold); }
+.side-link-admin.on .side-ico{ background:var(--gold); color:var(--olive-darker); }
+
+.adm-statbar{
+  display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:22px 0 6px;
+}
+@media (max-width:760px){ .adm-statbar{ grid-template-columns:repeat(2,1fr); } }
+.adm-stat{
+  background:#fff; border:1px solid var(--olive-line); border-radius:var(--radius);
+  box-shadow:var(--shadow-card); padding:16px 18px;
+  border-top:3px solid var(--olive);
+}
+.adm-stat.gold{ border-top-color:var(--gold); }
+.adm-stat-k{
+  font-family:var(--font-mono); font-size:10px; letter-spacing:0.14em;
+  text-transform:uppercase; color:var(--ink-3);
+}
+.adm-stat-v{ font-weight:700; font-size:30px; line-height:1.05; color:var(--ink); margin-top:8px; letter-spacing:-0.02em; }
+.adm-stat-sub{ font-size:11px; color:var(--ink-4); margin-top:3px; }
+
+.adm-refresh-row{
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  margin-top:18px;
+}
+.adm-refresh-row .adm-stamp{
+  font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.08em;
+  color:var(--ink-4); text-transform:uppercase;
+}
+
+.adm-table-wrap{
+  margin-top:14px; border:1px solid var(--olive-line); border-radius:var(--radius);
+  background:#fff; box-shadow:var(--shadow-card); overflow-x:auto;
+}
+.adm-table{ width:100%; border-collapse:collapse; min-width:920px; }
+.adm-table th{
+  font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.12em;
+  text-transform:uppercase; color:var(--ink-3); font-weight:600;
+  text-align:left; padding:12px 14px; border-bottom:1px solid var(--olive-line);
+  background:var(--paper-soft); white-space:nowrap; cursor:pointer; user-select:none;
+  position:sticky; top:0;
+}
+.adm-table th.num{ text-align:center; }
+.adm-table th:hover{ color:var(--olive); }
+.adm-sort-arrow{ color:var(--gold-line); margin-left:4px; font-size:9px; }
+.adm-table td{
+  padding:12px 14px; font-size:13px; color:var(--ink-2);
+  border-bottom:1px solid var(--olive-soft); white-space:nowrap;
+}
+.adm-table td.num{ text-align:center; font-variant-numeric:tabular-nums; }
+.adm-table tbody tr:nth-child(even){ background:var(--paper-soft); }
+.adm-table tbody tr:hover{ background:rgba(197,165,90,.10); }
+.adm-table tbody tr:last-child td{ border-bottom:none; }
+.adm-name{ font-weight:600; color:var(--ink); }
+.adm-email{ font-family:var(--font-mono); font-size:11px; color:var(--ink-3); letter-spacing:0.02em; }
+.adm-muted-cell{ color:var(--ink-4); }
+
+.adm-grade{
+  display:inline-flex; align-items:center; justify-content:center;
+  min-width:30px; height:22px; padding:0 7px; border-radius:3px;
+  font-family:var(--font-mono); font-size:12px; font-weight:700;
+}
+.adm-grade.g-green{ background:rgba(46,125,50,.12); color:var(--success); border:1px solid rgba(46,125,50,.3); }
+.adm-grade.g-amber{ background:rgba(245,127,23,.12); color:var(--warning); border:1px solid rgba(245,127,23,.3); }
+.adm-grade.g-red{ background:rgba(198,40,40,.1); color:var(--danger); border:1px solid rgba(198,40,40,.3); }
+.adm-grade.g-none{ background:var(--paper-deep); color:var(--ink-4); border:1px solid var(--olive-line); }
+
+.adm-badge{
+  display:inline-flex; align-items:center; gap:4px;
+  font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.1em;
+  text-transform:uppercase; padding:3px 8px; border-radius:3px; font-weight:600;
+}
+.adm-badge.yes{ background:rgba(46,125,50,.12); color:var(--success); border:1px solid rgba(46,125,50,.3); }
+.adm-badge.no{ background:var(--paper-deep); color:var(--ink-4); border:1px solid var(--olive-line); }
+
+.adm-view-btn{
+  font-family:var(--font-mono); font-size:10px; letter-spacing:0.08em; text-transform:uppercase;
+  border:1px solid var(--olive-line); border-radius:var(--radius); background:#fff;
+  color:var(--olive); padding:6px 12px; cursor:pointer; transition:all .14s; font-weight:600;
+}
+.adm-view-btn:hover{ background:var(--olive); color:#fff; border-color:var(--olive-dark); }
+
+.adm-empty{ padding:40px; text-align:center; color:var(--ink-3); }
+
+/* --- Detail view --- */
+.adm-detail-head{
+  display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
+  flex-wrap:wrap; margin-bottom:8px;
+}
+.adm-detail-id{
+  display:flex; align-items:center; gap:14px; margin-top:6px;
+}
+.adm-avatar{
+  width:46px; height:46px; flex:none; border-radius:50%;
+  background:var(--olive); color:#fff; display:flex; align-items:center; justify-content:center;
+  font-weight:700; font-size:18px; letter-spacing:-0.01em;
+}
+.adm-sec{ margin-top:26px; }
+.adm-profile-grid{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:1px;
+  background:var(--olive-line); border:1px solid var(--olive-line);
+  border-radius:var(--radius); overflow:hidden;
+}
+@media (max-width:760px){ .adm-profile-grid{ grid-template-columns:repeat(2,1fr); } }
+.adm-pcell{ background:#fff; padding:13px 16px; }
+.adm-pcell .k{
+  font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.12em;
+  text-transform:uppercase; color:var(--ink-4);
+}
+.adm-pcell .v{ font-size:14px; color:var(--ink); font-weight:500; margin-top:4px; word-break:break-word; }
+.adm-chips{ display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+.adm-chip{
+  font-size:11.5px; background:var(--paper-soft); border:1px solid var(--olive-line);
+  border-radius:3px; padding:3px 9px; color:var(--ink-2);
+}
+
+.adm-minigrid{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+@media (max-width:760px){ .adm-minigrid{ grid-template-columns:repeat(2,1fr); } }
+.adm-mini{
+  background:var(--paper-soft); border:1px solid var(--olive-line); border-radius:var(--radius);
+  padding:14px 16px;
+}
+.adm-mini-v{ font-weight:700; font-size:24px; color:var(--ink); letter-spacing:-0.01em; }
+.adm-mini-k{
+  font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.12em;
+  text-transform:uppercase; color:var(--ink-3); margin-top:4px;
+}
+
+.adm-tl{ position:relative; margin-top:4px; padding-left:8px; }
+.adm-tl-item{
+  display:flex; gap:14px; padding:11px 0; border-bottom:1px dashed var(--olive-line);
+}
+.adm-tl-item:last-child{ border-bottom:none; }
+.adm-tl-dot{
+  width:10px; height:10px; flex:none; border-radius:50%; margin-top:4px;
+  background:var(--olive); box-shadow:0 0 0 3px rgba(74,93,35,.12);
+}
+.adm-tl-dot.pt{ background:var(--gold-line); box-shadow:0 0 0 3px rgba(184,153,90,.16); }
+.adm-tl-dot.piq{ background:#6B7E45; box-shadow:0 0 0 3px rgba(107,126,69,.16); }
+.adm-tl-dot.practice{ background:var(--ink-3); box-shadow:0 0 0 3px rgba(90,90,86,.12); }
+.adm-tl-body{ flex:1; min-width:0; }
+.adm-tl-top{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
+.adm-tl-type{
+  font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--olive); font-weight:600; white-space:nowrap;
+}
+.adm-tl-date{ font-family:var(--font-mono); font-size:10px; color:var(--ink-4); white-space:nowrap; }
+.adm-tl-txt{ font-size:13px; color:var(--ink-2); margin-top:2px; }
+
+.adm-piq-card{
+  display:flex; gap:14px; align-items:center; padding:12px;
+  border:1px solid var(--olive-line); border-radius:var(--radius); background:#fff;
+}
+.adm-piq-thumb{
+  width:60px; height:78px; flex:none; border-radius:3px; overflow:hidden;
+  background:var(--paper-deep); border:1px solid var(--olive-line);
+  display:flex; align-items:center; justify-content:center;
+}
+.adm-piq-thumb img{ width:100%; height:100%; object-fit:cover; }
+.adm-piq-thumb-ph{ font-family:var(--font-mono); font-size:9px; color:var(--ink-4); letter-spacing:0.1em; }
+
 </style>
 </head>
 <body>
@@ -1518,6 +1688,15 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db   = firebase.firestore();
+
+// =========================================================
+// Admin access control — keep in sync with firestore.rules isAdmin()
+// =========================================================
+const ADMIN_EMAILS = ["apurva@futurearmyofficer.com", "rajvir@futurearmyofficer.com"];
+function isAdminUser(){
+  const e = (auth.currentUser && auth.currentUser.email) || state.email || "";
+  return ADMIN_EMAILS.includes(String(e).toLowerCase());
+}
 const fns  = firebase.functions(); // default region us-central1
 const storage = firebase.storage();
 const FV   = firebase.firestore.FieldValue;
@@ -2463,6 +2642,7 @@ function sectionForScreen(s){
   if (s === "oir") return "oir";
   if (s === "pt") return "pt";
   if (s === "piqanalysis") return "piqanalysis";
+  if (s === "admin") return "admin";
   return "home"; // piq, dashboard, practice, leaderboard, loading
 }
 function navTo(sectionId){
@@ -2482,6 +2662,8 @@ function navTo(sectionId){
     openOIR();
   } else if (sectionId === "pt"){
     openPT();
+  } else if (sectionId === "admin"){
+    openAdmin();
   }
 }
 function openSidebar(){ $sidebar.classList.add("open"); $sideScrim.classList.add("show"); }
@@ -2527,6 +2709,23 @@ function renderSidebar(){
     $sideNav.appendChild(btn);
   }
 
+  // Admin-only console link — pinned to the bottom, separated by a divider.
+  if (isAdminUser()){
+    $sideNav.appendChild(el("div", {class:"side-divider"}));
+    const aBtn = el("button", {
+      class:"side-link side-link-admin" + (active === "admin" ? " on" : ""),
+      onClick:()=>navTo("admin")
+    });
+    aBtn.appendChild(el("span", {class:"side-ico"}, "\u2699"));
+    const atxt = el("span", {class:"side-link-txt"});
+    const alabel = el("span", {class:"side-link-label"}, "Admin");
+    alabel.appendChild(el("span", {class:"side-admin-tag"}, "ADMIN"));
+    atxt.appendChild(alabel);
+    atxt.appendChild(el("span", {class:"side-link-sub"}, "Student console"));
+    aBtn.appendChild(atxt);
+    $sideNav.appendChild(aBtn);
+  }
+
   $sideFoot.innerHTML = "";
   const who = el("div", {class:"side-who"});
   who.appendChild(el("div", {class:"side-who-name"}, state.profile?.fullName || "Candidate"));
@@ -2557,6 +2756,7 @@ function render(){
     case "piqanalysis": view = renderPIQAnalysis(); break;
     case "oir":       view = renderOIR(); break;
     case "practice":  view = renderPractice(); break;
+    case "admin":     view = renderAdmin(); break;
     case "loading":   view = renderLoading(); break;
     default:          view = renderLogin();
   }
@@ -5594,6 +5794,544 @@ function renderInlineLoading(msg, sub){
   if (sub) w.appendChild(el("div", {class:"loading-sub"}, sub));
   c.appendChild(w);
   return c;
+}
+
+/* =========================================================
+   Admin Console — read-only student activity overview
+   (visible only to ADMIN_EMAILS; gated again in firestore.rules)
+   ========================================================= */
+function relTime(input){
+  const d = toJsDate(input);
+  if (!d || isNaN(d)) return "Never";
+  const diff = Date.now() - d.getTime();
+  const sec = Math.floor(diff/1000);
+  if (sec < 45) return "Just now";
+  const min = Math.floor(sec/60);
+  if (min < 60) return min + " min ago";
+  const hr = Math.floor(min/60);
+  if (hr < 24) return hr + " hour" + (hr>1?"s":"") + " ago";
+  const day = Math.floor(hr/24);
+  if (day < 7) return day + " day" + (day>1?"s":"") + " ago";
+  if (day < 30){ const wk = Math.floor(day/7); return wk + " week" + (wk>1?"s":"") + " ago"; }
+  if (day < 365){ const mo = Math.floor(day/30); return mo + " month" + (mo>1?"s":"") + " ago"; }
+  const yr = Math.floor(day/365); return yr + " year" + (yr>1?"s":"") + " ago";
+}
+function admGradeClass(g){
+  if (g == null) return "g-none";
+  if (g <= 2) return "g-green";   // Grade 1–2 = strong
+  if (g < 4)  return "g-amber";   // Grade ~3 = average
+  return "g-red";                 // Grade 4–5 = weak
+}
+function admIsSameDay(d, ref){
+  d = toJsDate(d); if (!d) return false;
+  return d.getFullYear()===ref.getFullYear() && d.getMonth()===ref.getMonth() && d.getDate()===ref.getDate();
+}
+function admOirType(s){
+  const types = new Set((s.questions||[]).map(q => q.type).filter(Boolean));
+  if (types.size === 0) return "—";
+  if (types.size > 1) return "Mixed";
+  const t = [...types][0];
+  return t === "non-verbal" ? "Non-Verbal" : "Verbal";
+}
+
+async function openAdmin(){
+  if (!isAdminUser()){ toast("Admins only."); return; }
+  state.screen = "admin";
+  state.adminView = "console";
+  state.adminStudent = null;
+  state.adminError = "";
+  state.adminLoading = true;
+  if (!state.adminSort) state.adminSort = { key:"lastActive", dir:"desc" };
+  render();
+  try{
+    await loadAdminData();
+  } catch(e){
+    console.error(e);
+    state.adminError = e.message || "Failed to load student data — check security rules.";
+  }
+  state.adminLoading = false;
+  state.adminRefreshedAt = new Date();
+  render();
+}
+
+async function loadAdminData(){
+  const emptySnap = { forEach(){}, docs:[] };
+  const [profSnap, lbSnap, ptSnap] = await Promise.all([
+    db.collection('profiles').get(),
+    db.collection('leaderboard').get().catch(()=>emptySnap),
+    db.collection('ptLeaderboard').get().catch(()=>emptySnap),
+  ]);
+  const lbMap = {}, ptMap = {};
+  lbSnap.forEach(d => lbMap[d.id] = d.data());
+  ptSnap.forEach(d => ptMap[d.id] = d.data());
+
+  const rows = await Promise.all(profSnap.docs.map(async (doc) => {
+    const uid = doc.id;
+    const profile = doc.data() || {};
+    const [oirSnap, piqSnap, woSnap] = await Promise.all([
+      db.collection('oirSessions').doc(uid).collection('sessions').orderBy('date','desc').get().catch(()=>null),
+      db.collection('piqAnalyses').doc(uid).collection('analyses').orderBy('version','desc').get().catch(()=>null),
+      db.collection('workouts').where('uid','==',uid).get().catch(()=>null),
+    ]);
+    const sessions = []; if (oirSnap) oirSnap.forEach(d => sessions.push({ _id:d.id, ...d.data() }));
+    const analyses = []; if (piqSnap) piqSnap.forEach(d => analyses.push({ _id:d.id, ...d.data() }));
+    const workouts = []; if (woSnap) woSnap.forEach(d => workouts.push(d.data()));
+
+    let gradeSum=0, gradeN=0;
+    sessions.forEach(s => { if (typeof s.grade === "number"){ gradeSum += s.grade; gradeN++; } });
+    const avgGrade = gradeN ? gradeSum/gradeN : null;
+
+    const lb = lbMap[uid] || {};
+    const pt = ptMap[uid] || {};
+    const ptDone = workouts.filter(w => w.completedAll).length;
+    const streak = computeStreak(workouts);
+
+    let lastActive = null;
+    const bump = (c) => { const d = toJsDate(c); if (d && (!lastActive || d > lastActive)) lastActive = d; };
+    bump(profile.updatedAt); bump(lb.lastActive); bump(pt.lastActive);
+    if (sessions[0]) bump(sessions[0].date || sessions[0].dateISO);
+    if (analyses[0]) bump(analyses[0].date || analyses[0].dateISO);
+    workouts.forEach(w => bump(w.updatedAt || w.date));
+
+    return {
+      uid, profile,
+      name: profile.fullName || lb.name || "Unnamed candidate",
+      email: profile.email || (uid === state.uid ? state.email : "") || "—",
+      lastActive,
+      oirTests: sessions.length,
+      avgGrade,
+      sessions,
+      qsPracticed: lb.questionsPracticed || 0,
+      qsLastActive: lb.lastActive || null,
+      ptDone, streak, workouts,
+      piqCount: analyses.length,
+      analyses,
+    };
+  }));
+  state.adminStudents = rows;
+}
+
+function adminSortedRows(){
+  const rows = (state.adminStudents || []).slice();
+  const { key, dir } = state.adminSort;
+  const mul = dir === "asc" ? 1 : -1;
+  rows.sort((a,b) => {
+    let av, bv;
+    if (key === "name" || key === "email"){
+      av = (a[key]||"").toLowerCase(); bv = (b[key]||"").toLowerCase();
+      return av < bv ? -1*mul : av > bv ? 1*mul : 0;
+    }
+    switch(key){
+      case "lastActive": av = a.lastActive ? a.lastActive.getTime() : 0; bv = b.lastActive ? b.lastActive.getTime() : 0; break;
+      case "avgGrade":   av = a.avgGrade==null ? 99 : a.avgGrade;        bv = b.avgGrade==null ? 99 : b.avgGrade;        break;
+      case "piqCount":   av = a.piqCount;                                bv = b.piqCount;                                break;
+      default:           av = a[key]||0;                                 bv = b[key]||0;
+    }
+    return (av - bv) * mul;
+  });
+  return rows;
+}
+function adminSetSort(key){
+  const s = state.adminSort;
+  if (s.key === key) s.dir = (s.dir === "asc" ? "desc" : "asc");
+  else { s.key = key; s.dir = (key === "name" || key === "email") ? "asc" : "desc"; }
+  render();
+}
+
+function renderAdmin(){
+  if (!isAdminUser()){
+    const w = el("div", {class:"page fade-in"});
+    w.appendChild(el("div", {class:"adm-empty"}, "Access denied — this console is for administrators only."));
+    return w;
+  }
+  if (state.adminView === "detail")    return renderAdminDetail();
+  if (state.adminView === "oirReview") return renderAdminOirReview();
+  if (state.adminView === "piqView")   return renderAdminPiqView();
+  return renderAdminConsole();
+}
+
+function renderAdminConsole(){
+  const wrap = el("div", {class:"page fade-in"});
+
+  const head = el("div", {class:"dash-head"});
+  const headL = el("div", {});
+  headL.appendChild(el("div", {class:"eyebrow eyebrow-gold"}, "Administrator"));
+  headL.appendChild(el("h1", {class:"h-page", style:{marginTop:"4px"}}, "Admin Console"));
+  headL.appendChild(el("div", {class:"hint", style:{marginTop:"6px"}}, "Student Activity Overview"));
+  head.appendChild(headL);
+  wrap.appendChild(head);
+
+  const refresh = el("div", {class:"adm-refresh-row"});
+  refresh.appendChild(el("button", {class:"btn btn-ghost btn-mono btn-sm", onClick:()=>openAdmin()}, "↻ Refresh"));
+  refresh.appendChild(el("span", {class:"adm-stamp"},
+    state.adminRefreshedAt ? "Last refreshed " + state.adminRefreshedAt.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"}) : "Loading…"));
+  wrap.appendChild(refresh);
+
+  if (state.adminLoading){
+    wrap.appendChild(renderInlineLoading("Compiling student activity…", "Reading profiles, OIR sessions, PT logs and PIQ analyses."));
+    return wrap;
+  }
+  if (state.adminError){
+    wrap.appendChild(el("div", {class:"card card-pad", style:{marginTop:"16px"}}, el("div", {class:"err"}, state.adminError)));
+    return wrap;
+  }
+
+  const rows = state.adminStudents || [];
+  const now = new Date();
+  const weekAgo = new Date(now.getTime() - 7*24*3600*1000);
+  let activeToday = 0, oirWeek = 0, gSumW = 0, gNW = 0;
+  rows.forEach(r => {
+    if (r.lastActive && admIsSameDay(r.lastActive, now)) activeToday++;
+    r.sessions.forEach(s => {
+      const d = toJsDate(s.date) || toJsDate(s.dateISO);
+      if (d && d >= weekAgo){ oirWeek++; if (typeof s.grade === "number"){ gSumW += s.grade; gNW++; } }
+    });
+  });
+  const avgWeek = gNW ? (gSumW/gNW) : null;
+
+  const statbar = el("div", {class:"adm-statbar"});
+  const stat = (k, v, sub, gold) => {
+    const c = el("div", {class:"adm-stat" + (gold?" gold":"")});
+    c.appendChild(el("div", {class:"adm-stat-k"}, k));
+    c.appendChild(el("div", {class:"adm-stat-v"}, v));
+    if (sub) c.appendChild(el("div", {class:"adm-stat-sub"}, sub));
+    return c;
+  };
+  statbar.appendChild(stat("Total Students", String(rows.length), activeToday + " active today"));
+  statbar.appendChild(stat("Active Today", String(activeToday), "of " + rows.length + " students"));
+  statbar.appendChild(stat("OIR Tests · This Week", String(oirWeek), "last 7 days", true));
+  statbar.appendChild(stat("Avg OIR Grade · Week", avgWeek==null ? "—" : avgWeek.toFixed(1), avgWeek==null ? "no tests yet" : OIR_GRADE_LABEL[Math.round(avgWeek)] || "", true));
+  wrap.appendChild(statbar);
+
+  if (rows.length === 0){
+    wrap.appendChild(el("div", {class:"card card-pad", style:{marginTop:"16px"}}, el("div", {class:"adm-empty"}, "No student profiles found yet.")));
+    return wrap;
+  }
+
+  const sorted = adminSortedRows();
+  const tableWrap = el("div", {class:"adm-table-wrap"});
+  const table = el("table", {class:"adm-table"});
+  const thead = el("thead");
+  const htr = el("tr");
+  const th = (label, key, numeric) => {
+    const cell = el("th", { class: numeric ? "num" : "", onClick:()=>adminSetSort(key) }, label);
+    if (state.adminSort.key === key) cell.appendChild(el("span", {class:"adm-sort-arrow"}, state.adminSort.dir === "asc" ? "▲" : "▼"));
+    return cell;
+  };
+  htr.appendChild(th("Name", "name"));
+  htr.appendChild(th("Email", "email"));
+  htr.appendChild(th("Last Active", "lastActive"));
+  htr.appendChild(th("OIR Tests", "oirTests", true));
+  htr.appendChild(th("Avg Grade", "avgGrade", true));
+  htr.appendChild(th("Interview Qs", "qsPracticed", true));
+  htr.appendChild(th("PT Workouts", "ptDone", true));
+  htr.appendChild(th("PIQ", "piqCount", true));
+  htr.appendChild(el("th", {class:"num"}, "Action"));
+  thead.appendChild(htr);
+  table.appendChild(thead);
+
+  const tbody = el("tbody");
+  sorted.forEach(r => {
+    const tr = el("tr");
+    tr.appendChild(el("td", {}, el("span", {class:"adm-name"}, r.name)));
+    tr.appendChild(el("td", {}, el("span", {class:"adm-email"}, r.email || "—")));
+    tr.appendChild(el("td", { class: r.lastActive ? "" : "adm-muted-cell" }, r.lastActive ? relTime(r.lastActive) : "Never"));
+    tr.appendChild(el("td", {class:"num"}, String(r.oirTests)));
+    const gTd = el("td", {class:"num"});
+    gTd.appendChild(el("span", {class:"adm-grade " + admGradeClass(r.avgGrade)}, r.avgGrade==null ? "—" : r.avgGrade.toFixed(1)));
+    tr.appendChild(gTd);
+    tr.appendChild(el("td", {class:"num"}, String(r.qsPracticed)));
+    tr.appendChild(el("td", {class:"num"}, String(r.ptDone)));
+    const pTd = el("td", {class:"num"});
+    pTd.appendChild(el("span", {class:"adm-badge " + (r.piqCount>0 ? "yes" : "no")}, r.piqCount>0 ? ("Yes · " + r.piqCount) : "No"));
+    tr.appendChild(pTd);
+    const aTd = el("td", {class:"num"});
+    aTd.appendChild(el("button", {class:"adm-view-btn", onClick:()=>openAdminStudent(r)}, "View"));
+    tr.appendChild(aTd);
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  tableWrap.appendChild(table);
+  wrap.appendChild(tableWrap);
+  return wrap;
+}
+
+async function openAdminStudent(row){
+  state.adminStudent = row;
+  state.adminView = "detail";
+  render();
+  if (!row._practice){
+    try{
+      const snap = await db.collection('practice').where('uid','==',row.uid).get();
+      const arr = []; snap.forEach(d => arr.push(d.data()));
+      arr.sort((a,b)=>{ const da=toJsDate(a.ts), dbb=toJsDate(b.ts); return (dbb?dbb.getTime():0)-(da?da.getTime():0); });
+      row._practice = arr;
+    } catch(e){ row._practice = []; }
+    if (state.adminStudent === row && state.adminView === "detail") render();
+  }
+}
+
+function admSecTitle(t){ return el("div", {class:"section-title", style:{margin:"0 0 14px"}}, t); }
+function admPCell(k, v){
+  const c = el("div", {class:"adm-pcell"});
+  c.appendChild(el("div", {class:"k"}, k));
+  c.appendChild(el("div", {class:"v"}, (v==null || v==="") ? "—" : v));
+  return c;
+}
+
+function renderAdminDetail(){
+  const wrap = el("div", {class:"page fade-in"});
+  const r = state.adminStudent;
+  if (!r){ wrap.appendChild(el("div", {class:"adm-empty"}, "Student not found.")); return wrap; }
+  const p = r.profile || {};
+
+  const head = el("div", {class:"adm-detail-head"});
+  const headL = el("div", {});
+  headL.appendChild(el("button", {class:"btn btn-ghost btn-mono btn-sm", onClick:()=>{ state.adminView="console"; render(); }}, "← Back to Admin"));
+  const idRow = el("div", {class:"adm-detail-id"});
+  const initials = (r.name||"?").split(/\s+/).map(s=>s[0]).filter(Boolean).slice(0,2).join("").toUpperCase();
+  idRow.appendChild(el("div", {class:"adm-avatar"}, initials || "?"));
+  const idTxt = el("div", {});
+  idTxt.appendChild(el("h1", {class:"h-page"}, r.name));
+  idTxt.appendChild(el("div", {class:"adm-email", style:{marginTop:"3px"}}, r.email || "—"));
+  idRow.appendChild(idTxt);
+  headL.appendChild(idRow);
+  head.appendChild(headL);
+  wrap.appendChild(head);
+
+  /* --- Section 1: Profile --- */
+  const s1 = el("div", {class:"adm-sec"});
+  s1.appendChild(admSecTitle("Profile"));
+  const grid = el("div", {class:"adm-profile-grid"});
+  grid.appendChild(admPCell("Email", r.email));
+  grid.appendChild(admPCell("Phone", p.phone || p.mobile || p.contact));
+  grid.appendChild(admPCell("State / City", p.state));
+  grid.appendChild(admPCell("Entry Type", p.entryType));
+  grid.appendChild(admPCell("Service", p.service));
+  grid.appendChild(admPCell("SSB Attempts", p.attempts));
+  grid.appendChild(admPCell("Father's Occupation", p.fatherOcc));
+  grid.appendChild(admPCell("Mother's Occupation", p.motherOcc));
+  grid.appendChild(admPCell("Last Active", r.lastActive ? relTime(r.lastActive) : "Never"));
+  s1.appendChild(grid);
+  // hobbies + sports
+  const extra = el("div", {style:{marginTop:"14px"}});
+  const hob = [].concat(p.hobbies||[], (p.hobbyOther ? [p.hobbyOther] : [])).filter(Boolean);
+  if (hob.length){
+    extra.appendChild(el("div", {class:"adm-pcell", style:{border:"1px solid var(--olive-line)", borderRadius:"var(--radius)", marginBottom:"10px"}},
+      el("div", {class:"k"}, "Hobbies"),
+      (()=>{ const ch = el("div", {class:"adm-chips"}); hob.forEach(h => ch.appendChild(el("span", {class:"adm-chip"}, h))); return ch; })()
+    ));
+  }
+  if (p.sports){
+    extra.appendChild(el("div", {class:"adm-pcell", style:{border:"1px solid var(--olive-line)", borderRadius:"var(--radius)"}},
+      el("div", {class:"k"}, "Sports"), el("div", {class:"v"}, p.sports)));
+  }
+  s1.appendChild(extra);
+  wrap.appendChild(s1);
+
+  /* --- Section 2: OIR History --- */
+  const s2 = el("div", {class:"adm-sec"});
+  s2.appendChild(admSecTitle("OIR History · " + r.oirTests + " test" + (r.oirTests===1?"":"s")));
+  if (!r.sessions.length){
+    s2.appendChild(el("div", {class:"card card-pad"}, el("div", {class:"muted"}, "No OIR tests attempted yet.")));
+  } else {
+    const tw = el("div", {class:"adm-table-wrap"});
+    const t = el("table", {class:"adm-table"});
+    t.style.minWidth = "720px";
+    const thd = el("thead"); const htr = el("tr");
+    ["Date","Questions","Type","Score","Grade","Time"].forEach((h,i) => htr.appendChild(el("th", {class:(i>=1&&i<=4?"num":"")}, h)));
+    htr.appendChild(el("th", {class:"num"}, "Action"));
+    thd.appendChild(htr); t.appendChild(thd);
+    const tb = el("tbody");
+    r.sessions.forEach(s => {
+      const tr = el("tr");
+      tr.appendChild(el("td", {}, fmtSessionDate(s.date, s.dateISO)));
+      tr.appendChild(el("td", {class:"num"}, String(s.totalQuestions || (s.questions||[]).length)));
+      tr.appendChild(el("td", {class:"num"}, admOirType(s)));
+      tr.appendChild(el("td", {class:"num"}, (s.score!=null?s.score+"%":"—")));
+      const gTd = el("td", {class:"num"});
+      gTd.appendChild(el("span", {class:"adm-grade " + admGradeClass(s.grade)}, s.grade!=null ? String(s.grade) : "—"));
+      tr.appendChild(gTd);
+      tr.appendChild(el("td", {class:"num"}, s.timeTaken!=null ? fmtClock(s.timeTaken) : "—"));
+      const aTd = el("td", {class:"num"});
+      aTd.appendChild(el("button", {class:"adm-view-btn", onClick:()=>openAdminOirReview(s)}, "View Answers"));
+      tr.appendChild(aTd);
+      tb.appendChild(tr);
+    });
+    t.appendChild(tb); tw.appendChild(t); s2.appendChild(tw);
+  }
+  wrap.appendChild(s2);
+
+  /* --- Section 3: Interview Practice --- */
+  const s3 = el("div", {class:"adm-sec"});
+  s3.appendChild(admSecTitle("Interview Practice"));
+  const mg = el("div", {class:"adm-minigrid"});
+  const mini = (v,k) => { const c = el("div", {class:"adm-mini"}); c.appendChild(el("div", {class:"adm-mini-v"}, v)); c.appendChild(el("div", {class:"adm-mini-k"}, k)); return c; };
+  mg.appendChild(mini(String(r.qsPracticed), "Questions Practiced"));
+  mg.appendChild(mini(r.qsLastActive ? relTime(r.qsLastActive) : "—", "Last Practiced"));
+  s3.appendChild(mg);
+  const pr = r._practice;
+  if (pr === undefined){
+    s3.appendChild(renderInlineLoading("Loading practice answers…", ""));
+  } else if (pr.length){
+    const list = el("div", {style:{marginTop:"14px", display:"flex", flexDirection:"column", gap:"8px"}});
+    pr.slice(0,8).forEach(a => {
+      const c = el("div", {class:"card card-pad-sm"});
+      const top = el("div", {style:{display:"flex", justifyContent:"space-between", gap:"10px", alignItems:"baseline"}});
+      top.appendChild(el("span", {style:{fontWeight:"600", fontSize:"13px"}}, a.questionId || "Question"));
+      if (a.rating) top.appendChild(el("span", {class:"adm-grade " + (String(a.rating).match(/strong|good|excellent/i)?"g-green":String(a.rating).match(/weak|poor/i)?"g-red":"g-amber")}, a.rating));
+      top.appendChild(el("span", {class:"adm-tl-date", style:{marginLeft:"auto"}}, a.ts ? relTime(a.ts) : ""));
+      c.appendChild(top);
+      if (a.answer) c.appendChild(el("div", {class:"hint", style:{marginTop:"6px", whiteSpace:"normal"}}, String(a.answer).slice(0,220) + (String(a.answer).length>220?"…":"")));
+      list.appendChild(c);
+    });
+    s3.appendChild(list);
+  } else {
+    s3.appendChild(el("div", {class:"card card-pad", style:{marginTop:"14px"}}, el("div", {class:"muted"}, "No interview answers recorded yet.")));
+  }
+  wrap.appendChild(s3);
+
+  /* --- Section 4: Daily PT --- */
+  const s4 = el("div", {class:"adm-sec"});
+  s4.appendChild(admSecTitle("Daily PT"));
+  const mg4 = el("div", {class:"adm-minigrid"});
+  mg4.appendChild(mini(String(r.ptDone), "Workouts Completed"));
+  mg4.appendChild(mini(String(r.streak), "Current Streak"));
+  const completed = (r.workouts||[]).filter(w => w.completedAll).map(w => w.date).filter(Boolean).sort().reverse();
+  mg4.appendChild(mini(completed[0] ? fmtSessionDate(completed[0]) : "—", "Last Workout"));
+  s4.appendChild(mg4);
+  if (completed.length){
+    const ch = el("div", {class:"adm-chips", style:{marginTop:"14px"}});
+    completed.slice(0,14).forEach(d => ch.appendChild(el("span", {class:"adm-chip"}, "✓ " + fmtSessionDate(d))));
+    s4.appendChild(ch);
+  } else {
+    s4.appendChild(el("div", {class:"card card-pad", style:{marginTop:"14px"}}, el("div", {class:"muted"}, "No completed workouts yet.")));
+  }
+  wrap.appendChild(s4);
+
+  /* --- Section 5: PIQ Analyses --- */
+  const s5 = el("div", {class:"adm-sec"});
+  s5.appendChild(admSecTitle("PIQ Analyses · " + r.piqCount));
+  if (!r.analyses.length){
+    s5.appendChild(el("div", {class:"card card-pad"}, el("div", {class:"muted"}, "No PIQ forms submitted yet.")));
+  } else {
+    const list = el("div", {style:{display:"flex", flexDirection:"column", gap:"10px"}});
+    r.analyses.forEach(a => {
+      const card = el("div", {class:"adm-piq-card"});
+      const thumb = el("div", {class:"adm-piq-thumb"});
+      if (a.storageUrl) thumb.appendChild(el("img", {src:a.storageUrl, alt:"PIQ v"+a.version, loading:"lazy"}));
+      else thumb.appendChild(el("span", {class:"adm-piq-thumb-ph"}, "PIQ"));
+      card.appendChild(thumb);
+      const info = el("div", {style:{flex:"1", minWidth:"0"}});
+      const top = el("div", {style:{display:"flex", gap:"10px", alignItems:"baseline", flexWrap:"wrap"}});
+      top.appendChild(el("span", {style:{fontWeight:"700"}}, "Version " + (a.version||1)));
+      top.appendChild(el("span", {class:"adm-tl-date"}, fmtSessionDate(a.date, a.dateISO)));
+      info.appendChild(top);
+      const sc = a.analysis && a.analysis.overallImpression && a.analysis.overallImpression.score;
+      info.appendChild(el("div", {class:"hint", style:{marginTop:"4px"}}, sc!=null ? ("Overall " + sc + "/10") : "Analysis ready"));
+      card.appendChild(info);
+      card.appendChild(el("button", {class:"adm-view-btn", onClick:()=>openAdminPiqView(a)}, "View Full Analysis"));
+      list.appendChild(card);
+    });
+    s5.appendChild(list);
+  }
+  wrap.appendChild(s5);
+
+  /* --- Section 6: Activity Timeline --- */
+  const s6 = el("div", {class:"adm-sec"});
+  s6.appendChild(admSecTitle("Activity Timeline"));
+  const events = [];
+  r.sessions.forEach(s => events.push({ d: toJsDate(s.date)||toJsDate(s.dateISO), cls:"", type:"OIR Test",
+    txt: `Score ${s.score!=null?s.score+"%":"—"} · Grade ${s.grade!=null?s.grade:"—"} · ${s.correctAnswers||0}/${s.totalQuestions||(s.questions||[]).length}` }));
+  (r.workouts||[]).filter(w=>w.completedAll).forEach(w => events.push({ d: toJsDate(w.updatedAt)||toJsDate(w.date), cls:"pt", type:"PT Workout", txt:"Completed daily PT" }));
+  r.analyses.forEach(a => { const sc = a.analysis && a.analysis.overallImpression && a.analysis.overallImpression.score;
+    events.push({ d: toJsDate(a.date)||toJsDate(a.dateISO), cls:"piq", type:"PIQ Upload", txt: "Version " + (a.version||1) + (sc!=null?(" · Overall "+sc+"/10"):"") }); });
+  (r._practice||[]).forEach(a => events.push({ d: toJsDate(a.ts), cls:"practice", type:"Interview Q", txt: (a.rating?("Rated "+a.rating):"Answered a question") + (a.questionId?(" · "+a.questionId):"") }));
+  const valid = events.filter(e => e.d).sort((a,b) => b.d - a.d).slice(0,30);
+  if (!valid.length){
+    s6.appendChild(el("div", {class:"card card-pad"}, el("div", {class:"muted"}, "No activity recorded yet.")));
+  } else {
+    const tl = el("div", {class:"adm-tl"});
+    valid.forEach(e => {
+      const item = el("div", {class:"adm-tl-item"});
+      item.appendChild(el("div", {class:"adm-tl-dot " + e.cls}));
+      const body = el("div", {class:"adm-tl-body"});
+      const top = el("div", {class:"adm-tl-top"});
+      top.appendChild(el("span", {class:"adm-tl-type"}, e.type));
+      top.appendChild(el("span", {class:"adm-tl-date"}, fmtSessionDate(e.d) + " · " + relTime(e.d)));
+      body.appendChild(top);
+      body.appendChild(el("div", {class:"adm-tl-txt"}, e.txt));
+      item.appendChild(body);
+      tl.appendChild(item);
+    });
+    s6.appendChild(tl);
+  }
+  wrap.appendChild(s6);
+
+  return wrap;
+}
+
+function openAdminOirReview(session){
+  state.adminOirSession = session;
+  state.adminView = "oirReview";
+  render();
+}
+function renderAdminOirReview(){
+  const wrap = el("div", {class:"page fade-in"});
+  const s = state.adminOirSession;
+  const r = state.adminStudent;
+  const head = el("div", {class:"dash-head"});
+  const headL = el("div", {});
+  headL.appendChild(el("div", {class:"eyebrow eyebrow-olive"}, "OIR Attempt · " + (r ? r.name : "")));
+  headL.appendChild(el("h1", {class:"h-page", style:{marginTop:"4px"}}, "Answer Review"));
+  head.appendChild(headL);
+  head.appendChild(el("button", {class:"btn btn-primary btn-mono", onClick:()=>{ state.adminView="detail"; render(); }}, "← Back to " + (r ? r.name.split(" ")[0] : "student")));
+  wrap.appendChild(head);
+
+  if (!s){ wrap.appendChild(el("div", {class:"muted center", style:{marginTop:"20px"}}, "Attempt not found.")); return wrap; }
+
+  const card = el("div", {class:"oir-score oir-g" + s.grade + "-bg", style:{marginTop:"18px"}});
+  const ring = el("div", {class:"oir-score-ring"});
+  ring.appendChild(el("div", {class:"oir-score-pct"}, (s.score ?? 0) + "%"));
+  ring.appendChild(el("div", {class:"oir-score-frac"}, `${s.correctAnswers||0}/${s.totalQuestions||0}`));
+  card.appendChild(ring);
+  const meta = el("div", {class:"oir-score-meta"});
+  meta.appendChild(el("div", {class:"oir-score-grade"}, "OIR Grade " + s.grade));
+  meta.appendChild(el("div", {class:"oir-score-label"}, OIR_GRADE_LABEL[s.grade] || ""));
+  const stats = el("div", {class:"oir-score-stats"});
+  const timeStr = s.timeLimit ? `${fmtClock(s.timeTaken)} / ${fmtClock(s.timeLimit)}` : fmtClock(s.timeTaken||0);
+  stats.appendChild(el("span", {}, "Date: ", el("b",{}, fmtSessionDate(s.date, s.dateISO))));
+  stats.appendChild(el("span", {}, "Time: ", el("b",{}, timeStr)));
+  stats.appendChild(el("span", {}, "Type: ", el("b",{}, admOirType(s))));
+  meta.appendChild(stats);
+  card.appendChild(meta);
+  wrap.appendChild(card);
+
+  wrap.appendChild(el("div", {class:"section-title", style:{marginTop:"28px"}}, "Full Attempt"));
+  const list = el("div", {class:"oir-qlist"});
+  (s.questions||[]).forEach((q, idx) => list.appendChild(renderReviewQuestion(q, idx+1)));
+  wrap.appendChild(list);
+  return wrap;
+}
+
+function openAdminPiqView(analysis){
+  state.piqaResult = analysis;
+  state.piqaExpanded = {};
+  state.adminView = "piqView";
+  render();
+}
+function renderAdminPiqView(){
+  const wrap = el("div", {class:"page fade-in"});
+  const r = state.adminStudent;
+  const head = el("div", {class:"dash-head"});
+  const headL = el("div", {});
+  headL.appendChild(el("div", {class:"eyebrow eyebrow-olive"}, "PIQ Analysis · " + (r ? r.name : "")));
+  headL.appendChild(el("h1", {class:"h-page", style:{marginTop:"4px"}}, "Full Feedback Report"));
+  head.appendChild(headL);
+  head.appendChild(el("button", {class:"btn btn-primary btn-mono", onClick:()=>{ state.adminView="detail"; render(); }}, "← Back to " + (r ? r.name.split(" ")[0] : "student")));
+  wrap.appendChild(head);
+  wrap.appendChild(renderPiqResult());
+  return wrap;
 }
 
 /* =========================================================
