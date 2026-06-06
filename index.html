@@ -1732,6 +1732,16 @@ body.has-side #app{ padding-left:248px; }
 .wat-badge.partial{ background:#FFF6E0; color:#8A6A1A; border-color:var(--gold-line); }
 .wat-badge.fail{ background:#FBE6E6; color:#8B1A1A; border-color:#D9A8A8; }
 .wat-badge.blank{ background:var(--paper-soft); color:var(--ink-4); border-color:var(--olive-line); }
+/* five-point assessor rating + issue-type tag */
+.wat-rate{ font-family:var(--font-mono); font-size:9px; letter-spacing:0.1em; text-transform:uppercase; padding:3px 8px; border-radius:2px; font-weight:700; border:1px solid; flex:none; }
+.wat-rate.best{ background:#E4F0D6; color:#2E5E14; border-color:#9FBE78; }
+.wat-rate.vgood{ background:#EFF4E6; color:#3B5A1C; border-color:#B8C99A; }
+.wat-rate.avg{ background:#FFF6E0; color:#8A6A1A; border-color:var(--gold-line); }
+.wat-rate.below{ background:#FBEEDF; color:#8A4B16; border-color:#D9B48A; }
+.wat-rate.unacc{ background:#FBE6E6; color:#8B1A1A; border-color:#D9A8A8; }
+.wat-rate.blank{ background:var(--paper-soft); color:var(--ink-4); border-color:var(--olive-line); }
+.wat-itag{ font-family:var(--font-mono); font-size:8.5px; letter-spacing:0.1em; text-transform:uppercase; padding:3px 7px; border-radius:2px; font-weight:600; background:var(--paper-deep); color:var(--ink-3); border:1px solid var(--olive-line); flex:none; }
+@media (max-width:560px){ .wat-itag{ display:none; } }
 .wat-rcard-chev{ color:var(--ink-4); font-size:11px; transition:transform .15s; flex:none; }
 .wat-rcard.open .wat-rcard-chev{ transform:rotate(90deg); }
 .wat-rcard-body{ display:none; padding:13px 16px 15px; border-top:1px dashed var(--olive-line); flex-direction:column; gap:10px; }
@@ -6489,7 +6499,6 @@ const WAT_MODES = {
   speed:   { label:"Speed Drill", write:10,   sub:"10s per word" },
   relaxed: { label:"Relaxed",     write:null, sub:"No timer" },
 };
-const WAT_OBSERVE = 5;                       // seconds locked to read the word
 const WAT_RING_R = 54;
 const WAT_RING_C = 2 * Math.PI * WAT_RING_R; // ring circumference
 
@@ -6505,7 +6514,7 @@ function watWordCount(){
 }
 function watEstMinutes(){
   const w = WAT_MODES[state.watMode].write != null ? WAT_MODES[state.watMode].write : 12;
-  return Math.max(1, Math.round(watWordCount() * (WAT_OBSERVE + w) / 60));
+  return Math.max(1, Math.round(watWordCount() * w / 60));
 }
 function watRating(score, total){
   const pct = total ? score/total : 0;
@@ -6554,8 +6563,8 @@ function renderWAT(){
   const titles = { setup:"Word Association Test", practice:"Word Association Test", evaluating:"Evaluating Responses", result:"WAT Session Report", review:"WAT Session Review" };
   headL.appendChild(el("h1", {class:"h-page", style:{marginTop:"4px"}}, titles[state.watView] || "Word Association Test"));
   const subs = {
-    setup:"60 words, seconds each. Stay observational — show the quality, never name it.",
-    practice:"Read · then write. Quick, positive, third-person sentences.",
+    setup:"Quick-fire word association — stay observational, show the quality, never name it.",
+    practice:"Quick, positive, third-person sentences — 5–8 words.",
     evaluating:"Col. Sharma's AI is scoring every sentence against OLQ criteria.",
     result:"Your scored sheet, word by word.",
     review:"A past attempt, read-only.",
@@ -6622,7 +6631,7 @@ function renderWatSetup(){
     [ "Don't name the OLQ", " — show the quality through action, never label it." ],
     [ "Drop I, my, me", " — keep every sentence impersonal and observational." ],
     [ "No must / should / never / always", " — these read as preachy or injunctional." ],
-    [ "Short observations", " — 5–12 words, present tense, one clean idea." ],
+    [ "Short observations", " — 5–8 words, present tense, one clean idea." ],
     [ "Stay positive & constructive", " — assessors reward forward-looking thinking." ],
     [ "Target 45+ responses", " — speed and consistency count as much as quality." ],
   ].forEach(([b, t]) => ul.appendChild(el("li", {}, el("b", {}, b), t)));
@@ -6635,8 +6644,8 @@ function renderWatSetup(){
   ctaL.appendChild(el("div", {class:"oir-cta-eyebrow"}, `${watWordCount()} words · ${WAT_MODES[state.watMode].label} · ~${watEstMinutes()} min`));
   ctaL.appendChild(el("div", {class:"oir-cta-title"}, "Begin a fresh WAT"));
   ctaL.appendChild(el("div", {class:"oir-cta-sub"}, WAT_MODES[state.watMode].write != null
-    ? `${WAT_OBSERVE}s to read each word, then ${WAT_MODES[state.watMode].write}s to write — auto-advances when time runs out.`
-    : `${WAT_OBSERVE}s to read each word, then write at your own pace — press Enter for the next word.`));
+    ? `${WAT_MODES[state.watMode].write}s per word — auto-advances when time runs out.`
+    : `Write at your own pace — press Enter for the next word.`));
   cta.appendChild(ctaL);
   cta.appendChild(el("button", {class:"btn btn-gold btn-lg btn-mono", onClick:()=>startWatSession()}, "Start Session →"));
   main.appendChild(cta);
@@ -6713,15 +6722,7 @@ function startWatSession(){
 
 function startWatWord(){
   stopWatTimer();
-  state.watPhase = "observe";
-  state.watPhaseTotal = WAT_OBSERVE;
-  state.watPhaseStart = Date.now();
-  render();
-  runWatTicker();          // observe always timed (locks input for WAT_OBSERVE s)
-}
-
-function enterWatWrite(){
-  stopWatTimer();
+  // No observation phase — the word appears and the write timer starts immediately.
   state.watPhase = "write";
   const mode = WAT_MODES[state.watMode];
   state.watPhaseTotal = mode.write;   // null in relaxed
@@ -6741,8 +6742,7 @@ function runWatTicker(){
     paintWatRing(remaining, total);
     if (remaining <= 0){
       stopWatTimer();
-      if (state.watPhase === "observe") enterWatWrite();
-      else advanceWatWord(false);
+      advanceWatWord(false);
     }
   }, 90);
 }
@@ -6776,7 +6776,7 @@ function watExit(){
 }
 
 function renderWatRing(){
-  const total = state.watPhaseTotal || WAT_OBSERVE;
+  const total = state.watPhaseTotal || WAT_MODES[state.watMode].write || 15;
   const wrap = el("div", {class:"wat-ring-wrap", html:
     `<svg class="wat-ring" width="120" height="120" viewBox="0 0 120 120" aria-hidden="true">
        <circle class="wat-ring-bg" cx="60" cy="60" r="${WAT_RING_R}"></circle>
@@ -6790,7 +6790,6 @@ function renderWatPractice(){
   const root = el("div", {});
   const total = state.watWords.length;
   const idx = state.watIdx;
-  const writing = state.watPhase === "write";
 
   // progress
   const ph = el("div", {class:"wat-prog-head"});
@@ -6805,13 +6804,12 @@ function renderWatPractice(){
   const arena = el("div", {class:"wat-arena"});
   if (state.watMode !== "relaxed") arena.appendChild(renderWatRing());
   arena.appendChild(el("div", {class:"wat-word"}, state.watWords[idx]));
-  arena.appendChild(el("div", {class:"wat-phase-label" + (writing ? " write" : "")}, writing ? "Write your response" : "Read the word"));
+  arena.appendChild(el("div", {class:"wat-phase-label write"}, "Write your response"));
 
   const iwrap = el("div", {class:"wat-input-wrap"});
   const ta = el("textarea", {
     class:"wat-input", rows:"1",
-    placeholder: writing ? "One short observational sentence…" : "Reading…",
-    disabled: !writing,
+    placeholder: "One short observational sentence…",
     onKeydown:(e)=>{ if (e.key === "Enter"){ e.preventDefault(); advanceWatWord(false); } }
   });
   iwrap.appendChild(ta);
@@ -6819,15 +6817,15 @@ function renderWatPractice(){
 
   const acts = el("div", {class:"wat-arena-actions"});
   acts.appendChild(el("button", {class:"btn btn-ghost btn-mono btn-sm", onClick:()=>advanceWatWord(true)}, "Skip"));
-  acts.appendChild(el("button", {class:"btn btn-gold btn-mono", disabled: !writing, onClick:()=>advanceWatWord(false)}, (idx+1 >= total) ? "Finish →" : "Next Word →"));
+  acts.appendChild(el("button", {class:"btn btn-gold btn-mono", onClick:()=>advanceWatWord(false)}, (idx+1 >= total) ? "Finish →" : "Next Word →"));
   arena.appendChild(acts);
-  arena.appendChild(el("div", {class:"wat-hint"}, writing ? "Press Enter for the next word" : "Input unlocks when the read timer ends"));
+  arena.appendChild(el("div", {class:"wat-hint"}, "Press Enter for the next word"));
   root.appendChild(arena);
 
   root.appendChild(el("div", {class:"center", style:{marginTop:"16px"}},
     el("button", {class:"btn btn-ghost btn-mono btn-sm", onClick:()=>watExit()}, "Exit Session")));
 
-  if (writing) setTimeout(()=>{ const t = document.querySelector(".wat-input"); if (t && document.activeElement !== t) t.focus(); }, 0);
+  setTimeout(()=>{ const t = document.querySelector(".wat-input"); if (t && document.activeElement !== t) t.focus(); }, 0);
   return root;
 }
 
@@ -6838,13 +6836,74 @@ async function finishWatSession(){
   render();
   const responses = state.watResponses;
 
-  const sys = "You are an SSB psychologist evaluating WAT responses. Score each as pass/partial/fail/blank. Return only valid JSON: { items: [{word, response, score, good, issue}], attempted, passed, partials, blanks, summary }. Criteria — GOOD: observational, short 5-12 words, no I/my/me, no must/should/never/always, no blunt OLQ adjectives, positive. FAIL: blank, negative, preachy, injunctional, incomplete.";
+  const sys = `You are an experienced SSB psychologist evaluating WAT (Word Association Test) responses for Indian defence aspirants. You think like a real assessor — not a grammar checker.
+
+YOUR JOB: Reveal the quality of the candidate's thought process through their word associations. You are looking for what their sentence says about their personality, not whether it is grammatically correct.
+
+RATING SCALE — rate every response on this five-point scale:
+- BEST: Original, observational, reveals a strong OLQ naturally, no prohibited patterns
+- VERY GOOD: Good quality, one minor issue or slightly short
+- AVERAGE: Acceptable, no red flags but nothing revealed either
+- BELOW AVERAGE: Has a clear problem — advice, proverb, vague, personal, or informational
+- UNACCEPTABLE: I/my/me used, personal information, negative/anti-social, blank, or offensive
+
+STRICT RULES — these make a sentence BELOW AVERAGE or UNACCEPTABLE:
+1. I / my / me / myself → UNACCEPTABLE. The candidate is too focused on themselves.
+2. Advice sentences (be loyal, must work hard, should try, always remember) → BELOW AVERAGE. No action, no quality revealed.
+3. Proverbs / borrowed sentences (blood is thicker than water, honesty is the best policy, friend to all is friend to none) → BELOW AVERAGE. Not their own thought.
+4. Facts / information (ISRO makes rockets, Operation Sindoor was in 2025) → BELOW AVERAGE. WAT is not a GK test.
+5. Personal information (my mother is the best, my brother helped me) → BELOW AVERAGE or UNACCEPTABLE.
+6. Vague sentences with no clear meaning → BELOW AVERAGE.
+7. Negative personal opinions (entrance exams in India not good) → BELOW AVERAGE.
+8. Arrogant or unrealistic sentences (India and victory mean the same thing) → BELOW AVERAGE.
+9. Single word definitions or very short incomplete thoughts → BELOW AVERAGE.
+10. Sentences using: must, should, always, never, be X (direct instructions to others) → BELOW AVERAGE.
+
+WHAT MAKES A SENTENCE GOOD:
+- Observational — based on life experience, not advice or fact
+- Reveals a quality naturally through the sentence itself (not by naming the quality)
+- Third person or general — not about the candidate personally
+- Concrete, not vague — specific enough to paint a picture
+- 3–8 words is ideal. Under 3 is incomplete. Over 8 often loses focus and becomes preachy.
+- Innovative or unexpected angle on the word = bonus
+
+DO NOT:
+- Define the word
+- Correct grammar pedantically — focus on thought quality, not English
+- Give the rating BEST or VERY GOOD to advice, proverb, or informational sentences regardless of how well written they are
+- Be encouraging about bad responses — be direct
+
+FOR EACH RESPONSE return:
+- rating: one of "best" / "very_good" / "average" / "below_average" / "unacceptable"
+- score: "pass" (best/very_good), "partial" (average), "fail" (below_average/unacceptable), "blank" (no response)
+- issue_type: one short label for the problem — "advice" / "proverb" / "informational" / "personal" / "i_me_my" / "vague" / "too_short" / "arrogant" / "negative_opinion" / "none"
+- feedback: One sharp sentence explaining exactly why — name the specific problem. Do not say "good sentence" without saying what quality it reveals. Do not pad. Examples of good feedback: "Advice — no action shown, loyalty must be demonstrated not prescribed." / "Proverb — borrowed thought, reveals nothing original." / "Innovative angle on the word, reveals resourcefulness." / "Uses 'my' — self-focused."
+
+Return ONLY valid JSON, no markdown:
+{
+  "items": [
+    {
+      "word": "TRUST",
+      "response": "trust your friends",
+      "rating": "average",
+      "score": "partial",
+      "issue_type": "advice",
+      "feedback": "Advice sentence — prescribing trust rather than showing it in action."
+    }
+  ],
+  "attempted": 58,
+  "passed": 28,
+  "partials": 22,
+  "failed": 8,
+  "blanks": 2,
+  "summary": "One sentence overall read on the candidate's personality as revealed through their WAT."
+}`;
   const user = "Evaluate these WAT word + response pairs:\n\n" +
     responses.map((r,i)=> `${i+1}. ${r.word} — ${r.response ? r.response : "(blank)"}`).join("\n");
 
   let parsed = null;
   try{
-    const raw = await aiComplete(sys + "\n\n" + user, { maxTokens: 3500 });
+    const raw = await aiComplete(sys + "\n\n" + user, { maxTokens: 6000 });
     parsed = parseWatEval(raw);
   } catch(e){ console.error(e); parsed = null; }
   if (!parsed) parsed = fallbackWatEval(responses);
@@ -6858,6 +6917,7 @@ async function finishWatSession(){
     attempted: parsed.attempted,
     passed: parsed.passed,
     partials: parsed.partials,
+    failed: parsed.failed,
     blanks: parsed.blanks,
     summary: parsed.summary || "",
     words: parsed.items,
@@ -6881,66 +6941,120 @@ function parseWatEval(raw){
   catch(e){ return null; }
 }
 
+// Coerce any AI-returned field (string / number / array / object / null) into a
+// safe display string, so el() never receives a non-Node child.
+function watStr(v){
+  if (v == null) return "";
+  if (typeof v === "string") return v;
+  if (typeof v === "number" || typeof v === "boolean") return String(v);
+  if (Array.isArray(v)) return v.map(watStr).filter(Boolean).join("; ");
+  if (typeof v === "object") return watStr(v.text || v.message || v.value || v.note || "");
+  return String(v);
+}
+function watScore(v){
+  const s = String(v == null ? "" : v).toLowerCase().trim();
+  return ["pass","partial","fail","blank"].includes(s) ? s : "";
+}
+
 // Re-build items aligned to the actual responses; recompute tallies so the
 // displayed numbers always match the per-word badges.
+const WAT_RATINGS = ["best","very_good","average","below_average","unacceptable"];
+function watRatingVal(v){
+  const s = String(v == null ? "" : v).toLowerCase().trim().replace(/[\s\-]+/g,"_");
+  return WAT_RATINGS.includes(s) ? s : "";
+}
+function watScoreFromRating(rating){
+  if (rating === "best" || rating === "very_good") return "pass";
+  if (rating === "average") return "partial";
+  if (rating === "below_average" || rating === "unacceptable") return "fail";
+  return "";
+}
+function watRateLabel(rating){
+  return { best:"Best", very_good:"Very Good", average:"Average", below_average:"Below Average", unacceptable:"Unacceptable" }[rating] || "";
+}
+function watRateClass(rating){
+  return { best:"best", very_good:"vgood", average:"avg", below_average:"below", unacceptable:"unacc" }[rating] || "blank";
+}
+function watIssueLabel(t){
+  const s = String(t || "").toLowerCase().trim();
+  if (!s || s === "none") return "";
+  const m = { i_me_my:"I/ME/MY", too_short:"TOO SHORT", negative_opinion:"NEGATIVE", informational:"INFO" };
+  return m[s] || s.replace(/_/g," ").toUpperCase();
+}
+// Build one clean, fully-typed item from a raw AI/saved entry + the real response.
+function watMakeItem(raw, word, response){
+  const resp = watStr(response);
+  const blank = !resp;
+  let rating = blank ? "" : watRatingVal(raw && raw.rating);
+  let score = blank ? "blank" : (watScore(raw && raw.score) || watScoreFromRating(rating) || "partial");
+  if (!blank){
+    if (!rating) rating = score === "pass" ? "very_good" : score === "fail" ? "below_average" : "average";
+    else score = watScoreFromRating(rating) || score;
+  }
+  let issueType = String(watStr(raw && (raw.issue_type || raw.issueType))).toLowerCase().trim();
+  if (issueType === "none") issueType = "";
+  const feedback = watStr(raw && (raw.feedback || raw.issue || raw.good)) || (blank ? "No response recorded." : "");
+  return { word: watStr(word), response: resp, score, rating, issueType, feedback };
+}
+function watTally(items){
+  return {
+    passed:    items.filter(i=>i.score==="pass").length,
+    partials:  items.filter(i=>i.score==="partial").length,
+    failed:    items.filter(i=>i.score==="fail").length,
+    blanks:    items.filter(i=>i.score==="blank").length,
+    attempted: items.filter(i=>i.score!=="blank").length,
+  };
+}
 function normalizeWatEval(parsed, responses){
   const aiItems = (parsed && Array.isArray(parsed.items)) ? parsed.items : [];
   const items = responses.map((r, k) => {
-    const blank = !r.response || !r.response.length;
     let it = aiItems[k];
     if (!it || (it.word && String(it.word).toUpperCase() !== r.word.toUpperCase())){
       it = aiItems.find(x => x && x.word && String(x.word).toUpperCase() === r.word.toUpperCase()) || it;
     }
-    let score = it && it.score ? String(it.score).toLowerCase() : (blank ? "blank" : "partial");
-    if (blank) score = "blank";
-    if (!["pass","partial","fail","blank"].includes(score)) score = blank ? "blank" : "partial";
-    return { word: r.word, response: r.response || "", score, good: (it && it.good) ? it.good : "", issue: (it && it.issue) ? it.issue : "" };
+    return watMakeItem(it, r.word, r.response || "");
   });
-  const passed   = items.filter(i=>i.score==="pass").length;
-  const partials = items.filter(i=>i.score==="partial").length;
-  const blanks   = items.filter(i=>i.score==="blank").length;
-  const attempted = items.filter(i=>i.score!=="blank").length;
-  return { items, passed, partials, blanks, attempted, summary: (parsed && parsed.summary) ? parsed.summary : "" };
+  return { items, ...watTally(items), summary: watStr(parsed && parsed.summary) };
 }
 
-// Offline heuristic if the AI call fails — basic OLQ rule checks.
+// Offline heuristic if the AI call fails — basic thought-process checks.
 function fallbackWatEval(responses){
   const items = responses.map(r => {
     const txt = (r.response || "").trim();
-    if (!txt) return { word:r.word, response:"", score:"blank", good:"", issue:"No response recorded in time." };
+    if (!txt) return watMakeItem({ score:"blank", feedback:"No response recorded in time." }, r.word, "");
     const n = txt.split(/\s+/).length;
     const hasI = /\b(i|i'm|i've|my|me|mine|myself)\b/i.test(txt);
-    const hasInj = /\b(must|should|never|always)\b/i.test(txt);
-    let score = "pass", issue = "", good = "";
-    if (hasI){ score = "fail"; issue = "Avoid I / my / me — keep it third-person and observational."; }
-    else if (hasInj){ score = "partial"; issue = "Avoid must / should / never / always — reads as preachy."; }
-    else if (n < 3){ score = "partial"; issue = "Too short — build a complete 5–12 word observation."; }
-    else { good = "Observational and within length."; }
-    return { word:r.word, response:txt, score, good, issue };
+    const hasInj = /\b(must|should|always|never)\b/i.test(txt);
+    let raw;
+    if (hasI) raw = { rating:"unacceptable", issue_type:"i_me_my", feedback:"Uses I / my / me — self-focused, reveals self-centredness." };
+    else if (hasInj) raw = { rating:"below_average", issue_type:"advice", feedback:"Advice — prescribes rather than showing action or quality." };
+    else if (n < 3) raw = { rating:"below_average", issue_type:"too_short", feedback:"Too short — incomplete thought, build to 3–8 words." };
+    else if (n > 8) raw = { rating:"below_average", issue_type:"vague", feedback:"Too long — loses focus, tighten to 3–8 words." };
+    else raw = { rating:"very_good", issue_type:"none", feedback:"Observational and within length — reveals a positive quality." };
+    return watMakeItem(raw, r.word, txt);
   });
-  const passed   = items.filter(i=>i.score==="pass").length;
-  const partials = items.filter(i=>i.score==="partial").length;
-  const blanks   = items.filter(i=>i.score==="blank").length;
-  const attempted = items.filter(i=>i.score!=="blank").length;
-  return { items, passed, partials, blanks, attempted, summary:"Offline scoring (AI unavailable): basic OLQ checks applied. Reconnect for the full evaluation." };
+  return { items, ...watTally(items), summary:"Offline scoring (AI unavailable): basic checks applied. Reconnect for the full evaluation." };
 }
 
 /* ---- results / review ---- */
 function renderWatReport(r){
   const root = el("div", {});
-  const score = watScoreOf(r);
-  const rating = r.rating || watRating(score, r.wordCount || 0);
+  const items = watReportItems(r);
+  const t = watTally(items);
+  const total = items.length || r.wordCount || 0;
+  const score = t.passed + 0.5*t.partials;
+  const rating = r.rating || watRating(score, total);
 
   const card = el("div", {class:"wat-score"});
   const ring = el("div", {class:"wat-score-ring " + watRatingClass(rating)});
   ring.appendChild(el("div", {class:"wat-score-num"}, watScoreStr(score)));
-  ring.appendChild(el("div", {class:"wat-score-of"}, "/ " + (r.wordCount || 0)));
+  ring.appendChild(el("div", {class:"wat-score-of"}, "/ " + total));
   card.appendChild(ring);
   const meta = el("div", {class:"wat-score-meta"});
   meta.appendChild(el("div", {class:"wat-score-rating"}, rating));
   if (r.summary) meta.appendChild(el("div", {class:"wat-score-sum"}, r.summary));
   const stats = el("div", {class:"wat-score-stats"});
-  stats.appendChild(el("span", {}, "Attempted ", el("b", {}, `${r.attempted||0}/${r.wordCount||0}`)));
+  stats.appendChild(el("span", {}, "Attempted ", el("b", {}, `${t.attempted}/${total}`)));
   stats.appendChild(el("span", {}, "Mode ", el("b", {}, WAT_MODES[r.mode]?.label || r.mode || "—")));
   meta.appendChild(stats);
   card.appendChild(meta);
@@ -6951,9 +7065,8 @@ function renderWatReport(r){
   root.appendChild(card);
 
   // tally
-  const fails = (r.words||[]).filter(w=>w.score==="fail").length;
   const tally = el("div", {class:"wat-tally"});
-  [["t-pass","Pass",r.passed||0],["t-partial","Partial",r.partials||0],["t-fail","Fail",fails],["t-blank","Blank",r.blanks||0]].forEach(([cls,lbl,n])=>{
+  [["t-pass","Pass",t.passed],["t-partial","Partial",t.partials],["t-fail","Fail",t.failed],["t-blank","Blank",t.blanks]].forEach(([cls,lbl,n])=>{
     tally.appendChild(el("div", {class:"wat-tally-cell " + cls}, el("div", {class:"wat-tally-num"}, String(n)), el("div", {class:"wat-tally-lbl"}, lbl)));
   });
   root.appendChild(tally);
@@ -6963,23 +7076,41 @@ function renderWatReport(r){
   st.id = "watReviewAnchor";
   root.appendChild(st);
   const list = el("div", {class:"wat-rlist"});
-  (r.words||[]).forEach((it, i)=> list.appendChild(renderWatRCard(it, i)));
+  items.forEach((it, i)=> list.appendChild(renderWatRCard(it, i)));
   root.appendChild(list);
   return root;
 }
 
+// Always hand renderWatRCard a clean, fully-typed array — rebuild from raw
+// session data if r.words is missing or malformed (e.g. bad AI JSON).
+function watReportItems(r){
+  if (Array.isArray(r.words) && r.words.length){
+    return r.words.map(it => watMakeItem(it, it && it.word, watStr(it && it.response)));
+  }
+  const src = (state.watResponses && state.watResponses.length) ? state.watResponses
+            : (state.watWords || []).map(w => ({ word:w, response:"" }));
+  return src.map(x => watMakeItem(null, x.word, x.response || ""));
+}
+
 function renderWatRCard(it){
+  it = it || {};
+  const word = watStr(it.word) || "—";
+  const response = watStr(it.response);
+  const score = watScore(it.score) || "blank";
+  const rating = watRatingVal(it.rating);
+  const issueTag = watIssueLabel(it.issueType);
+  const feedback = watStr(it.feedback);
   const card = el("div", {class:"wat-rcard"});
   const head = el("button", {class:"wat-rcard-head", onClick:()=>card.classList.toggle("open")});
-  head.appendChild(el("span", {class:"wat-rcard-word"}, it.word));
-  head.appendChild(el("span", {class:"wat-rcard-resp" + (it.response ? "" : " blank")}, it.response || "No response"));
-  head.appendChild(el("span", {class:"wat-badge " + it.score}, watBadgeLabel(it.score)));
+  head.appendChild(el("span", {class:"wat-rcard-word"}, word));
+  head.appendChild(el("span", {class:"wat-rcard-resp" + (response ? "" : " blank")}, response || "No response"));
+  if (issueTag) head.appendChild(el("span", {class:"wat-itag"}, issueTag));
+  if (rating) head.appendChild(el("span", {class:"wat-rate " + watRateClass(rating)}, watRateLabel(rating)));
+  head.appendChild(el("span", {class:"wat-badge " + score}, watBadgeLabel(score)));
   head.appendChild(el("span", {class:"wat-rcard-chev"}, "▸"));
   card.appendChild(head);
   const body = el("div", {class:"wat-rcard-body"});
-  if (it.good) body.appendChild(el("div", {class:"wat-fb good"}, el("span", {class:"wat-fb-lbl"}, "Strength"), el("span", {class:"wat-fb-txt"}, it.good)));
-  if (it.issue) body.appendChild(el("div", {class:"wat-fb issue"}, el("span", {class:"wat-fb-lbl"}, "To Improve"), el("span", {class:"wat-fb-txt"}, it.issue)));
-  if (!it.good && !it.issue) body.appendChild(el("div", {class:"wat-fb"}, el("span", {class:"wat-fb-txt muted"}, "No additional notes for this word.")));
+  body.appendChild(el("div", {class:"wat-fb"}, el("span", {class:"wat-fb-lbl"}, "Assessor"), el("span", {class:"wat-fb-txt"}, feedback || "No additional notes for this word.")));
   card.appendChild(body);
   return card;
 }
