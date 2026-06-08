@@ -1620,6 +1620,13 @@ body.has-side #app{ padding-left:248px; }
 .adm-table tbody tr:hover{ background:rgba(197,165,90,.10); }
 .adm-table tbody tr:last-child td{ border-bottom:none; }
 .adm-name{ font-weight:600; color:var(--ink); }
+.adm-name-uid{ font-family:var(--font-mono); font-size:11px; font-weight:600; color:var(--ink-2); word-break:break-all; }
+.adm-incomplete{
+  display:inline-block; margin-top:4px;
+  font-family:var(--font-mono); font-size:8.5px; letter-spacing:0.12em; text-transform:uppercase;
+  font-weight:700; padding:2px 6px; border-radius:2px;
+  background:var(--gold-soft); color:#7A5A12; border:1px solid var(--gold-line);
+}
 .adm-email{ font-family:var(--font-mono); font-size:11px; color:var(--ink-3); letter-spacing:0.02em; }
 .adm-muted-cell{ color:var(--ink-4); }
 
@@ -1956,6 +1963,21 @@ async function aiComplete(promptOrObj, opts = {}) {
 async function loadProfile(uid){
   const snap = await db.collection('profiles').doc(uid).get();
   return snap.exists ? snap.data() : null;
+}
+// Create a minimal profile doc on first login/signup; refresh lastActive every
+// login. Uses merge so existing PIQ data is never overwritten; createdAt is
+// only written when the document does not yet exist.
+async function ensureProfileDoc(user){
+  const ref = db.collection('profiles').doc(user.uid);
+  const snap = await ref.get();
+  const data = {
+    uid: user.uid,
+    email: user.email || "",
+    displayName: user.displayName || "",
+    lastActive: FV.serverTimestamp(),
+  };
+  if (!snap.exists) data.createdAt = FV.serverTimestamp();
+  await ref.set(data, { merge: true });
 }
 async function saveProfile(uid, profile){
   await db.collection('profiles').doc(uid).set(
@@ -3093,6 +3115,10 @@ auth.onAuthStateChanged(async (user) => {
   state.loadingMsg = "Loading your briefing…";
   state.loadingSub = "Pulling profile and question set.";
   render();
+  // Bootstrap a minimal profile doc so every student is visible in the Admin
+  // Panel from sign-up onward (before they fill the PIQ). Non-fatal.
+  try{ await ensureProfileDoc(user); }
+  catch(e){ console.error("ensureProfileDoc failed:", e); }
   try{
     state.profile = await loadProfile(user.uid);
     state.questions = await loadQuestionSet(user.uid);
@@ -6529,18 +6555,33 @@ async function openAdmin(){
 
 async function loadAdminData(){
   const emptySnap = { forEach(){}, docs:[] };
-  const [profSnap, lbSnap, ptSnap] = await Promise.all([
+  const [profSnap, lbSnap, ptSnap, oirRootSnap, piqRootSnap, watRootSnap] = await Promise.all([
     db.collection('profiles').get(),
     db.collection('leaderboard').get().catch(()=>emptySnap),
     db.collection('ptLeaderboard').get().catch(()=>emptySnap),
+    db.collection('oirSessions').get().catch(()=>emptySnap),
+    db.collection('piqAnalyses').get().catch(()=>emptySnap),
+    db.collection('watSessions').get().catch(()=>emptySnap),
   ]);
   const lbMap = {}, ptMap = {};
   lbSnap.forEach(d => lbMap[d.id] = d.data());
   ptSnap.forEach(d => ptMap[d.id] = d.data());
 
-  const rows = await Promise.all(profSnap.docs.map(async (doc) => {
-    const uid = doc.id;
-    const profile = doc.data() || {};
+  // Profiles we have full data for.
+  const profileMap = {};
+  profSnap.docs.forEach(d => profileMap[d.id] = d.data() || {});
+
+  // Union of every uid that appears anywhere — so a student with activity but
+  // no profile document yet is never invisible in the admin view.
+  const uidSet = new Set(Object.keys(profileMap));
+  ptSnap.forEach(d => uidSet.add(d.id));
+  oirRootSnap.forEach(d => uidSet.add(d.id));
+  piqRootSnap.forEach(d => uidSet.add(d.id));
+  watRootSnap.forEach(d => uidSet.add(d.id));
+
+  const rows = await Promise.all(Array.from(uidSet).map(async (uid) => {
+    const hasProfile = Object.prototype.hasOwnProperty.call(profileMap, uid);
+    const profile = profileMap[uid] || {};
     const [oirSnap, piqSnap, woSnap, watSnap] = await Promise.all([
       db.collection('oirSessions').doc(uid).collection('sessions').orderBy('date','desc').get().catch(()=>null),
       db.collection('piqAnalyses').doc(uid).collection('analyses').orderBy('version','desc').get().catch(()=>null),
@@ -6571,7 +6612,8 @@ async function loadAdminData(){
 
     return {
       uid, profile,
-      name: profile.fullName || lb.name || "Unnamed candidate",
+      noProfile: !hasProfile,
+      name: hasProfile ? (profile.fullName || lb.name || "Unnamed candidate") : uid,
       email: profile.email || (uid === state.uid ? state.email : "") || "—",
       lastActive,
       oirTests: sessions.length,
@@ -6712,7 +6754,10 @@ function renderAdminConsole(){
   const tbody = el("tbody");
   sorted.forEach(r => {
     const tr = el("tr");
-    tr.appendChild(el("td", {}, el("span", {class:"adm-name"}, r.name)));
+    const nameTd = el("td", {});
+    nameTd.appendChild(el("span", {class:"adm-name" + (r.noProfile ? " adm-name-uid" : "")}, r.name));
+    if (r.noProfile) nameTd.appendChild(el("span", {class:"adm-incomplete"}, "PROFILE INCOMPLETE"));
+    tr.appendChild(nameTd);
     tr.appendChild(el("td", {}, el("span", {class:"adm-email"}, r.email || "—")));
     tr.appendChild(el("td", { class: r.lastActive ? "" : "adm-muted-cell" }, r.lastActive ? relTime(r.lastActive) : "Never"));
     tr.appendChild(el("td", {class:"num"}, String(r.oirTests)));
