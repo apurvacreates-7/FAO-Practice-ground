@@ -1282,6 +1282,22 @@ body.has-side #app{ padding-left:248px; }
   font-size:12.5px; line-height:1.5; color:var(--olive-darker);
 }
 .piqa-warn-ico{ font-size:14px; flex:none; }
+
+/* analysis-failed error card */
+.piqa-err-card{
+  display:flex; gap:14px; align-items:flex-start;
+  padding:22px 22px;
+  background:#FBE6E6; border:1.5px solid #B5302A;
+  border-radius:var(--radius);
+}
+.piqa-err-ico{
+  width:34px; height:34px; flex:none; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:#B5302A; color:#fff; font-size:18px;
+}
+.piqa-err-body{ flex:1; min-width:0; }
+.piqa-err-title{ font-size:16px; font-weight:700; color:#8B1A1A; }
+.piqa-err-msg{ font-size:13.5px; line-height:1.55; color:var(--olive-darker); margin-top:5px; }
 .piqa-drop{
   display:flex; flex-direction:column; align-items:center; gap:6px;
   padding:28px 20px; border:2px dashed var(--olive-line); border-radius:var(--radius);
@@ -2852,13 +2868,14 @@ const state = {
   fitDraft: null,          // fitness profile being edited
   runUploading: false,
   // PIQ Analysis
-  piqaView: "dashboard",   // 'dashboard' | 'loading' | 'result'
+  piqaView: "dashboard",   // 'dashboard' | 'loading' | 'result' | 'error'
   piqaAnalyses: null,      // past analyses
   piqaLoading: false,
   piqaProgress: 0,
   piqaFile: null,          // selected File
   piqaResult: null,        // analysis doc being viewed
   piqaError: "",
+  piqaAttempts: 0,         // consecutive failed analysis attempts (resets on success / new file)
   piqaExpanded: {},        // collapsible section state
   // OIR
   oirView: "dashboard",    // 'dashboard' | 'test' | 'result' | 'review'
@@ -5800,6 +5817,7 @@ async function openPIQAnalysis(){
   state.piqaResult = null;
   state.piqaFile = null;
   state.piqaError = "";
+  state.piqaAttempts = 0;
   state.piqaAnalyses = null;
   state.piqaLoading = true;
   render();
@@ -5811,6 +5829,7 @@ async function openPIQAnalysis(){
 
 function piqaSelectFile(file){
   state.piqaError = "";
+  state.piqaAttempts = 0;
   if (!file){ state.piqaFile = null; render(); return; }
   const okType = /^image\/(jpe?g|png)$/.test(file.type) || file.type === "application/pdf"
     || /\.(jpe?g|png|pdf)$/i.test(file.name);
@@ -5886,6 +5905,7 @@ async function runPiqAnalysis(){
 
     stopPiqProgress(); stopPiqTips();
     state.piqaProgress = 100; paintPiqProgress();
+    state.piqaAttempts = 0;
     state.piqaResult = { _id:id, dateISO:new Date().toISOString(), ...record };
     state.piqaExpanded = {};
     state.piqaView = "result";
@@ -5896,10 +5916,12 @@ async function runPiqAnalysis(){
   } catch(e){
     console.error(e);
     stopPiqProgress(); stopPiqTips();
+    state.piqaAttempts = (state.piqaAttempts || 0) + 1;
     state.piqaError = e.message || "Analysis failed.";
-    state.piqaView = "dashboard";
+    // Keep state.piqaFile so TRY AGAIN can re-run the exact same call
+    // (same uploaded image + form data) with no re-upload / re-fill.
+    state.piqaView = "error";
     render();
-    toast(state.piqaError);
   }
 }
 
@@ -5919,6 +5941,7 @@ function renderPIQAnalysis(){
   wrap.appendChild(head);
 
   if (state.piqaView === "loading") wrap.appendChild(renderPiqLoading());
+  else if (state.piqaView === "error") wrap.appendChild(renderPiqError());
   else if (state.piqaView === "result") wrap.appendChild(renderPiqResult());
   else wrap.appendChild(renderPiqDashboard());
   return wrap;
@@ -6013,6 +6036,29 @@ function openPiqResult(a){
   state.piqaView = "result";
   state.screen = "piqanalysis";
   render();
+}
+
+function renderPiqError(){
+  const root = el("div", {});
+  const failed = (state.piqaAttempts || 0) >= 3;
+  const card = el("div", {class:"piqa-err-card", style:{marginTop:"20px"}});
+  card.appendChild(el("span", {class:"piqa-err-ico"}, "⚠"));
+  const body = el("div", {class:"piqa-err-body"});
+  if (failed){
+    body.appendChild(el("div", {class:"piqa-err-title"}, "Analysis unavailable right now"));
+    body.appendChild(el("div", {class:"piqa-err-msg"}, "Please try again in a few minutes or contact support."));
+  } else {
+    body.appendChild(el("div", {class:"piqa-err-title"}, "Analysis Failed"));
+    body.appendChild(el("div", {class:"piqa-err-msg"}, "Could not process your PIQ form. This is usually a network or timeout issue."));
+    const again = el("button", {
+      class:"btn btn-gold btn-mono", style:{marginTop:"16px"},
+      onClick:()=>runPiqAnalysis()
+    }, "TRY AGAIN");
+    body.appendChild(again);
+  }
+  card.appendChild(body);
+  root.appendChild(card);
+  return root;
 }
 
 function renderPiqLoading(){
